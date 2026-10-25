@@ -101,18 +101,40 @@ it('rolls back the entire order if any single line fails', function () {
     expect(Order::query()->count())->toBe(0);
 });
 
-it('looks up a placed order by its order number', function () {
+it('looks up a placed order by its order number and matching phone', function () {
     $offer = Offer::factory()->create(['stock_quantity' => 5]);
 
     $created = $this->postJson('/api/v1/orders', checkoutPayload([
         ['offer_id' => $offer->id, 'quantity' => 1],
     ]))->json();
 
-    $this->getJson("/api/v1/orders/{$created['order_number']}")
+    $this->getJson("/api/v1/orders/{$created['order_number']}?phone=0700000000")
         ->assertOk()
         ->assertJsonPath('order_number', $created['order_number']);
 });
 
 it('returns 404 for an unknown order number', function () {
-    $this->getJson('/api/v1/orders/TCH-DOES-NOT-EXIST')->assertNotFound();
+    $this->getJson('/api/v1/orders/TCH-DOES-NOT-EXIST?phone=0700000000')->assertNotFound();
+});
+
+it('refuses to reveal an order to a request with the wrong phone (IDOR)', function () {
+    $offer = Offer::factory()->create(['stock_quantity' => 5]);
+
+    $created = $this->postJson('/api/v1/orders', checkoutPayload([
+        ['offer_id' => $offer->id, 'quantity' => 1],
+    ]))->json();
+
+    // Same status as a non-existent order — must not confirm the order exists.
+    $this->getJson("/api/v1/orders/{$created['order_number']}?phone=0799999999")
+        ->assertNotFound();
+});
+
+it('requires a phone to look up an order', function () {
+    $offer = Offer::factory()->create(['stock_quantity' => 5]);
+
+    $created = $this->postJson('/api/v1/orders', checkoutPayload([
+        ['offer_id' => $offer->id, 'quantity' => 1],
+    ]))->json();
+
+    $this->getJson("/api/v1/orders/{$created['order_number']}")->assertUnprocessable();
 });

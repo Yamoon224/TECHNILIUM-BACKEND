@@ -10,11 +10,13 @@ use App\Modules\Orders\Application\Data\DeliveryDetails;
 use App\Modules\Orders\Domain\Exceptions\EmptyCartException;
 use App\Modules\Orders\Domain\Exceptions\OfferUnavailableException;
 use App\Modules\Orders\Http\Requests\PlaceOrderRequest;
+use App\Modules\Orders\Http\Requests\ShowOrderRequest;
 use App\Modules\Orders\Http\Resources\OrderResource;
 use App\Modules\Orders\Infrastructure\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class OrderController extends Controller
 {
@@ -73,17 +75,27 @@ class OrderController extends Controller
 
     #[OA\Get(
         path: '/orders/{orderNumber}',
-        summary: 'Récupère une commande par son numéro (confirmation, suivi)',
+        summary: "Récupère une commande par son numéro (confirmation, suivi). Le numéro de commande seul n'est pas un secret : le téléphone du client sert de preuve de possession.",
         tags: ['Orders'],
-        parameters: [new OA\Parameter(name: 'orderNumber', in: 'path', required: true, schema: new OA\Schema(type: 'string'))],
+        parameters: [
+            new OA\Parameter(name: 'orderNumber', in: 'path', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'phone', in: 'query', required: true, description: 'Téléphone fourni à la commande', schema: new OA\Schema(type: 'string')),
+        ],
         responses: [
             new OA\Response(response: 200, description: 'Commande trouvée'),
-            new OA\Response(response: 404, description: 'Commande introuvable'),
+            new OA\Response(response: 404, description: "Commande introuvable ou téléphone ne correspondant pas (réponse identique pour ne pas révéler l'existence de la commande)"),
         ],
     )]
-    public function show(string $orderNumber): OrderResource
+    public function show(string $orderNumber, ShowOrderRequest $request): OrderResource
     {
-        $order = Order::query()->where('order_number', $orderNumber)->with('items')->firstOrFail();
+        $order = Order::query()->where('order_number', $orderNumber)->with('items')->first();
+
+        // Same 404 whether the order doesn't exist or the phone doesn't match —
+        // the order number alone must never confirm an order's existence to a
+        // third party (cahier §8 "lutte contre la fraude").
+        if (! $order || ! hash_equals($order->customer_phone, $request->string('phone')->toString())) {
+            throw new NotFoundHttpException;
+        }
 
         return new OrderResource($order);
     }
