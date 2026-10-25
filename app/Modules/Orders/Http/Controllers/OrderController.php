@@ -1,0 +1,90 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Orders\Http\Controllers;
+
+use App\Modules\Orders\Application\Actions\PlaceOrderAction;
+use App\Modules\Orders\Application\Data\CheckoutItemInput;
+use App\Modules\Orders\Application\Data\DeliveryDetails;
+use App\Modules\Orders\Domain\Exceptions\EmptyCartException;
+use App\Modules\Orders\Domain\Exceptions\OfferUnavailableException;
+use App\Modules\Orders\Http\Requests\PlaceOrderRequest;
+use App\Modules\Orders\Http\Resources\OrderResource;
+use App\Modules\Orders\Infrastructure\Models\Order;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\Controller;
+use OpenApi\Attributes as OA;
+
+class OrderController extends Controller
+{
+    public function __construct(
+        private readonly PlaceOrderAction $placeOrder,
+    ) {}
+
+    #[OA\Post(
+        path: '/orders',
+        summary: 'Passe une commande en paiement à la livraison (cahier des charges §5.4, §5.5)',
+        tags: ['Orders'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['items', 'customer_name', 'customer_phone', 'delivery_address'],
+            properties: [
+                new OA\Property(property: 'items', type: 'array', items: new OA\Items(
+                    properties: [
+                        new OA\Property(property: 'offer_id', type: 'integer'),
+                        new OA\Property(property: 'quantity', type: 'integer'),
+                    ],
+                )),
+                new OA\Property(property: 'customer_name', type: 'string'),
+                new OA\Property(property: 'customer_phone', type: 'string'),
+                new OA\Property(property: 'delivery_address', type: 'string'),
+                new OA\Property(property: 'delivery_city', type: 'string', nullable: true),
+                new OA\Property(property: 'notes', type: 'string', nullable: true),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 201, description: 'Commande créée'),
+            new OA\Response(response: 422, description: 'Erreur de validation ou panier invalide'),
+        ],
+    )]
+    public function store(PlaceOrderRequest $request): JsonResponse
+    {
+        $items = array_map(
+            fn (array $line) => new CheckoutItemInput((int) $line['offer_id'], (int) $line['quantity']),
+            $request->array('items'),
+        );
+
+        $delivery = new DeliveryDetails(
+            customerName: $request->string('customer_name')->toString(),
+            customerPhone: $request->string('customer_phone')->toString(),
+            address: $request->string('delivery_address')->toString(),
+            city: $request->string('delivery_city')->toString() ?: null,
+            notes: $request->string('notes')->toString() ?: null,
+        );
+
+        try {
+            $order = $this->placeOrder->execute($items, $delivery);
+        } catch (EmptyCartException|OfferUnavailableException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return (new OrderResource($order))->response()->setStatusCode(201);
+    }
+
+    #[OA\Get(
+        path: '/orders/{orderNumber}',
+        summary: 'Récupère une commande par son numéro (confirmation, suivi)',
+        tags: ['Orders'],
+        parameters: [new OA\Parameter(name: 'orderNumber', in: 'path', required: true, schema: new OA\Schema(type: 'string'))],
+        responses: [
+            new OA\Response(response: 200, description: 'Commande trouvée'),
+            new OA\Response(response: 404, description: 'Commande introuvable'),
+        ],
+    )]
+    public function show(string $orderNumber): OrderResource
+    {
+        $order = Order::query()->where('order_number', $orderNumber)->with('items')->firstOrFail();
+
+        return new OrderResource($order);
+    }
+}

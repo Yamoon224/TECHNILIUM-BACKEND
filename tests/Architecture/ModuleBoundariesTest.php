@@ -16,6 +16,10 @@ arch('other modules do not reach into Identity\'s Infrastructure layer')
     ])
     ->not->toUse('App\Modules\Identity\Infrastructure');
 
+arch('Orders depends on Catalog\'s public Application contracts, never its Infrastructure')
+    ->expect('App\Modules\Orders')
+    ->not->toUse('App\Modules\Catalog\Infrastructure');
+
 arch('value objects have no framework dependency')
     ->expect('App\Modules\Shared\ValueObjects')
     ->toOnlyUse([
@@ -38,4 +42,12 @@ arch('form requests live under Http\Requests')
 
 arch('API resources live under Http\Resources')
     ->expect('App\Modules\Identity\Http\Resources')
+    ->toExtend('Illuminate\Http\Resources\Json\JsonResource');
+
+arch('Orders form requests live under Http\Requests')
+    ->expect('App\Modules\Orders\Http\Requests')
+    ->toExtend('Illuminate\Foundation\Http\FormRequest');
+
+arch('Orders API resources live under Http\Resources')
+    ->expect('App\Modules\Orders\Http\Resources')
     ->toExtend('Illuminate\Http\Resources\Json\JsonResource');

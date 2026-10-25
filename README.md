@@ -40,9 +40,14 @@ composer analyse        # PHPStan/Larastan niveau 6
 
 ## État d'avancement
 
-Implémenté : **Identity** (inscription/connexion/déconnexion par jeton, rôles), **Catalog** (catégories, produits, variantes, offres multi-vendeurs avec modération). **Shared** fournit les objets-valeur `Money`, `Currency`, `Quantity`, `TauxTVA`, `Sku`, `NumeroSerie` utilisés dans tout le code.
+Implémenté :
 
-Pas encore implémenté (dossiers créés sous `app/Modules/` mais vides) : Vendors, Inventory, Cart/Orders, Payments, Invoicing, Accounting, Payouts, Shipping, Returns, Promotions, Reporting, Audit.
+- **Identity** — inscription/connexion/déconnexion par jeton Sanctum, rôles.
+- **Catalog** — catégories, produits, variantes, offres multi-vendeurs avec modération, stock (palliatif en attendant le module Inventory).
+- **Orders** — panier → commande en paiement à la livraison uniquement (pas de passerelle de paiement), machine à états simplifiée (pending → confirmed → shipped → delivered, ou cancelled), décrément de stock atomique et verrouillé pour éviter la survente. Communique avec Catalog via un contrat public (`Catalog\Application\Contracts\CheckoutGatewayInterface`), jamais via ses modèles Eloquent.
+- **Shared** — objets-valeur `Money`, `Currency`, `Quantity`, `TauxTVA`, `Sku`, `NumeroSerie` utilisés dans tout le code.
+
+Pas encore implémenté (dossiers créés sous `app/Modules/` mais vides) : Vendors, Inventory (le vrai modèle de stock, avec numéros de série/multi-entrepôt), Payments (vraie passerelle mobile money/carte), Invoicing, Accounting, Payouts, Shipping, Returns, Promotions, Reporting, Audit.
 
 ## Conventions
 
