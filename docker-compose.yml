@@ -1,0 +1,55 @@
+name: technilium
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: technilium-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: technilium
+      MYSQL_USER: technilium
+      MYSQL_PASSWORD: technilium
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - technilium-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: technilium-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - technilium-redis:/data
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: technilium-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: technilium_dev_master_key
+      MEILI_ENV: development
+    ports:
+      - "7700:7700"
+    volumes:
+      - technilium-meilisearch:/meili_data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: technilium-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  technilium-mysql:
+  technilium-redis:
+  technilium-meilisearch:
