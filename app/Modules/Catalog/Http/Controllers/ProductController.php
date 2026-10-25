@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Catalog\Http\Controllers;
 
+use App\Modules\Catalog\Domain\OfferStatus;
 use App\Modules\Catalog\Domain\ProductStatus;
 use App\Modules\Catalog\Http\Resources\ProductResource;
 use App\Modules\Catalog\Infrastructure\Models\Product;
@@ -28,7 +29,10 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->where('status', ProductStatus::Published)
-            ->with(['category', 'variants.offers'])
+            ->with([
+                'category',
+                'variants.offers' => fn ($query) => $query->where('status', OfferStatus::Published),
+            ])
             ->when(
                 $request->string('category')->isNotEmpty(),
                 fn ($query) => $query->whereHas(
@@ -64,7 +68,10 @@ class ProductController extends Controller
         $product = Product::query()
             ->where('slug', $slug)
             ->where('status', ProductStatus::Published)
-            ->with(['category', 'variants.offers'])
+            ->with([
+                'category',
+                'variants.offers' => fn ($query) => $query->where('status', OfferStatus::Published),
+            ])
             ->firstOrFail();
 
         return new ProductResource($product);

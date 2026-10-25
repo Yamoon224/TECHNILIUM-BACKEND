@@ -54,6 +54,33 @@ it('lists only published products and surfaces the cheapest published offer', fu
     $response->assertJsonPath('data.0.best_offer.price.amount', 120_000);
 });
 
+it('never exposes non-published offers in the variants payload (no draft/pricing leak)', function () {
+    $product = Product::factory()->create(['status' => ProductStatus::Published]);
+    $variant = ProductVariant::factory()->for($product)->create();
+
+    $variant->offers()->create([
+        'price_amount' => 120_000,
+        'currency' => 'XOF',
+        'status' => OfferStatus::Published,
+        'published_at' => now(),
+    ]);
+    $hidden = $variant->offers()->create([
+        'price_amount' => 999_999,
+        'currency' => 'XOF',
+        'status' => OfferStatus::PendingReview,
+    ]);
+
+    $list = $this->getJson('/api/v1/catalog/products');
+    $list->assertOk();
+    $offerIds = collect($list->json('data.0.variants.0.offers'))->pluck('id');
+    expect($offerIds)->not->toContain($hidden->id);
+
+    $detail = $this->getJson("/api/v1/catalog/products/{$product->slug}");
+    $detail->assertOk();
+    $detailOfferIds = collect($detail->json('variants.0.offers'))->pluck('id');
+    expect($detailOfferIds)->not->toContain($hidden->id);
+});
+
 it('filters products by category slug', function () {
     $match = Category::factory()->create(['slug' => 'ordinateurs']);
     $other = Category::factory()->create(['slug' => 'audio']);
