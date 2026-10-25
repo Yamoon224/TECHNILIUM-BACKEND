@@ -28,12 +28,12 @@ class CatalogDemoSeeder extends Seeder
             ['name' => 'Ordinateurs', 'position' => 2],
         );
 
-        $this->productWithOffer($smartphones, 'Samsung', 'Galaxy A55', 185_000);
-        $this->productWithOffer($smartphones, 'Apple', 'iPhone 15', 650_000);
-        $this->productWithOffer($laptops, 'HP', 'Pavilion 15', 420_000);
+        $this->productWithOffer($smartphones, 'Samsung', 'Galaxy A55', 185_000, 14);
+        $this->productWithOffer($smartphones, 'Apple', 'iPhone 15', 650_000, 6);
+        $this->productWithOffer($laptops, 'HP', 'Pavilion 15', 420_000, 0);
     }
 
-    private function productWithOffer(Category $category, string $brand, string $model, int $priceXof): void
+    private function productWithOffer(Category $category, string $brand, string $model, int $priceXof, int $stock): void
     {
         $product = Product::query()->firstOrCreate(
             ['slug' => str($brand.'-'.$model)->slug()],
@@ -60,6 +60,7 @@ class CatalogDemoSeeder extends Seeder
             'price_amount' => $priceXof,
             'currency' => 'XOF',
             'warranty_months' => 12,
+            'stock_quantity' => $stock,
             'status' => OfferStatus::Published,
             'published_at' => now(),
         ]);

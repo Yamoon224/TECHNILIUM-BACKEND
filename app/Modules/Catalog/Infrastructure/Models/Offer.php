@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $compare_at_price_amount
  * @property string|null $condition_grade
  * @property int $warranty_months
+ * @property int $stock_quantity
  * @property OfferStatus $status
  * @property Carbon|null $published_at
  */
@@ -38,6 +39,7 @@ class Offer extends Model
         'compare_at_price_amount',
         'condition_grade',
         'warranty_months',
+        'stock_quantity',
         'status',
         'published_at',
     ];
@@ -61,6 +63,11 @@ class Offer extends Model
     public function isSoldByTechnilium(): bool
     {
         return $this->vendor_id === null;
+    }
+
+    public function isInStock(): bool
+    {
+        return $this->stock_quantity > 0;
     }
 
     public function price(): Money

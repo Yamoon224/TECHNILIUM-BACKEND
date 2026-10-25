@@ -27,6 +27,8 @@ class OfferResource extends JsonResource
             'compare_at_price' => ($compareAt = $offer->compareAtPrice()) ? $this->money($compareAt) : null,
             'condition_grade' => $offer->condition_grade,
             'warranty_months' => $offer->warranty_months,
+            'stock_quantity' => $offer->stock_quantity,
+            'in_stock' => $offer->isInStock(),
             'status' => $offer->status->value,
         ];
     }

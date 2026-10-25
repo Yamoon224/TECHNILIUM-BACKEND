@@ -26,6 +26,7 @@ class OfferFactory extends Factory
             'compare_at_price_amount' => null,
             'condition_grade' => null,
             'warranty_months' => fake()->randomElement([0, 6, 12, 24]),
+            'stock_quantity' => fake()->numberBetween(1, 40),
             'status' => OfferStatus::Published,
             'published_at' => now(),
         ];
@@ -39,5 +40,10 @@ class OfferFactory extends Factory
     public function pendingReview(): static
     {
         return $this->state(fn () => ['status' => OfferStatus::PendingReview, 'published_at' => null]);
+    }
+
+    public function outOfStock(): static
+    {
+        return $this->state(fn () => ['stock_quantity' => 0]);
     }
 }
