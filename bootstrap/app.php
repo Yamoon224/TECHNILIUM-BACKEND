@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,8 +13,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Same reasoning as shouldRenderJsonWhen below: there is no "login"
+        // web route in this API-only backend, so the framework's default
+        // guest redirect (route('login')) must never be resolved.
+        $middleware->redirectGuestsTo(fn () => null);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // This is an API-only backend: there is no "login" web route to
+        // redirect unauthenticated requests to. Laravel's default error
+        // rendering only returns JSON when the client's Accept header
+        // says so (`expectsJson()`) — any other client hitting a
+        // protected /api/* route crashes with a 500 (RouteNotFoundException
+        // for "login") instead of a clean 401/404/422. Every /api/*
+        // response must be JSON regardless of what the client sent.
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request, Throwable $e) => $request->is('api/*') || $request->expectsJson(),
+        );
     })->create();
