@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Modules\Catalog\Domain\OfferStatus;
 use App\Modules\Catalog\Infrastructure\Models\Category;
+use App\Modules\Catalog\Infrastructure\Models\Offer;
 use App\Modules\Catalog\Infrastructure\Models\Product;
+use App\Modules\Catalog\Infrastructure\Models\ProductVariant;
 use App\Modules\Identity\Domain\Role;
 use App\Modules\Identity\Infrastructure\Models\User;
 use Spatie\Permission\Models\Role as RoleModel;
@@ -72,11 +75,11 @@ it('creates a simple product with one variant and one published offer', function
         ]);
 
     $response->assertCreated();
-    $response->assertJsonPath('data.brand', 'Samsung');
-    $response->assertJsonPath('data.status', 'published');
-    $response->assertJsonPath('data.price_amount', 85000);
-    $response->assertJsonPath('data.stock_quantity', 10);
-    expect($response->json('data.sku'))->not->toBeNull();
+    $response->assertJsonPath('brand', 'Samsung');
+    $response->assertJsonPath('status', 'published');
+    $response->assertJsonPath('price_amount', 85000);
+    $response->assertJsonPath('stock_quantity', 10);
+    expect($response->json('sku'))->not->toBeNull();
 });
 
 it('rejects a product referencing an unknown category', function () {
@@ -94,8 +97,8 @@ it('rejects a product referencing an unknown category', function () {
 it('updates a product and its offer price and stock', function () {
     $product = Product::factory()
         ->has(
-            \App\Modules\Catalog\Infrastructure\Models\ProductVariant::factory()
-                ->has(\App\Modules\Catalog\Infrastructure\Models\Offer::factory()->state([
+            ProductVariant::factory()
+                ->has(Offer::factory()->state([
                     'price_amount' => 10000,
                     'stock_quantity' => 5,
                 ]), 'offers'),
@@ -110,15 +113,15 @@ it('updates a product and its offer price and stock', function () {
         ]);
 
     $response->assertOk();
-    $response->assertJsonPath('data.price_amount', 12000);
-    $response->assertJsonPath('data.stock_quantity', 3);
+    $response->assertJsonPath('price_amount', 12000);
+    $response->assertJsonPath('stock_quantity', 3);
 });
 
 it('archives a product and its offers on destroy', function () {
     $product = Product::factory()
         ->has(
-            \App\Modules\Catalog\Infrastructure\Models\ProductVariant::factory()
-                ->has(\App\Modules\Catalog\Infrastructure\Models\Offer::factory(), 'offers'),
+            ProductVariant::factory()
+                ->has(Offer::factory(), 'offers'),
             'variants',
         )
         ->create();
@@ -127,7 +130,7 @@ it('archives a product and its offers on destroy', function () {
         ->deleteJson("/api/v1/admin/products/{$product->id}");
 
     $response->assertOk();
-    $response->assertJsonPath('data.status', 'archived');
+    $response->assertJsonPath('status', 'archived');
     expect($product->variants->first()->offers->first()->fresh()->status)
-        ->toBe(\App\Modules\Catalog\Domain\OfferStatus::Archived);
+        ->toBe(OfferStatus::Archived);
 });

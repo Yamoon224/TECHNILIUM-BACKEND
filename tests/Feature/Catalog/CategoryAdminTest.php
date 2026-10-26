@@ -43,10 +43,11 @@ it('rejects roles that are backoffice-adjacent but not catalog management', func
 it('lists categories for an authenticated catalog admin', function () {
     Category::factory()->count(2)->create();
 
-    $this->actingAs(catalogAdminUser(), 'sanctum')
-        ->getJson('/api/v1/admin/categories')
-        ->assertOk()
-        ->assertJsonCount(2, 'data');
+    $response = $this->actingAs(catalogAdminUser(), 'sanctum')
+        ->getJson('/api/v1/admin/categories');
+
+    $response->assertOk();
+    expect($response->json())->toHaveCount(2);
 });
 
 it('creates a category with an auto-generated slug', function () {
@@ -54,7 +55,7 @@ it('creates a category with an auto-generated slug', function () {
         ->postJson('/api/v1/admin/categories', ['name' => 'Téléphonie Mobile']);
 
     $response->assertCreated();
-    $response->assertJsonPath('data.slug', 'telephonie-mobile');
+    $response->assertJsonPath('slug', 'telephonie-mobile');
 });
 
 it('rejects a category with a duplicate slug', function () {
@@ -72,7 +73,7 @@ it('updates a category', function () {
         ->putJson("/api/v1/admin/categories/{$category->id}", ['name' => 'New Name']);
 
     $response->assertOk();
-    $response->assertJsonPath('data.name', 'New Name');
+    $response->assertJsonPath('name', 'New Name');
 });
 
 it('refuses to make a category its own parent', function () {
