@@ -44,7 +44,7 @@ class BackofficeOrderController extends Controller
                 fn ($query) => $query->where('status', $request->string('status')->toString()),
             )
             ->orderByDesc('id')
-            ->paginate($request->integer('per_page', 20));
+            ->paginate(min($request->integer('per_page', 20), 100));
 
         return OrderResource::collection($orders);
     }

@@ -48,7 +48,7 @@ class ProductController extends Controller
                 }),
             )
             ->orderByDesc('id')
-            ->paginate($request->integer('per_page', 20));
+            ->paginate(min($request->integer('per_page', 20), 100));
 
         return ProductResource::collection($products);
     }
