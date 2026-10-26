@@ -48,7 +48,7 @@ class ProductController extends Controller
                 }),
             )
             ->orderByDesc('id')
-            ->paginate(min($request->integer('per_page', 20), 100));
+            ->paginate(max(1, min($request->integer('per_page', 20), 100)));
 
         return ProductResource::collection($products);
     }

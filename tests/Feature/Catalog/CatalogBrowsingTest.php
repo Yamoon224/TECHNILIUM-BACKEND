@@ -108,3 +108,15 @@ it('returns 404 for a draft product on the public detail endpoint', function () 
 
     $this->getJson('/api/v1/catalog/products/not-yet-live')->assertNotFound();
 });
+
+it('caps per_page at 100 and clamps a non-positive value to 1', function () {
+    Product::factory()->create(['status' => ProductStatus::Published]);
+
+    $this->getJson('/api/v1/catalog/products?per_page=999999')
+        ->assertOk()
+        ->assertJsonPath('meta.per_page', 100);
+
+    $this->getJson('/api/v1/catalog/products?per_page=-5')
+        ->assertOk()
+        ->assertJsonPath('meta.per_page', 1);
+});

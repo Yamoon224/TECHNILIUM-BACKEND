@@ -35,6 +35,23 @@ it('rejects a client-role user from listing orders', function () {
         ->assertForbidden();
 });
 
+it('rejects roles that are backoffice-adjacent but not order management', function (Role $role) {
+    $user = User::factory()->create();
+    $user->assignRole($role->value);
+
+    // Vendeur tiers especially: an external party, must never see every
+    // order just by not being a "client" (cahier §4 — their own orders
+    // only, through a future vendor-scoped endpoint, not this one).
+    $this->actingAs($user, 'sanctum')
+        ->getJson('/api/v1/orders')
+        ->assertForbidden();
+})->with([
+    Role::VendeurTiers,
+    Role::Marketing,
+    Role::GestionnaireCatalogue,
+    Role::GestionnaireStock,
+]);
+
 it('lists orders for an authenticated backoffice user', function () {
     Order::factory()->count(3)->create();
 
@@ -64,6 +81,15 @@ it('caps per_page so a client cannot force an unbounded query', function () {
         ->assertOk()
         ->assertJsonPath('meta.per_page', 100);
 });
+
+it('clamps a non-positive per_page to 1 rather than erroring or ignoring it', function (int $perPage) {
+    Order::factory()->count(3)->create();
+
+    $this->actingAs(backofficeUser(), 'sanctum')
+        ->getJson("/api/v1/orders?per_page={$perPage}")
+        ->assertOk()
+        ->assertJsonPath('meta.per_page', 1);
+})->with([0, -1, -999]);
 
 it('rejects an anonymous request to transition an order', function () {
     $order = Order::factory()->create(['status' => OrderStatus::Pending]);
