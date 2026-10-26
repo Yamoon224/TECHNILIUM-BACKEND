@@ -32,5 +32,13 @@ class IdentityModuleServiceProvider extends ServiceProvider
                 Role::Administrateur->value,
             ]),
         );
+
+        Gate::define(
+            'manage-catalog',
+            fn (User $user) => $user->hasAnyRole([
+                Role::GestionnaireCatalogue->value,
+                Role::Administrateur->value,
+            ]),
+        );
     }
 }
