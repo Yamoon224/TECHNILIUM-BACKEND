@@ -87,6 +87,19 @@ it('rejects an offer for an unknown variant', function () {
         ->assertUnprocessable();
 });
 
+it('rejects an offer against a variant of a draft product', function () {
+    [$user] = activeVendorUser();
+    $variant = ProductVariant::factory()->for(Product::factory()->draft())->create();
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/vendors/me/offers', [
+            'variant_id' => $variant->id,
+            'price_amount' => 25000,
+            'stock_quantity' => 5,
+        ])
+        ->assertUnprocessable();
+});
+
 it('lists only the vendor\'s own offers', function () {
     [$user, $vendor] = activeVendorUser();
     [, $otherVendor] = activeVendorUser();
@@ -126,6 +139,42 @@ it('updates the price and stock of its own offer', function () {
     $response->assertOk();
     $response->assertJsonPath('price_amount', 12000);
     $response->assertJsonPath('stock_quantity', 3);
+});
+
+it('sends a published offer back to moderation when the price changes', function () {
+    [$user, $vendor] = activeVendorUser();
+    $variant = ProductVariant::factory()->for(Product::factory())->create();
+    $offer = Offer::factory()->create([
+        'product_variant_id' => $variant->id,
+        'vendor_id' => $vendor->id,
+        'status' => OfferStatus::Published,
+        'price_amount' => 10000,
+    ]);
+
+    $response = $this->actingAs($user, 'sanctum')
+        ->putJson("/api/v1/vendors/me/offers/{$offer->id}", ['price_amount' => 15000]);
+
+    $response->assertOk();
+    $response->assertJsonPath('status', 'pending_review');
+    expect($offer->fresh()->status)->toBe(OfferStatus::PendingReview);
+});
+
+it('keeps a published offer live when only the stock changes', function () {
+    [$user, $vendor] = activeVendorUser();
+    $variant = ProductVariant::factory()->for(Product::factory())->create();
+    $offer = Offer::factory()->create([
+        'product_variant_id' => $variant->id,
+        'vendor_id' => $vendor->id,
+        'status' => OfferStatus::Published,
+        'stock_quantity' => 5,
+    ]);
+
+    $response = $this->actingAs($user, 'sanctum')
+        ->putJson("/api/v1/vendors/me/offers/{$offer->id}", ['stock_quantity' => 2]);
+
+    $response->assertOk();
+    $response->assertJsonPath('status', 'published');
+    expect($offer->fresh()->status)->toBe(OfferStatus::Published);
 });
 
 it('refuses to update an offer belonging to another vendor', function () {

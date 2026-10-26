@@ -20,6 +20,10 @@ use OpenApi\Attributes as OA;
  */
 class VendorAdminController extends Controller
 {
+    public function __construct(
+        private readonly TransitionVendorStatusAction $transitionVendorStatus,
+    ) {}
+
     #[OA\Get(
         path: '/admin/vendors',
         summary: 'Liste les candidatures et comptes vendeurs tiers',
@@ -86,7 +90,7 @@ class VendorAdminController extends Controller
     private function transition(Vendor $vendor, VendorStatus $target): VendorResource|JsonResponse
     {
         try {
-            $vendor = (new TransitionVendorStatusAction)->execute($vendor, $target);
+            $vendor = $this->transitionVendorStatus->execute($vendor, $target);
         } catch (InvalidVendorTransitionException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }

@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Modules\Catalog\Domain\OfferStatus;
+use App\Modules\Catalog\Infrastructure\Models\Offer;
+use App\Modules\Catalog\Infrastructure\Models\Product;
+use App\Modules\Catalog\Infrastructure\Models\ProductVariant;
 use App\Modules\Identity\Domain\Role;
 use App\Modules\Identity\Infrastructure\Models\User;
 use App\Modules\Vendors\Domain\VendorStatus;
@@ -80,6 +84,30 @@ it('suspends an active vendor', function () {
 
     $response->assertOk();
     $response->assertJsonPath('status', 'suspended');
+});
+
+it('archives all of a vendor\'s live offers when the vendor is suspended', function () {
+    $vendor = Vendor::factory()->active()->create();
+    $variant = ProductVariant::factory()
+        ->for(Product::factory())
+        ->create();
+
+    $published = Offer::factory()->create([
+        'product_variant_id' => $variant->id,
+        'vendor_id' => $vendor->id,
+        'status' => OfferStatus::Published,
+    ]);
+    $pending = Offer::factory()->pendingReview()->create([
+        'product_variant_id' => $variant->id,
+        'vendor_id' => $vendor->id,
+    ]);
+
+    $this->actingAs(administrateur(), 'sanctum')
+        ->postJson("/api/v1/admin/vendors/{$vendor->id}/suspend")
+        ->assertOk();
+
+    expect($published->fresh()->status)->toBe(OfferStatus::Archived);
+    expect($pending->fresh()->status)->toBe(OfferStatus::Archived);
 });
 
 it('reactivates a suspended vendor', function () {

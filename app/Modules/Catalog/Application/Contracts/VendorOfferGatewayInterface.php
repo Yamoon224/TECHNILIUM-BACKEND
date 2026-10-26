@@ -26,7 +26,9 @@ interface VendorOfferGatewayInterface
 
     /**
      * Null when the offer doesn't exist, doesn't belong to this vendor, or
-     * is archived (a vendor edits an active listing, not a dead one).
+     * is archived (a vendor edits an active listing, not a dead one). A
+     * price/warranty change on a Published offer sends it back through
+     * moderation rather than updating the live listing silently.
      *
      * @param  array{price_amount?: int, stock_quantity?: int, warranty_months?: int}  $data
      */
@@ -34,6 +36,13 @@ interface VendorOfferGatewayInterface
 
     /** False when the offer doesn't exist or doesn't belong to this vendor. */
     public function archiveOffer(int $offerId, int $vendorId): bool;
+
+    /**
+     * Pulls every non-archived offer of a vendor off the storefront —
+     * called when a vendor is suspended, so a revoked vendor can't keep
+     * selling through listings that were already live.
+     */
+    public function archiveAllOffersForVendor(int $vendorId): void;
 
     /**
      * @return list<VendorOfferData>

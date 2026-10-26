@@ -54,10 +54,19 @@ final class EloquentVendorOfferGateway implements VendorOfferGatewayInterface
             return null;
         }
 
+        $pricingChanged = $this->pricingFieldsChanged($offer, $data);
+
         $offer->fill(array_intersect_key($data, array_flip(['price_amount', 'stock_quantity', 'warranty_months'])));
         $offer->save();
 
-        return $this->toData($offer);
+        // A live listing whose price or warranty changes goes back through
+        // moderation rather than updating silently — stock-only edits don't
+        // (cahier §6.1 "file de validation").
+        if ($pricingChanged && $offer->status === OfferStatus::Published) {
+            (new TransitionOfferStatusAction)->execute($offer, OfferStatus::PendingReview);
+        }
+
+        return $this->toData($offer->refresh());
     }
 
     public function archiveOffer(int $offerId, int $vendorId): bool
@@ -73,6 +82,29 @@ final class EloquentVendorOfferGateway implements VendorOfferGatewayInterface
         }
 
         return true;
+    }
+
+    public function archiveAllOffersForVendor(int $vendorId): void
+    {
+        Offer::query()
+            ->where('vendor_id', $vendorId)
+            ->where('status', '!=', OfferStatus::Archived->value)
+            ->get()
+            ->each(fn (Offer $offer) => (new TransitionOfferStatusAction)->execute($offer, OfferStatus::Archived));
+    }
+
+    /**
+     * @param  array{price_amount?: int, stock_quantity?: int, warranty_months?: int}  $data
+     */
+    private function pricingFieldsChanged(Offer $offer, array $data): bool
+    {
+        foreach (['price_amount', 'warranty_months'] as $field) {
+            if (array_key_exists($field, $data) && $data[$field] !== $offer->{$field}) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

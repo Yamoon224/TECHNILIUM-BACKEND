@@ -25,7 +25,9 @@ enum OfferStatus: string
             // A vendor can withdraw a listing awaiting or denied moderation,
             // not just a live one — otherwise it'd be stuck forever.
             self::PendingReview => [self::Published, self::Rejected, self::Archived],
-            self::Published => [self::Archived],
+            // A price/warranty change on a live listing goes back through
+            // moderation rather than updating silently (cahier §6.1).
+            self::Published => [self::Archived, self::PendingReview],
             self::Rejected => [self::Draft, self::PendingReview, self::Archived],
             self::Archived => [],
         };
