@@ -77,5 +77,13 @@ class IdentityModuleServiceProvider extends ServiceProvider
                 Role::Administrateur->value,
             ]),
         );
+
+        Gate::define(
+            'manage-shipments',
+            fn (User $user) => $user->hasAnyRole([
+                Role::Logistique->value,
+                Role::Administrateur->value,
+            ]),
+        );
     }
 }

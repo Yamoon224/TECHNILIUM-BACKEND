@@ -14,6 +14,7 @@ arch('other modules do not reach into Identity\'s Infrastructure layer')
         'App\Modules\Vendors',
         'App\Modules\Inventory',
         'App\Modules\Payments',
+        'App\Modules\Shipping',
     ])
     ->not->toUse('App\Modules\Identity\Infrastructure');
 
@@ -31,6 +32,10 @@ arch('Inventory depends on Catalog\'s public Application contracts, never its In
 
 arch('Payments never reaches into Orders\' Infrastructure (order existence is checked by table name)')
     ->expect('App\Modules\Payments')
+    ->not->toUse('App\Modules\Orders\Infrastructure');
+
+arch('Shipping depends on Orders\' public Application contracts, never its Infrastructure')
+    ->expect('App\Modules\Shipping')
     ->not->toUse('App\Modules\Orders\Infrastructure');
 
 arch('value objects have no framework dependency')
