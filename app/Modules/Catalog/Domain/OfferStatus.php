@@ -22,9 +22,11 @@ enum OfferStatus: string
     {
         return match ($this) {
             self::Draft => [self::PendingReview, self::Archived],
-            self::PendingReview => [self::Published, self::Rejected],
+            // A vendor can withdraw a listing awaiting or denied moderation,
+            // not just a live one — otherwise it'd be stuck forever.
+            self::PendingReview => [self::Published, self::Rejected, self::Archived],
             self::Published => [self::Archived],
-            self::Rejected => [self::Draft, self::PendingReview],
+            self::Rejected => [self::Draft, self::PendingReview, self::Archived],
             self::Archived => [],
         };
     }

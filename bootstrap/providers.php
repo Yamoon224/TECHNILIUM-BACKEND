@@ -3,6 +3,7 @@
 use App\Modules\Catalog\CatalogModuleServiceProvider;
 use App\Modules\Identity\IdentityModuleServiceProvider;
 use App\Modules\Orders\OrdersModuleServiceProvider;
+use App\Modules\Vendors\VendorsModuleServiceProvider;
 use App\Providers\AppServiceProvider;
 
 return [
@@ -10,4 +11,5 @@ return [
     IdentityModuleServiceProvider::class,
     CatalogModuleServiceProvider::class,
     OrdersModuleServiceProvider::class,
+    VendorsModuleServiceProvider::class,
 ];

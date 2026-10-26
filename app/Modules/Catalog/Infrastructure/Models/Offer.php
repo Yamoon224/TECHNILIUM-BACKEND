@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property int $stock_quantity
  * @property OfferStatus $status
  * @property Carbon|null $published_at
+ * @property Carbon|null $created_at
  */
 class Offer extends Model
 {

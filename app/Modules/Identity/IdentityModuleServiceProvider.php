@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity;
 
+use App\Modules\Identity\Application\Contracts\UserProvisioningInterface;
+use App\Modules\Identity\Application\Gateways\EloquentUserProvisioning;
 use App\Modules\Identity\Domain\Role;
 use App\Modules\Identity\Infrastructure\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -11,7 +13,10 @@ use Illuminate\Support\ServiceProvider;
 
 class IdentityModuleServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->bind(UserProvisioningInterface::class, EloquentUserProvisioning::class);
+    }
 
     public function boot(): void
     {
@@ -39,6 +44,22 @@ class IdentityModuleServiceProvider extends ServiceProvider
                 Role::GestionnaireCatalogue->value,
                 Role::Administrateur->value,
             ]),
+        );
+
+        // Vendor onboarding is a trust/compliance decision (who gets to sell
+        // on the marketplace), kept to Administrateur only — unlike catalog
+        // content, it's not delegated to Gestionnaire catalogue.
+        Gate::define(
+            'manage-vendors',
+            fn (User $user) => $user->hasRole(Role::Administrateur->value),
+        );
+
+        // A vendor managing their own listings — the vendor's Vendor record
+        // being Active is checked separately in the Vendors controllers,
+        // which own that data; this gate only confirms the role.
+        Gate::define(
+            'be-vendor',
+            fn (User $user) => $user->hasRole(Role::VendeurTiers->value),
         );
     }
 }

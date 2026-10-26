@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Catalog\Http\Controllers\Admin\CategoryAdminController;
+use App\Modules\Catalog\Http\Controllers\Admin\OfferModerationController;
 use App\Modules\Catalog\Http\Controllers\Admin\ProductAdminController;
 use App\Modules\Catalog\Http\Controllers\CategoryController;
 use App\Modules\Catalog\Http\Controllers\ProductController;
@@ -24,4 +25,8 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'can:manage-catalog'])->grou
     Route::post('/products', [ProductAdminController::class, 'store']);
     Route::put('/products/{product}', [ProductAdminController::class, 'update']);
     Route::delete('/products/{product}', [ProductAdminController::class, 'destroy']);
+
+    Route::get('/offers', [OfferModerationController::class, 'index']);
+    Route::post('/offers/{offer}/approve', [OfferModerationController::class, 'approve']);
+    Route::post('/offers/{offer}/reject', [OfferModerationController::class, 'reject']);
 });
