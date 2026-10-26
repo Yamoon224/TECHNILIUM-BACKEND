@@ -61,5 +61,13 @@ class IdentityModuleServiceProvider extends ServiceProvider
             'be-vendor',
             fn (User $user) => $user->hasRole(Role::VendeurTiers->value),
         );
+
+        Gate::define(
+            'manage-stock',
+            fn (User $user) => $user->hasAnyRole([
+                Role::GestionnaireStock->value,
+                Role::Administrateur->value,
+            ]),
+        );
     }
 }

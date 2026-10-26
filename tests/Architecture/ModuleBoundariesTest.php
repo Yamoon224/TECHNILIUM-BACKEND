@@ -24,6 +24,10 @@ arch('Vendors depends on Catalog\'s public Application contracts, never its Infr
     ->expect('App\Modules\Vendors')
     ->not->toUse('App\Modules\Catalog\Infrastructure');
 
+arch('Inventory depends on Catalog\'s public Application contracts, never its Infrastructure')
+    ->expect('App\Modules\Inventory')
+    ->not->toUse('App\Modules\Catalog\Infrastructure');
+
 arch('value objects have no framework dependency')
     ->expect('App\Modules\Shared\ValueObjects')
     ->toOnlyUse([
