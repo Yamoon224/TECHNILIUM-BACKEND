@@ -69,5 +69,13 @@ class IdentityModuleServiceProvider extends ServiceProvider
                 Role::Administrateur->value,
             ]),
         );
+
+        Gate::define(
+            'manage-payments',
+            fn (User $user) => $user->hasAnyRole([
+                Role::Comptable->value,
+                Role::Administrateur->value,
+            ]),
+        );
     }
 }
