@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('orders')->group(function () {
     Route::post('/', [OrderController::class, 'store'])->middleware('throttle:20,1');
+
+    // Must come before /{orderNumber} — otherwise "mine" matches that
+    // wildcard first and this route is never reached.
+    Route::middleware('auth:sanctum')->get('/mine', [OrderController::class, 'mine']);
+
     Route::get('/{orderNumber}', [OrderController::class, 'show'])->middleware('throttle:20,1');
 
     Route::middleware(['auth:sanctum', 'can:manage-orders'])->group(function () {

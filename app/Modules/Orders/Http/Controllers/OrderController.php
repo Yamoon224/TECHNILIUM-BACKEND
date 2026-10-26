@@ -14,6 +14,8 @@ use App\Modules\Orders\Http\Requests\ShowOrderRequest;
 use App\Modules\Orders\Http\Resources\OrderResource;
 use App\Modules\Orders\Infrastructure\Models\Order;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -65,7 +67,10 @@ class OrderController extends Controller
         );
 
         try {
-            $order = $this->placeOrder->execute($items, $delivery);
+            // Optional: a logged-in customer's token attaches the order to
+            // their account (so it shows up on /orders/mine) without making
+            // auth required — guest checkout (cahier §5.1) still works.
+            $order = $this->placeOrder->execute($items, $delivery, $request->user('sanctum')?->id);
         } catch (EmptyCartException|OfferUnavailableException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }
@@ -98,5 +103,23 @@ class OrderController extends Controller
         }
 
         return new OrderResource($order);
+    }
+
+    #[OA\Get(
+        path: '/orders/mine',
+        summary: 'Historique des commandes du client connecté (cahier des charges §5.1 "espace client")',
+        security: [['sanctum' => []]],
+        tags: ['Orders'],
+        responses: [new OA\Response(response: 200, description: 'Commandes du client')],
+    )]
+    public function mine(Request $request): AnonymousResourceCollection
+    {
+        $orders = Order::query()
+            ->where('customer_id', $request->user()->id)
+            ->with('items')
+            ->orderByDesc('id')
+            ->paginate(max(1, min($request->integer('per_page', 20), 100)));
+
+        return OrderResource::collection($orders);
     }
 }

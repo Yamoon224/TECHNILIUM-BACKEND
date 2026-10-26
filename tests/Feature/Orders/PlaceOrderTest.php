@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Catalog\Domain\OfferStatus;
 use App\Modules\Catalog\Infrastructure\Models\Offer;
+use App\Modules\Identity\Infrastructure\Models\User;
 use App\Modules\Orders\Infrastructure\Models\Order;
 
 function checkoutPayload(array $items, array $overrides = []): array
@@ -137,4 +138,27 @@ it('requires a phone to look up an order', function () {
     ]))->json();
 
     $this->getJson("/api/v1/orders/{$created['order_number']}")->assertUnprocessable();
+});
+
+it('attaches the order to the logged-in customer placing it', function () {
+    $user = User::factory()->create();
+    $offer = Offer::factory()->create(['stock_quantity' => 5]);
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/orders', checkoutPayload([
+            ['offer_id' => $offer->id, 'quantity' => 1],
+        ]))
+        ->assertCreated();
+
+    expect(Order::query()->first()->customer_id)->toBe($user->id);
+});
+
+it('leaves the order unattached for a guest checkout', function () {
+    $offer = Offer::factory()->create(['stock_quantity' => 5]);
+
+    $this->postJson('/api/v1/orders', checkoutPayload([
+        ['offer_id' => $offer->id, 'quantity' => 1],
+    ]))->assertCreated();
+
+    expect(Order::query()->first()->customer_id)->toBeNull();
 });

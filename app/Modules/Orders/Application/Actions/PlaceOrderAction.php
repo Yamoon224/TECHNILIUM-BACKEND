@@ -24,7 +24,7 @@ final class PlaceOrderAction
     /**
      * @param  list<CheckoutItemInput>  $items
      */
-    public function execute(array $items, DeliveryDetails $delivery): Order
+    public function execute(array $items, DeliveryDetails $delivery, ?int $customerId = null): Order
     {
         if ($items === []) {
             throw EmptyCartException::create();
@@ -57,9 +57,10 @@ final class PlaceOrderAction
 
         $subtotal = array_sum(array_column($lines, 'line_total_amount'));
 
-        return DB::transaction(function () use ($lines, $delivery, $subtotal, $currency) {
+        return DB::transaction(function () use ($lines, $delivery, $subtotal, $currency, $customerId) {
             $order = Order::query()->create([
                 'order_number' => $this->generateOrderNumber(),
+                'customer_id' => $customerId,
                 'customer_name' => $delivery->customerName,
                 'customer_phone' => $delivery->customerPhone,
                 'delivery_address' => $delivery->address,
