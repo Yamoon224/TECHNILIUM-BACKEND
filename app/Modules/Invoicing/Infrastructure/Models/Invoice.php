@@ -28,6 +28,8 @@ use Illuminate\Support\Carbon;
  * @property int $net_amount
  * @property int $vat_amount
  * @property int $total_amount
+ * @property int $discount_amount
+ * @property string|null $coupon_code
  * @property string|null $reason
  * @property int|null $issued_by
  * @property Carbon $issued_at
@@ -49,6 +51,8 @@ class Invoice extends Model
         'net_amount',
         'vat_amount',
         'total_amount',
+        'discount_amount',
+        'coupon_code',
         'reason',
         'issued_by',
         'issued_at',

@@ -6,6 +6,7 @@ namespace App\Modules\Orders\Application;
 
 use App\Modules\Orders\Domain\OrderStatusDeriver;
 use App\Modules\Orders\Infrastructure\Models\Order;
+use App\Modules\Shared\Events\OrderStatusChanged;
 
 /**
  * Keeps the stored parent status equal to what its sub-orders imply, so
@@ -22,6 +23,7 @@ final class OrderStatusSynchronizer
             return;
         }
 
+        $changed = $order->status !== $derived;
         $order->status = $derived;
 
         if ($derived->value === 'delivered') {
@@ -29,5 +31,11 @@ final class OrderStatusSynchronizer
         }
 
         $order->save();
+
+        // Only a real change is announced; a sub-order moving without
+        // changing the parent (e.g. one of two parcels shipped) is silent.
+        if ($changed) {
+            event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $derived->value));
+        }
     }
 }

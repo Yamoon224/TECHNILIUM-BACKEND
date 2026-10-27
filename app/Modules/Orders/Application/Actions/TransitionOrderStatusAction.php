@@ -8,6 +8,7 @@ use App\Modules\Orders\Application\OrderStatusSynchronizer;
 use App\Modules\Orders\Domain\Exceptions\InvalidOrderTransitionException;
 use App\Modules\Orders\Domain\OrderStatus;
 use App\Modules\Orders\Infrastructure\Models\Order;
+use App\Modules\Shared\Events\OrderStatusChanged;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -38,6 +39,8 @@ final class TransitionOrderStatusAction
                 }
 
                 $order->save();
+
+                event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $target->value));
 
                 return;
             }

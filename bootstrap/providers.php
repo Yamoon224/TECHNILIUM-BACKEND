@@ -1,13 +1,17 @@
 <?php
 
 use App\Modules\Accounting\AccountingModuleServiceProvider;
+use App\Modules\Audit\AuditModuleServiceProvider;
 use App\Modules\Catalog\CatalogModuleServiceProvider;
+use App\Modules\Customers\CustomersModuleServiceProvider;
 use App\Modules\Identity\IdentityModuleServiceProvider;
 use App\Modules\Inventory\InventoryModuleServiceProvider;
 use App\Modules\Invoicing\InvoicingModuleServiceProvider;
+use App\Modules\Notifications\NotificationsModuleServiceProvider;
 use App\Modules\Orders\OrdersModuleServiceProvider;
 use App\Modules\Payments\PaymentsModuleServiceProvider;
 use App\Modules\Payouts\PayoutsModuleServiceProvider;
+use App\Modules\Promotions\PromotionsModuleServiceProvider;
 use App\Modules\Reporting\ReportingModuleServiceProvider;
 use App\Modules\Returns\ReturnsModuleServiceProvider;
 use App\Modules\Shipping\ShippingModuleServiceProvider;
@@ -28,4 +32,8 @@ return [
     PayoutsModuleServiceProvider::class,
     ReturnsModuleServiceProvider::class,
     ReportingModuleServiceProvider::class,
+    PromotionsModuleServiceProvider::class,
+    NotificationsModuleServiceProvider::class,
+    AuditModuleServiceProvider::class,
+    CustomersModuleServiceProvider::class,
 ];

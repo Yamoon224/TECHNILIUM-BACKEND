@@ -78,6 +78,36 @@ arch('Reporting reads other modules only through their public contracts, never t
         'App\Modules\Vendors\Infrastructure',
     ]);
 
+arch('Orders depends on Promotions only through its Application contract')
+    ->expect('App\Modules\Orders')
+    ->not->toUse('App\Modules\Promotions\Infrastructure');
+
+arch('Promotions knows nothing of Orders')
+    ->expect('App\Modules\Promotions')
+    ->not->toUse('App\Modules\Orders');
+
+arch('Notifications learns about other modules only through Shared events and Orders\' public contract')
+    ->expect('App\Modules\Notifications')
+    ->not->toUse([
+        'App\Modules\Orders\Infrastructure',
+        'App\Modules\Returns',
+        'App\Modules\Payments',
+        'App\Modules\Vendors',
+    ]);
+
+arch('Nothing else depends on Notifications')
+    ->expect(['App\Modules\Orders', 'App\Modules\Returns', 'App\Modules\Payments', 'App\Modules\Invoicing'])
+    ->not->toUse('App\Modules\Notifications');
+
+arch('Audit does not depend on the business modules it watches')
+    ->expect('App\Modules\Audit')
+    ->not->toUse([
+        'App\Modules\Orders',
+        'App\Modules\Payments',
+        'App\Modules\Invoicing',
+        'App\Modules\Identity\Infrastructure',
+    ]);
+
 arch('Payouts never reaches into Returns Infrastructure')
     ->expect('App\Modules\Payouts')
     ->not->toUse('App\Modules\Returns\Infrastructure');

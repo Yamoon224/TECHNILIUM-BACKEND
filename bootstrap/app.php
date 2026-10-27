@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // web route in this API-only backend, so the framework's default
         // guest redirect (route('login')) must never be resolved.
         $middleware->redirectGuestsTo(fn () => null);
+
+        // Audit trail of back-office actions (cahier §6.15): every API request
+        // passes through it; it decides itself which ones to record.
+        $middleware->api(append: [\App\Modules\Audit\Http\Middleware\RecordAudit::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // This is an API-only backend: there is no "login" web route to

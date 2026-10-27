@@ -28,7 +28,10 @@ class OrderResource extends JsonResource
             'delivery_address' => $order->delivery_address,
             'delivery_city' => $order->delivery_city,
             'notes' => $order->notes,
+            // What the customer owes, after any coupon.
             'subtotal' => ['amount' => $order->subtotal_amount, 'currency' => $order->currency],
+            'discount' => ['amount' => $order->discount_amount, 'currency' => $order->currency],
+            'coupon_code' => $order->coupon_code,
             // Present once sub-orders are loaded: one entry per seller, each
             // with its own status. `partial` = the shares are at different stages.
             'sub_orders' => $this->whenLoaded('subOrders', fn () => $order->subOrders->map(fn ($subOrder) => [

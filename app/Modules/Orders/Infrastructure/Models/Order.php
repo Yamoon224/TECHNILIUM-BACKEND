@@ -29,6 +29,8 @@ use Illuminate\Support\Carbon;
  * @property string $currency
  * @property Carbon|null $delivered_at
  * @property string|null $delivery_code
+ * @property int $discount_amount
+ * @property string|null $coupon_code
  * @property Carbon|null $created_at
  * @property-read Collection<int, OrderItem> $items
  * @property-read Collection<int, SubOrder> $subOrders
@@ -52,6 +54,8 @@ class Order extends Model
         'currency',
         'delivered_at',
         'delivery_code',
+        'discount_amount',
+        'coupon_code',
     ];
 
     protected function casts(): array

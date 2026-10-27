@@ -30,6 +30,8 @@ class InvoiceResource extends JsonResource
             'net_amount' => $invoice->net_amount,
             'vat_amount' => $invoice->vat_amount,
             'total_amount' => $invoice->total_amount,
+            'discount_amount' => $invoice->discount_amount,
+            'coupon_code' => $invoice->coupon_code,
             'reason' => $invoice->reason,
             'issued_at' => $invoice->issued_at->toIso8601String(),
             'lines' => $invoice->relationLoaded('lines')

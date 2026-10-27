@@ -56,6 +56,13 @@ final class OpenReturnAction
 
             if ($items !== null && $items !== []) {
                 $itemsValue = $this->validatedItemsValue($order->lines, $items, $active->all());
+
+                // Articles are valued at list price, but the customer paid the
+                // discounted total: refund the same share of what was paid.
+                if ($order->discountAmount > 0) {
+                    $listTotal = $order->subtotalAmount + $order->discountAmount;
+                    $itemsValue = intdiv($itemsValue * $order->subtotalAmount + intdiv($listTotal, 2), $listTotal);
+                }
             }
 
             $amount ??= $itemsValue !== null ? min($itemsValue, $refundable) : $refundable;

@@ -111,6 +111,35 @@ class IdentityModuleServiceProvider extends ServiceProvider
         );
 
         Gate::define(
+            'manage-support',
+            fn (User $user) => $user->hasAnyRole([
+                Role::Support->value,
+                Role::Administrateur->value,
+            ]),
+        );
+
+        Gate::define(
+            'view-audit',
+            fn (User $user) => $user->hasRole(Role::Administrateur->value),
+        );
+
+        Gate::define(
+            'manage-notifications',
+            fn (User $user) => $user->hasAnyRole([
+                Role::Support->value,
+                Role::Administrateur->value,
+            ]),
+        );
+
+        Gate::define(
+            'manage-promotions',
+            fn (User $user) => $user->hasAnyRole([
+                Role::Marketing->value,
+                Role::Administrateur->value,
+            ]),
+        );
+
+        Gate::define(
             'view-reports',
             fn (User $user) => $user->hasAnyRole([
                 Role::Administrateur->value,

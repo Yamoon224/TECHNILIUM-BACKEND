@@ -172,6 +172,9 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
                 offerId: $item->offer_id,
             ))->all(),
             deliveredAt: $order->delivered_at?->toIso8601String(),
+            discountAmount: $order->discount_amount,
+            couponCode: $order->coupon_code,
+            customerId: $order->customer_id,
         );
     }
 }

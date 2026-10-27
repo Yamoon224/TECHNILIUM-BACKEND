@@ -8,10 +8,13 @@ use App\Modules\Catalog\Application\Contracts\CheckoutGatewayInterface;
 use App\Modules\Catalog\Domain\Exceptions\InsufficientStockException;
 use App\Modules\Orders\Application\Data\CheckoutItemInput;
 use App\Modules\Orders\Application\Data\DeliveryDetails;
+use App\Modules\Orders\Domain\Exceptions\CouponRejectedException;
 use App\Modules\Orders\Domain\Exceptions\EmptyCartException;
 use App\Modules\Orders\Domain\Exceptions\OfferUnavailableException;
 use App\Modules\Orders\Domain\OrderStatus;
 use App\Modules\Orders\Infrastructure\Models\Order;
+use App\Modules\Promotions\Application\Contracts\CouponGatewayInterface;
+use App\Modules\Shared\Events\OrderPlaced;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -19,12 +22,13 @@ final class PlaceOrderAction
 {
     public function __construct(
         private readonly CheckoutGatewayInterface $catalog,
+        private readonly CouponGatewayInterface $coupons,
     ) {}
 
     /**
      * @param  list<CheckoutItemInput>  $items
      */
-    public function execute(array $items, DeliveryDetails $delivery, ?int $customerId = null): Order
+    public function execute(array $items, DeliveryDetails $delivery, ?int $customerId = null, ?string $couponCode = null): Order
     {
         if ($items === []) {
             throw EmptyCartException::create();
@@ -58,9 +62,28 @@ final class PlaceOrderAction
 
         $subtotal = array_sum(array_column($lines, 'line_total_amount'));
 
-        return DB::transaction(function () use ($lines, $delivery, $subtotal, $currency, $customerId) {
+        return DB::transaction(function () use ($lines, $delivery, $subtotal, $currency, $customerId, $couponCode) {
+            $orderNumber = $this->generateOrderNumber();
+
+            // Redeemed inside this transaction: if anything below fails the
+            // coupon use rolls back with the order. The discount is borne by
+            // Technilium — sub-orders (and so vendor payouts) stay at list price.
+            $discount = 0;
+            $appliedCode = null;
+
+            if ($couponCode !== null && trim($couponCode) !== '') {
+                $quote = $this->coupons->redeem($couponCode, $subtotal, trim($delivery->customerPhone), $orderNumber);
+
+                if (! $quote->valid) {
+                    throw CouponRejectedException::because((string) $quote->reason);
+                }
+
+                $discount = $quote->discountAmount;
+                $appliedCode = $quote->code;
+            }
+
             $order = Order::query()->create([
-                'order_number' => $this->generateOrderNumber(),
+                'order_number' => $orderNumber,
                 'customer_id' => $customerId,
                 'customer_name' => $delivery->customerName,
                 'customer_phone' => $delivery->customerPhone,
@@ -69,7 +92,11 @@ final class PlaceOrderAction
                 'notes' => $delivery->notes,
                 'payment_method' => 'cod',
                 'status' => OrderStatus::Pending,
-                'subtotal_amount' => $subtotal,
+                // What the customer owes: every downstream amount (payment,
+                // invoice, refunds, reports) is based on this net figure.
+                'subtotal_amount' => $subtotal - $discount,
+                'discount_amount' => $discount,
+                'coupon_code' => $appliedCode,
                 'currency' => $currency,
                 'delivery_code' => sprintf('%06d', random_int(0, 999_999)),
             ]);
@@ -99,6 +126,12 @@ final class PlaceOrderAction
                     throw OfferUnavailableException::insufficientStock($line['offer_id']);
                 }
             }
+
+            // Raised inside the transaction: a rolled-back order sends nothing.
+            event(new OrderPlaced(
+                $order->order_number, $order->customer_name, $order->customer_phone,
+                $order->subtotal_amount, $order->currency, $order->delivery_code,
+            ));
 
             return $order->load('items', 'subOrders');
         });

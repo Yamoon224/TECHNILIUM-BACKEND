@@ -7,6 +7,7 @@ namespace App\Modules\Orders\Http\Controllers;
 use App\Modules\Orders\Application\Actions\PlaceOrderAction;
 use App\Modules\Orders\Application\Data\CheckoutItemInput;
 use App\Modules\Orders\Application\Data\DeliveryDetails;
+use App\Modules\Orders\Domain\Exceptions\CouponRejectedException;
 use App\Modules\Orders\Domain\Exceptions\EmptyCartException;
 use App\Modules\Orders\Domain\Exceptions\OfferUnavailableException;
 use App\Modules\Orders\Http\Requests\PlaceOrderRequest;
@@ -44,6 +45,7 @@ class OrderController extends Controller
                 new OA\Property(property: 'delivery_address', type: 'string'),
                 new OA\Property(property: 'delivery_city', type: 'string', nullable: true),
                 new OA\Property(property: 'notes', type: 'string', nullable: true),
+                new OA\Property(property: 'coupon_code', type: 'string', nullable: true),
             ],
         )),
         responses: [
@@ -70,8 +72,13 @@ class OrderController extends Controller
             // Optional: a logged-in customer's token attaches the order to
             // their account (so it shows up on /orders/mine) without making
             // auth required — guest checkout (cahier §5.1) still works.
-            $order = $this->placeOrder->execute($items, $delivery, $request->user('sanctum')?->id);
-        } catch (EmptyCartException|OfferUnavailableException $exception) {
+            $order = $this->placeOrder->execute(
+                $items,
+                $delivery,
+                $request->user('sanctum')?->id,
+                $request->filled('coupon_code') ? $request->string('coupon_code')->toString() : null,
+            );
+        } catch (EmptyCartException|OfferUnavailableException|CouponRejectedException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }
 

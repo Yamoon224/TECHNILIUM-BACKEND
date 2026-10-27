@@ -67,6 +67,8 @@ final class IssueInvoiceAction
                 'net_amount' => $vat->net->amount,
                 'vat_amount' => $vat->vat->amount,
                 'total_amount' => $vat->gross->amount,
+                'discount_amount' => $order->discountAmount,
+                'coupon_code' => $order->couponCode,
                 'issued_by' => $issuedBy,
                 'issued_at' => $now,
             ]);
