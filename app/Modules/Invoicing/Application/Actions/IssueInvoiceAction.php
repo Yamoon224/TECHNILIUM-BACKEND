@@ -10,6 +10,7 @@ use App\Modules\Invoicing\Domain\InvoiceType;
 use App\Modules\Invoicing\Domain\VatBreakdown;
 use App\Modules\Invoicing\Infrastructure\Models\Invoice;
 use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
+use App\Modules\Shared\Events\InvoiceIssued;
 use App\Modules\Shared\ValueObjects\Currency;
 use App\Modules\Shared\ValueObjects\Money;
 use App\Modules\Shared\ValueObjects\TauxTVA;
@@ -77,6 +78,11 @@ final class IssueInvoiceAction
                     'line_total_amount' => $line->lineTotalAmount,
                 ]);
             }
+
+            event(new InvoiceIssued(
+                $invoice->id, $invoice->number, false, $orderNumber,
+                $invoice->net_amount, $invoice->vat_amount, $invoice->total_amount, $invoice->currency,
+            ));
 
             return $invoice->load('lines');
         });

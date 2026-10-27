@@ -42,6 +42,18 @@ arch('Invoicing depends on Orders\' public Application contracts, never its Infr
     ->expect('App\Modules\Invoicing')
     ->not->toUse('App\Modules\Orders\Infrastructure');
 
+arch('Accounting only learns about other modules through Shared events')
+    ->expect('App\Modules\Accounting')
+    ->not->toUse([
+        'App\Modules\Orders',
+        'App\Modules\Payments',
+        'App\Modules\Invoicing',
+    ]);
+
+arch('Payments and Invoicing never reach into Accounting')
+    ->expect(['App\Modules\Payments', 'App\Modules\Invoicing'])
+    ->not->toUse('App\Modules\Accounting');
+
 arch('value objects have no framework dependency')
     ->expect('App\Modules\Shared\ValueObjects')
     ->toOnlyUse([

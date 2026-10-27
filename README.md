@@ -50,7 +50,9 @@ Implémenté :
 - **Vendors, Inventory, Payments, Shipping** — candidature/modération vendeurs, mouvements de stock, paiements (COD / mobile money confirmés manuellement), expéditions.
 - **Invoicing** — factures numérotées de façon séquentielle (`FAC-AAAA-000001`), TVA extraite du TTC (taux `INVOICING_VAT_PERCENT`, 18 % par défaut), documents immuables, avoir total (`AV-AAAA-000001`) pour toute correction. Endpoints `/api/v1/admin/invoices` (rôles comptable / administrateur).
 
-Pas encore implémenté : Accounting (écritures en partie double), Payouts, Returns, Promotions, Reporting, Audit, Procurement, Customers, Notifications ; sous-commandes par vendeur, avoirs partiels, PDF des documents.
+- **Accounting** — grand livre en écriture seule (partie double, SYSCOHADA : 411, 571, 585, 4431, 701), écritures générées de façon synchrone et idempotente par les événements `InvoiceIssued` / `PaymentSettled` (facture, avoir, encaissement, remboursement). Lecture : `/api/v1/admin/accounting/entries` et `/trial-balance`.
+
+Pas encore implémenté : écritures manuelles, journaux achats/banque, états de synthèse, Payouts, Returns, Promotions, Reporting, Audit, Procurement, Customers, Notifications ; sous-commandes par vendeur, avoirs partiels, PDF des documents.
 
 ## Conventions
 

@@ -7,6 +7,8 @@ namespace App\Modules\Payments\Application\Actions;
 use App\Modules\Payments\Domain\Exceptions\InvalidPaymentTransitionException;
 use App\Modules\Payments\Domain\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Shared\Events\PaymentSettled;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Single entry point for every payment status change — mirrors Catalog's
@@ -23,9 +25,23 @@ final class TransitionPaymentStatusAction
             throw InvalidPaymentTransitionException::from($current, $target);
         }
 
-        $payment->status = $target;
-        $payment->paid_at = $target === PaymentStatus::Completed ? now() : $payment->paid_at;
-        $payment->save();
+        // Status change and its ledger entry commit together or not at all.
+        DB::transaction(function () use ($payment, $target) {
+            $payment->status = $target;
+            $payment->paid_at = $target === PaymentStatus::Completed ? now() : $payment->paid_at;
+            $payment->save();
+
+            if ($target === PaymentStatus::Completed || $target === PaymentStatus::Refunded) {
+                event(new PaymentSettled(
+                    $payment->id,
+                    $payment->order_number,
+                    $payment->method->value,
+                    $payment->amount_amount,
+                    $payment->currency,
+                    $target === PaymentStatus::Refunded,
+                ));
+            }
+        });
 
         return $payment->refresh();
     }

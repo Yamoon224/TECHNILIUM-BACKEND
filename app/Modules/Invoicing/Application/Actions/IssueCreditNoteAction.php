@@ -8,6 +8,7 @@ use App\Modules\Invoicing\Application\InvoiceNumberGenerator;
 use App\Modules\Invoicing\Domain\Exceptions\InvoiceException;
 use App\Modules\Invoicing\Domain\InvoiceType;
 use App\Modules\Invoicing\Infrastructure\Models\Invoice;
+use App\Modules\Shared\Events\InvoiceIssued;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -55,6 +56,11 @@ final class IssueCreditNoteAction
                     'description', 'quantity', 'unit_price_amount', 'line_total_amount',
                 ]));
             }
+
+            event(new InvoiceIssued(
+                $creditNote->id, $creditNote->number, true, $creditNote->order_number,
+                $creditNote->net_amount, $creditNote->vat_amount, $creditNote->total_amount, $creditNote->currency,
+            ));
 
             return $creditNote->load('lines');
         });
