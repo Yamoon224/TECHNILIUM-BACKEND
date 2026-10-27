@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $delivery_city
  * @property ShipmentStatus $status
  * @property int $attempts
+ * @property int $code_attempts
  * @property string|null $notes
  * @property Carbon|null $delivered_at
  * @property Carbon|null $created_at
@@ -38,6 +39,7 @@ class Shipment extends Model
         'delivery_city',
         'status',
         'attempts',
+        'code_attempts',
         'notes',
         'delivered_at',
     ];

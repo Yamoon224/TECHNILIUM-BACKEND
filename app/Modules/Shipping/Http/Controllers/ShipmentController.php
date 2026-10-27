@@ -6,7 +6,10 @@ namespace App\Modules\Shipping\Http\Controllers;
 
 use App\Modules\Shipping\Application\Actions\CreateShipmentAction;
 use App\Modules\Shipping\Application\Actions\TransitionShipmentStatusAction;
+use App\Modules\Shipping\Application\Actions\ConfirmDeliveryAction;
+use App\Modules\Shipping\Domain\Exceptions\DeliveryCodeException;
 use App\Modules\Shipping\Domain\Exceptions\InvalidShipmentTransitionException;
+use App\Modules\Shipping\Http\Requests\DeliverShipmentRequest;
 use App\Modules\Shipping\Domain\ShipmentStatus;
 use App\Modules\Shipping\Http\Requests\AssignShipmentRequest;
 use App\Modules\Shipping\Http\Requests\FailShipmentRequest;
@@ -28,6 +31,7 @@ class ShipmentController extends Controller
     public function __construct(
         private readonly CreateShipmentAction $createShipment,
         private readonly TransitionShipmentStatusAction $transitionShipmentStatus,
+        private readonly ConfirmDeliveryAction $confirmDelivery,
     ) {}
 
     #[OA\Get(
@@ -108,17 +112,23 @@ class ShipmentController extends Controller
 
     #[OA\Post(
         path: '/admin/shipments/{shipment}/deliver',
-        summary: 'Marque la livraison comme livrée',
+        summary: 'Confirme la livraison avec le code remis au client (preuve de remise)',
         security: [['sanctum' => []]],
         tags: ['Shipping'],
         responses: [
-            new OA\Response(response: 200, description: 'Livraison livrée'),
-            new OA\Response(response: 422, description: 'Transition impossible'),
+            new OA\Response(response: 200, description: 'Livraison confirmée'),
+            new OA\Response(response: 422, description: 'Code incorrect, livraison verrouillée ou transition impossible'),
         ],
     )]
-    public function deliver(Shipment $shipment): ShipmentResource|JsonResponse
+    public function deliver(DeliverShipmentRequest $request, Shipment $shipment): ShipmentResource|JsonResponse
     {
-        return $this->transition($shipment, ShipmentStatus::Delivered);
+        try {
+            $shipment = $this->confirmDelivery->execute($shipment, $request->string('confirmation_code')->toString());
+        } catch (InvalidShipmentTransitionException|DeliveryCodeException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return new ShipmentResource($shipment);
     }
 
     #[OA\Post(

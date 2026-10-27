@@ -118,6 +118,17 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
         return true;
     }
 
+    public function confirmDeliveryCode(string $orderNumber, string $code): bool
+    {
+        $order = Order::query()->where('order_number', $orderNumber)->first();
+
+        if ($order === null) {
+            return false;
+        }
+
+        return $order->delivery_code === null || hash_equals($order->delivery_code, $code);
+    }
+
     public function markShipped(string $orderNumber): bool
     {
         return $this->transition($orderNumber, OrderStatus::Shipped);

@@ -11,7 +11,7 @@ use App\Modules\Orders\Domain\Exceptions\EmptyCartException;
 use App\Modules\Orders\Domain\Exceptions\OfferUnavailableException;
 use App\Modules\Orders\Http\Requests\PlaceOrderRequest;
 use App\Modules\Orders\Http\Requests\ShowOrderRequest;
-use App\Modules\Orders\Http\Resources\OrderResource;
+use App\Modules\Orders\Http\Resources\CustomerOrderResource;
 use App\Modules\Orders\Infrastructure\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -75,7 +75,7 @@ class OrderController extends Controller
             return response()->json(['message' => $exception->getMessage()], 422);
         }
 
-        return (new OrderResource($order))->response()->setStatusCode(201);
+        return (new CustomerOrderResource($order))->response()->setStatusCode(201);
     }
 
     #[OA\Get(
@@ -91,7 +91,7 @@ class OrderController extends Controller
             new OA\Response(response: 404, description: "Commande introuvable ou téléphone ne correspondant pas (réponse identique pour ne pas révéler l'existence de la commande)"),
         ],
     )]
-    public function show(string $orderNumber, ShowOrderRequest $request): OrderResource
+    public function show(string $orderNumber, ShowOrderRequest $request): CustomerOrderResource
     {
         $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders')->first();
 
@@ -102,7 +102,7 @@ class OrderController extends Controller
             throw new NotFoundHttpException;
         }
 
-        return new OrderResource($order);
+        return new CustomerOrderResource($order);
     }
 
     #[OA\Get(
@@ -120,6 +120,6 @@ class OrderController extends Controller
             ->orderByDesc('id')
             ->paginate(max(1, min($request->integer('per_page', 20), 100)));
 
-        return OrderResource::collection($orders);
+        return CustomerOrderResource::collection($orders);
     }
 }

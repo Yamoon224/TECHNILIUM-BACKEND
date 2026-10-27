@@ -71,6 +71,7 @@ final class PlaceOrderAction
                 'status' => OrderStatus::Pending,
                 'subtotal_amount' => $subtotal,
                 'currency' => $currency,
+                'delivery_code' => sprintf('%06d', random_int(0, 999_999)),
             ]);
 
             // One sub-order per seller (vendor_id null = Technilium's own

@@ -98,11 +98,11 @@ it('starts a pending shipment and syncs the order to shipped', function () {
 });
 
 it('delivers an in-transit shipment and syncs the order to delivered', function () {
-    $order = Order::factory()->create(['status' => OrderStatus::Shipped]);
+    $order = Order::factory()->create(['status' => OrderStatus::Shipped, 'delivery_code' => '123456']);
     $shipment = Shipment::factory()->inTransit()->create(['order_number' => $order->order_number]);
 
     $response = $this->actingAs(logisticien(), 'sanctum')
-        ->postJson("/api/v1/admin/shipments/{$shipment->id}/deliver");
+        ->postJson("/api/v1/admin/shipments/{$shipment->id}/deliver", ['confirmation_code' => '123456']);
 
     $response->assertOk();
     $response->assertJsonPath('status', 'delivered');
@@ -158,7 +158,7 @@ it('refuses to deliver a shipment that was never dispatched', function () {
     $shipment = Shipment::factory()->create(); // pending
 
     $this->actingAs(logisticien(), 'sanctum')
-        ->postJson("/api/v1/admin/shipments/{$shipment->id}/deliver")
+        ->postJson("/api/v1/admin/shipments/{$shipment->id}/deliver", ['confirmation_code' => '123456'])
         ->assertStatus(422);
 });
 

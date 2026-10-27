@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Shipping\Http\Resources;
 
+use App\Modules\Shipping\Application\Actions\ConfirmDeliveryAction;
 use App\Modules\Shipping\Infrastructure\Models\Shipment;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -28,6 +29,8 @@ class ShipmentResource extends JsonResource
             'delivery_city' => $shipment->delivery_city,
             'status' => $shipment->status->value,
             'attempts' => $shipment->attempts,
+            'code_attempts' => $shipment->code_attempts,
+            'code_locked' => $shipment->code_attempts >= ConfirmDeliveryAction::MAX_CODE_ATTEMPTS,
             'notes' => $shipment->notes,
             'delivered_at' => $shipment->delivered_at?->toIso8601String(),
             'created_at' => $shipment->created_at?->toIso8601String(),

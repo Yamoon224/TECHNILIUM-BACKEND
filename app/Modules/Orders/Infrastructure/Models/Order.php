@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property int $subtotal_amount
  * @property string $currency
  * @property Carbon|null $delivered_at
+ * @property string|null $delivery_code
  * @property Carbon|null $created_at
  * @property-read Collection<int, OrderItem> $items
  * @property-read Collection<int, SubOrder> $subOrders
@@ -50,6 +51,7 @@ class Order extends Model
         'subtotal_amount',
         'currency',
         'delivered_at',
+        'delivery_code',
     ];
 
     protected function casts(): array
@@ -57,6 +59,9 @@ class Order extends Model
         return [
             'status' => OrderStatus::class,
             'delivered_at' => 'datetime',
+            // Handed to the customer, typed by the courier as proof of handover
+            // (cahier §5.6). Encrypted at rest; never exposed to staff endpoints.
+            'delivery_code' => 'encrypted',
         ];
     }
 
