@@ -18,7 +18,7 @@ final class PostPaymentEntry
             journal: PostingSchemes::paymentJournal($event->method),
             // A refund is its own ledger event, distinct from the collection.
             sourceType: $event->refunded ? 'payment_refund' : 'payment',
-            sourceId: $event->paymentId,
+            sourceId: $event->refunded ? (int) $event->refundId : $event->paymentId,
             description: ($event->refunded ? 'Remboursement' : 'Encaissement').' commande '.$event->orderNumber,
             lines: PostingSchemes::payment($event->method, $event->amount, $event->refunded),
             currency: $event->currency,

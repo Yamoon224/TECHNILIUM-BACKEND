@@ -31,14 +31,15 @@ final class TransitionPaymentStatusAction
             $payment->paid_at = $target === PaymentStatus::Completed ? now() : $payment->paid_at;
             $payment->save();
 
-            if ($target === PaymentStatus::Completed || $target === PaymentStatus::Refunded) {
+            // Refunds go through RefundPaymentAction (partial refunds, one ledger entry each).
+            if ($target === PaymentStatus::Completed) {
                 event(new PaymentSettled(
                     $payment->id,
                     $payment->order_number,
                     $payment->method->value,
                     $payment->amount_amount,
                     $payment->currency,
-                    $target === PaymentStatus::Refunded,
+                    false,
                 ));
             }
         });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Payments\Http\Resources;
 
+use App\Modules\Payments\Domain\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -24,6 +25,8 @@ class PaymentResource extends JsonResource
             'method' => $payment->method->value,
             'status' => $payment->status->value,
             'amount_amount' => $payment->amount_amount,
+            'refunded_amount' => $payment->refunded_amount,
+            'refundable_amount' => $payment->status === PaymentStatus::Completed ? $payment->refundable() : 0,
             'currency' => $payment->currency,
             'provider' => $payment->provider,
             'provider_reference' => $payment->provider_reference,

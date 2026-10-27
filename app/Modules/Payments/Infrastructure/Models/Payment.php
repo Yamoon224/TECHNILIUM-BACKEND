@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property PaymentMethod $method
  * @property PaymentStatus $status
  * @property int $amount_amount
+ * @property int $refunded_amount
  * @property string $currency
  * @property string|null $provider
  * @property string|null $provider_reference
@@ -34,6 +35,7 @@ class Payment extends Model
         'method',
         'status',
         'amount_amount',
+        'refunded_amount',
         'currency',
         'provider',
         'provider_reference',
@@ -48,6 +50,12 @@ class Payment extends Model
             'status' => PaymentStatus::class,
             'paid_at' => 'datetime',
         ];
+    }
+
+    /** What can still be given back: collected amount minus refunds so far. */
+    public function refundable(): int
+    {
+        return max(0, $this->amount_amount - $this->refunded_amount);
     }
 
     protected static function newFactory(): PaymentFactory

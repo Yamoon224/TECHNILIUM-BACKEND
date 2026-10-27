@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Payments\Http\Controllers;
 
+use App\Modules\Payments\Application\Actions\RefundPaymentAction;
 use App\Modules\Payments\Application\Actions\TransitionPaymentStatusAction;
 use App\Modules\Payments\Domain\Exceptions\InvalidPaymentTransitionException;
+use App\Modules\Payments\Domain\Exceptions\InvalidRefundException;
 use App\Modules\Payments\Domain\PaymentStatus;
+use App\Modules\Payments\Http\Requests\RefundPaymentRequest;
 use App\Modules\Payments\Http\Requests\StorePaymentRequest;
 use App\Modules\Payments\Http\Resources\PaymentResource;
 use App\Modules\Payments\Infrastructure\Models\Payment;
@@ -24,6 +27,7 @@ class PaymentController extends Controller
 {
     public function __construct(
         private readonly TransitionPaymentStatusAction $transitionPaymentStatus,
+        private readonly RefundPaymentAction $refundPayment,
     ) {}
 
     #[OA\Get(
@@ -108,7 +112,7 @@ class PaymentController extends Controller
 
     #[OA\Post(
         path: '/admin/payments/{payment}/refund',
-        summary: 'Rembourse un paiement confirmé',
+        summary: 'Rembourse un paiement confirmé, en totalité ou en partie (montant optionnel)',
         security: [['sanctum' => []]],
         tags: ['Payments'],
         responses: [
@@ -116,9 +120,20 @@ class PaymentController extends Controller
             new OA\Response(response: 422, description: 'Transition impossible'),
         ],
     )]
-    public function refund(Payment $payment): PaymentResource|JsonResponse
+    public function refund(RefundPaymentRequest $request, Payment $payment): PaymentResource|JsonResponse
     {
-        return $this->transition($payment, PaymentStatus::Refunded);
+        try {
+            $refunded = $this->refundPayment->execute(
+                $payment,
+                $request->filled('amount') ? $request->integer('amount') : null,
+                $request->filled('reason') ? $request->string('reason')->toString() : null,
+                $request->user()?->id,
+            );
+        } catch (InvalidRefundException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return new PaymentResource($refunded);
     }
 
     private function transition(Payment $payment, PaymentStatus $target): PaymentResource|JsonResponse

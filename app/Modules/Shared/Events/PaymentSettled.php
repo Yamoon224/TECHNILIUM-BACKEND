@@ -17,5 +17,7 @@ final readonly class PaymentSettled implements DomainEvent
         public int $amount,
         public string $currency,
         public bool $refunded,
+        /** Set for a refund: one payment may be refunded several times, each its own ledger event. */
+        public ?int $refundId = null,
     ) {}
 }

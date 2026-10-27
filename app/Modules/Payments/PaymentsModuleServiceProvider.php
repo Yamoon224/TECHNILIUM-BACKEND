@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Payments;
 
+use App\Modules\Payments\Application\Listeners\RefundOnReturn;
+use App\Modules\Shared\Events\ReturnRefunded;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class PaymentsModuleServiceProvider extends ServiceProvider
@@ -13,5 +16,7 @@ class PaymentsModuleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+
+        Event::listen(ReturnRefunded::class, RefundOnReturn::class);
     }
 }
