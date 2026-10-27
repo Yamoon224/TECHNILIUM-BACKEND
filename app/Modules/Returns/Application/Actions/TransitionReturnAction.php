@@ -7,13 +7,15 @@ namespace App\Modules\Returns\Application\Actions;
 use App\Modules\Returns\Domain\Exceptions\ReturnException;
 use App\Modules\Returns\Domain\ReturnStatus;
 use App\Modules\Returns\Infrastructure\Models\ReturnRequest;
+use App\Modules\Shared\Events\ReturnReceived;
 use App\Modules\Shared\Events\ReturnRefunded;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Single entry point for every RMA status change. Refunding publishes
- * ReturnRefunded in the same transaction so the credit note is written
- * atomically with the decision.
+ * ReturnRefunded in the same transaction so the credit note and the payment
+ * refund are written atomically with the decision; receiving publishes
+ * ReturnReceived only when the inspector judged the articles resellable.
  */
 final class TransitionReturnAction
 {
@@ -22,8 +24,9 @@ final class TransitionReturnAction
         ReturnStatus $target,
         ?string $note = null,
         ?int $refundAmount = null,
+        bool $restock = false,
     ): ReturnRequest {
-        return DB::transaction(function () use ($return, $target, $note, $refundAmount) {
+        return DB::transaction(function () use ($return, $target, $note, $refundAmount, $restock) {
             $return = ReturnRequest::query()->lockForUpdate()->findOrFail($return->id);
 
             if (! $return->status->canTransitionTo($target)) {
@@ -45,7 +48,14 @@ final class TransitionReturnAction
                 $return->refunded_at = now();
             }
 
+            $shouldRestock = $target === ReturnStatus::Received && $restock && ! empty($return->items);
+            $return->restocked = $shouldRestock;
+
             $return->save();
+
+            if ($shouldRestock) {
+                event(new ReturnReceived($return->id, $return->order_number, $return->items));
+            }
 
             if ($target === ReturnStatus::Refunded) {
                 event(new ReturnRefunded(

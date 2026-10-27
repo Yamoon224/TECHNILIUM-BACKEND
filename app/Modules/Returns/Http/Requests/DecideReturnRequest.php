@@ -22,6 +22,8 @@ class DecideReturnRequest extends FormRequest
         return [
             'note' => ['nullable', 'string', 'max:1000'],
             'amount' => ['nullable', 'integer', 'min:1'],
+            // receive only: the articles passed inspection and go back on sale.
+            'restock' => ['nullable', 'boolean'],
         ];
     }
 }

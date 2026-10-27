@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Inventory;
 
+use App\Modules\Inventory\Application\Listeners\RestockReturnedItems;
+use App\Modules\Shared\Events\ReturnReceived;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class InventoryModuleServiceProvider extends ServiceProvider
@@ -13,5 +16,7 @@ class InventoryModuleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+
+        Event::listen(ReturnReceived::class, RestockReturnedItems::class);
     }
 }

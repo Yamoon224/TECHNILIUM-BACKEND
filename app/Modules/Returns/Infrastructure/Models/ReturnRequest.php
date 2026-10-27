@@ -21,6 +21,8 @@ use Illuminate\Support\Carbon;
  * @property string $currency
  * @property int $requested_amount
  * @property int|null $refunded_amount
+ * @property list<array{offer_id: int, quantity: int}>|null $items
+ * @property bool $restocked
  * @property int|null $created_by
  * @property Carbon|null $refunded_at
  * @property Carbon|null $created_at
@@ -40,6 +42,8 @@ class ReturnRequest extends Model
         'currency',
         'requested_amount',
         'refunded_amount',
+        'items',
+        'restocked',
         'created_by',
         'refunded_at',
     ];
@@ -49,6 +53,8 @@ class ReturnRequest extends Model
         return [
             'status' => ReturnStatus::class,
             'refunded_at' => 'datetime',
+            'items' => 'array',
+            'restocked' => 'boolean',
         ];
     }
 

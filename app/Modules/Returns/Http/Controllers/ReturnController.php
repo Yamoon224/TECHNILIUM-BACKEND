@@ -71,6 +71,7 @@ class ReturnController extends Controller
                 $request->string('reason')->toString(),
                 $request->filled('amount') ? $request->integer('amount') : null,
                 $request->user()?->id,
+                $request->filled('items') ? $request->input('items') : null,
             );
         } catch (ReturnException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
@@ -120,6 +121,7 @@ class ReturnController extends Controller
                 $target,
                 $request->filled('note') ? $request->string('note')->toString() : null,
                 $request->filled('amount') ? $request->integer('amount') : null,
+                $request->boolean('restock'),
             );
         } catch (ReturnException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);

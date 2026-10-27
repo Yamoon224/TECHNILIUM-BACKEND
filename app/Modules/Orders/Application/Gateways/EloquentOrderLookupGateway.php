@@ -169,6 +169,7 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
                 unitPriceAmount: $item->unit_price_amount,
                 lineTotalAmount: $item->line_total_amount,
                 vendorId: $item->vendor_id,
+                offerId: $item->offer_id,
             ))->all(),
             deliveredAt: $order->delivered_at?->toIso8601String(),
         );

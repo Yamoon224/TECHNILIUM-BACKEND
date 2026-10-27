@@ -29,6 +29,11 @@ final class ReturnException extends DomainException
         return new self("Le montant dépasse ce qui reste remboursable sur la commande ({$refundable}).");
     }
 
+    public static function itemNotReturnable(int $offerId, int $available): self
+    {
+        return new self("L'article (offre {$offerId}) n'est pas retournable en cette quantité : {$available} disponible(s) au retour.");
+    }
+
     public static function invalidTransition(ReturnStatus $from, ReturnStatus $to): self
     {
         return new self("Transition de retour interdite : {$from->value} → {$to->value}.");

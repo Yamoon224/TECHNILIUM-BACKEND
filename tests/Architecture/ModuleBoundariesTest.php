@@ -63,6 +63,10 @@ arch('Returns never reaches into Orders Infrastructure')
     ->expect('App\Modules\Returns')
     ->not->toUse('App\Modules\Orders\Infrastructure');
 
+arch('Payments, Invoicing and Inventory only hear about Returns through Shared events')
+    ->expect(['App\Modules\Payments', 'App\Modules\Invoicing', 'App\Modules\Inventory'])
+    ->not->toUse('App\Modules\Returns');
+
 arch('Payouts never reaches into Returns Infrastructure')
     ->expect('App\Modules\Payouts')
     ->not->toUse('App\Modules\Returns\Infrastructure');

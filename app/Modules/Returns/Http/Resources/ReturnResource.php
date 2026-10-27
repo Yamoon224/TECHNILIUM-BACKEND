@@ -28,6 +28,8 @@ class ReturnResource extends JsonResource
             'currency' => $return->currency,
             'requested_amount' => $return->requested_amount,
             'refunded_amount' => $return->refunded_amount,
+            'items' => $return->items ?? [],
+            'restocked' => $return->restocked,
             'refunded_at' => $return->refunded_at?->toIso8601String(),
             'created_at' => $return->created_at?->toIso8601String(),
         ];
