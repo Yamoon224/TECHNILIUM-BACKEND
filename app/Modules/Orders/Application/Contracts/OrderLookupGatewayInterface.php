@@ -52,6 +52,15 @@ interface OrderLookupGatewayInterface
     public function shipForVendor(string $orderNumber, int $vendorId): bool;
 
     /**
+     * What a customer has actually received: every offer in one of their
+     * delivered orders, mapped to the (first) order that delivered it. A
+     * guest order has no account and never appears here.
+     *
+     * @return array<int, string>  offer id => order number
+     */
+    public function deliveredOffersForCustomer(int $customerId): array;
+
+    /**
      * Checks the customer's delivery confirmation code (constant-time). An
      * order placed before codes existed has none and is accepted as is; an
      * unknown order is refused.

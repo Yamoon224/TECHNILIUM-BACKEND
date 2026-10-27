@@ -118,6 +118,25 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
         return true;
     }
 
+    public function deliveredOffersForCustomer(int $customerId): array
+    {
+        $offers = [];
+
+        $rows = OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.customer_id', $customerId)
+            ->where('orders.status', OrderStatus::Delivered->value)
+            ->orderBy('orders.id')
+            ->get(['order_items.offer_id', 'orders.order_number']);
+
+        foreach ($rows as $row) {
+            // The earliest delivering order wins.
+            $offers[(int) $row->offer_id] ??= (string) $row->order_number;
+        }
+
+        return $offers;
+    }
+
     public function confirmDeliveryCode(string $orderNumber, string $code): bool
     {
         $order = Order::query()->where('order_number', $orderNumber)->first();
