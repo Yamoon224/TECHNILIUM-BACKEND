@@ -40,7 +40,7 @@ final class TransitionOrderStatusAction
 
                 $order->save();
 
-                event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $target->value));
+                event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $target->value, $order->id));
 
                 return;
             }

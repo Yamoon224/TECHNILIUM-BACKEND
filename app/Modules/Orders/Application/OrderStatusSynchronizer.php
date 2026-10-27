@@ -35,7 +35,7 @@ final class OrderStatusSynchronizer
         // Only a real change is announced; a sub-order moving without
         // changing the parent (e.g. one of two parcels shipped) is silent.
         if ($changed) {
-            event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $derived->value));
+            event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $derived->value, $order->id));
         }
     }
 }
