@@ -11,7 +11,9 @@ use App\Modules\Invoicing\Http\Requests\IssueCreditNoteRequest;
 use App\Modules\Invoicing\Http\Requests\IssueInvoiceRequest;
 use App\Modules\Invoicing\Http\Resources\InvoiceResource;
 use App\Modules\Invoicing\Infrastructure\Models\Invoice;
+use App\Modules\Invoicing\Application\RenderInvoiceDocument;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
@@ -66,6 +68,24 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice): InvoiceResource
     {
         return new InvoiceResource($invoice->load('lines'));
+    }
+
+    #[OA\Get(
+        path: '/admin/invoices/{invoice}/pdf',
+        summary: 'Télécharge la facture ou l\'avoir en PDF (total en lettres, TVA, remise, mentions légales)',
+        security: [['sanctum' => []]],
+        tags: ['Invoicing'],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 404, description: 'Introuvable'),
+        ],
+    )]
+    public function pdf(Invoice $invoice, RenderInvoiceDocument $document): Response
+    {
+        return response($document->pdf($invoice), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$document->filename($invoice).'"',
+        ]);
     }
 
     #[OA\Post(

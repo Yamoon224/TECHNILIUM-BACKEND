@@ -76,6 +76,7 @@ arch('Reporting reads other modules only through their public contracts, never t
         'App\Modules\Returns\Infrastructure',
         'App\Modules\Catalog\Infrastructure',
         'App\Modules\Vendors\Infrastructure',
+        'App\Modules\Procurement\Infrastructure',
     ]);
 
 arch('Orders depends on Promotions only through its Application contract')
