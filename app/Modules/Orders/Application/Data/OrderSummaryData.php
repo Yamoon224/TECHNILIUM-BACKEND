@@ -18,5 +18,9 @@ final readonly class OrderSummaryData
         public string $deliveryAddress,
         public ?string $deliveryCity,
         public string $status,
+        public string $currency = 'XOF',
+        public int $subtotalAmount = 0,
+        /** @var list<OrderLineData> */
+        public array $lines = [],
     ) {}
 }

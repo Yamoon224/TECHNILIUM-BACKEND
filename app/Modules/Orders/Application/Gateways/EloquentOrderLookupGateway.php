@@ -6,15 +6,17 @@ namespace App\Modules\Orders\Application\Gateways;
 
 use App\Modules\Orders\Application\Actions\TransitionOrderStatusAction;
 use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
+use App\Modules\Orders\Application\Data\OrderLineData;
 use App\Modules\Orders\Application\Data\OrderSummaryData;
 use App\Modules\Orders\Domain\OrderStatus;
 use App\Modules\Orders\Infrastructure\Models\Order;
+use App\Modules\Orders\Infrastructure\Models\OrderItem;
 
 final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
 {
     public function find(string $orderNumber): ?OrderSummaryData
     {
-        $order = Order::query()->where('order_number', $orderNumber)->first();
+        $order = Order::query()->with('items')->where('order_number', $orderNumber)->first();
 
         return $order ? $this->toData($order) : null;
     }
@@ -51,6 +53,14 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
             deliveryAddress: $order->delivery_address,
             deliveryCity: $order->delivery_city,
             status: $order->status->value,
+            currency: $order->currency,
+            subtotalAmount: $order->subtotal_amount,
+            lines: $order->items->map(fn (OrderItem $item) => new OrderLineData(
+                description: trim($item->brand.' '.$item->product_name),
+                quantity: $item->quantity,
+                unitPriceAmount: $item->unit_price_amount,
+                lineTotalAmount: $item->line_total_amount,
+            ))->all(),
         );
     }
 }

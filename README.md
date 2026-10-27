@@ -47,7 +47,10 @@ Implémenté :
 - **Orders** — panier → commande en paiement à la livraison uniquement (pas de passerelle de paiement), machine à états simplifiée (pending → confirmed → shipped → delivered, ou cancelled), décrément de stock atomique et verrouillé pour éviter la survente. Communique avec Catalog via un contrat public (`Catalog\Application\Contracts\CheckoutGatewayInterface`), jamais via ses modèles Eloquent.
 - **Shared** — objets-valeur `Money`, `Currency`, `Quantity`, `TauxTVA`, `Sku`, `NumeroSerie` utilisés dans tout le code.
 
-Pas encore implémenté (dossiers créés sous `app/Modules/` mais vides) : Vendors, Inventory (le vrai modèle de stock, avec numéros de série/multi-entrepôt), Payments (vraie passerelle mobile money/carte), Invoicing, Accounting, Payouts, Shipping, Returns, Promotions, Reporting, Audit.
+- **Vendors, Inventory, Payments, Shipping** — candidature/modération vendeurs, mouvements de stock, paiements (COD / mobile money confirmés manuellement), expéditions.
+- **Invoicing** — factures numérotées de façon séquentielle (`FAC-AAAA-000001`), TVA extraite du TTC (taux `INVOICING_VAT_PERCENT`, 18 % par défaut), documents immuables, avoir total (`AV-AAAA-000001`) pour toute correction. Endpoints `/api/v1/admin/invoices` (rôles comptable / administrateur).
+
+Pas encore implémenté : Accounting (écritures en partie double), Payouts, Returns, Promotions, Reporting, Audit, Procurement, Customers, Notifications ; sous-commandes par vendeur, avoirs partiels, PDF des documents.
 
 ## Conventions
 

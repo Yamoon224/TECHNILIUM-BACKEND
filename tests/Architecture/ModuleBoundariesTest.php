@@ -38,6 +38,10 @@ arch('Shipping depends on Orders\' public Application contracts, never its Infra
     ->expect('App\Modules\Shipping')
     ->not->toUse('App\Modules\Orders\Infrastructure');
 
+arch('Invoicing depends on Orders\' public Application contracts, never its Infrastructure')
+    ->expect('App\Modules\Invoicing')
+    ->not->toUse('App\Modules\Orders\Infrastructure');
+
 arch('value objects have no framework dependency')
     ->expect('App\Modules\Shared\ValueObjects')
     ->toOnlyUse([
