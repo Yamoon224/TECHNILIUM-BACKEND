@@ -32,6 +32,18 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
             ->all();
     }
 
+    public function forVendor(int $vendorId, int $limit = 200): array
+    {
+        return Order::query()
+            ->whereHas('items', fn ($query) => $query->where('vendor_id', $vendorId))
+            ->with(['items' => fn ($query) => $query->where('vendor_id', $vendorId)])
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Order $order) => $this->toData($order))
+            ->all();
+    }
+
     public function markShipped(string $orderNumber): bool
     {
         return $this->transition($orderNumber, OrderStatus::Shipped);

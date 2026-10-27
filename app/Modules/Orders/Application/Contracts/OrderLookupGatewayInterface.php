@@ -33,6 +33,15 @@ interface OrderLookupGatewayInterface
      */
     public function deliveredUntil(\DateTimeInterface $cutoff): array;
 
+    /**
+     * The most recent orders containing at least one line sold by the vendor.
+     * Each summary carries ONLY that vendor's lines — never another vendor's
+     * — so the result is safe to show to the vendor (cahier §8 cloisonnement).
+     *
+     * @return list<OrderSummaryData>
+     */
+    public function forVendor(int $vendorId, int $limit = 200): array;
+
     /** Same best-effort contract as markShipped(), for "delivered". */
     public function markDelivered(string $orderNumber): bool;
 }

@@ -5,12 +5,17 @@ declare(strict_types=1);
 use App\Modules\Vendors\Http\Controllers\Admin\VendorAdminController;
 use App\Modules\Vendors\Http\Controllers\VendorController;
 use App\Modules\Vendors\Http\Controllers\VendorOfferController;
+use App\Modules\Vendors\Http\Controllers\VendorSpaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('vendors')->group(function () {
     Route::post('/apply', [VendorController::class, 'apply'])->middleware('throttle:10,1');
 
     Route::middleware(['auth:sanctum', 'can:be-vendor'])->prefix('me')->group(function () {
+        Route::get('/summary', [VendorSpaceController::class, 'summary']);
+        Route::get('/orders', [VendorSpaceController::class, 'orders']);
+        Route::get('/payouts', [VendorSpaceController::class, 'payouts']);
+        Route::get('/payouts/{payout}', [VendorSpaceController::class, 'payout']);
         Route::get('/offers', [VendorOfferController::class, 'index']);
         Route::post('/offers', [VendorOfferController::class, 'store']);
         Route::put('/offers/{offer}', [VendorOfferController::class, 'update']);

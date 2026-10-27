@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Vendors\Http\Controllers;
 
 use App\Modules\Catalog\Application\Contracts\VendorOfferGatewayInterface;
-use App\Modules\Vendors\Domain\VendorStatus;
+use App\Modules\Vendors\Http\Concerns\ResolvesActiveVendor;
 use App\Modules\Vendors\Http\Requests\StoreVendorOfferRequest;
 use App\Modules\Vendors\Http\Requests\UpdateVendorOfferRequest;
 use App\Modules\Vendors\Http\Resources\VendorOfferResource;
-use App\Modules\Vendors\Infrastructure\Models\Vendor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,6 +22,8 @@ use OpenApi\Attributes as OA;
  */
 class VendorOfferController extends Controller
 {
+    use ResolvesActiveVendor;
+
     public function __construct(
         private readonly VendorOfferGatewayInterface $offers,
     ) {}
@@ -108,17 +109,5 @@ class VendorOfferController extends Controller
         }
 
         return response()->json(null, 204);
-    }
-
-    private function resolveActiveVendor(Request $request): Vendor
-    {
-        /** @var Vendor|null $vendor */
-        $vendor = Vendor::query()->where('user_id', $request->user()->id)->first();
-
-        if (! $vendor || $vendor->status !== VendorStatus::Active) {
-            abort(403, "Ce compte n'a pas de profil vendeur actif.");
-        }
-
-        return $vendor;
     }
 }

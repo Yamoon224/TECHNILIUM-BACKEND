@@ -67,6 +67,10 @@ arch('Payouts never reaches into Returns Infrastructure')
     ->expect('App\Modules\Payouts')
     ->not->toUse('App\Modules\Returns\Infrastructure');
 
+arch('The vendor space reads Orders and Payouts only through their public contracts')
+    ->expect('App\Modules\Vendors')
+    ->not->toUse(['App\Modules\Orders\Infrastructure', 'App\Modules\Payouts\Infrastructure']);
+
 arch('value objects have no framework dependency')
     ->expect('App\Modules\Shared\ValueObjects')
     ->toOnlyUse([
