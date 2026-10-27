@@ -46,6 +46,7 @@ final class PlaceOrderAction
 
             $lines[] = [
                 'offer_id' => $offer->offerId,
+                'vendor_id' => $offer->vendorId,
                 'product_name' => $offer->productName,
                 'brand' => $offer->brand,
                 'unit_price_amount' => $offer->priceAmount,

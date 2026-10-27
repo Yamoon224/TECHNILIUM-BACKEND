@@ -23,6 +23,7 @@ class OrderItemFactory extends Factory
         return [
             'order_id' => Order::factory(),
             'offer_id' => fake()->numberBetween(1, 1000),
+            'vendor_id' => null,
             'product_name' => fake()->words(3, true),
             'brand' => fake()->company(),
             'unit_price_amount' => $unitPrice,

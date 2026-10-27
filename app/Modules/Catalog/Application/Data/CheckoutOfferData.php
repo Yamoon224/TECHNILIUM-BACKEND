@@ -21,6 +21,7 @@ final readonly class CheckoutOfferData
         public int $priceAmount,
         public Currency $currency,
         public int $stockQuantity,
+        public ?int $vendorId = null,
     ) {}
 
     public function price(): Money

@@ -31,6 +31,7 @@ final class EloquentCheckoutGateway implements CheckoutGatewayInterface
             priceAmount: $offer->price_amount,
             currency: Currency::from($offer->currency),
             stockQuantity: $offer->stock_quantity,
+            vendorId: $offer->vendor_id,
         );
     }
 

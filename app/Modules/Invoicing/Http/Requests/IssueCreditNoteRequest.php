@@ -20,6 +20,8 @@ class IssueCreditNoteRequest extends FormRequest
     {
         return [
             'reason' => ['required', 'string', 'max:255'],
+            // Omitted = credit the whole remaining balance.
+            'amount' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

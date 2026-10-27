@@ -38,12 +38,13 @@ final class IssueInvoiceAction
         return DB::transaction(function () use ($order, $orderNumber, $issuedBy) {
             // An order has one live invoice; after it is cancelled by a
             // credit note, a corrected one may be issued (cahier §6.7).
+            // "Live" = not yet fully cancelled by credit notes.
             $hasLiveInvoice = Invoice::query()
                 ->where('order_number', $orderNumber)
                 ->where('type', InvoiceType::Invoice->value)
-                ->whereNotIn('id', Invoice::query()->whereNotNull('credited_invoice_id')->select('credited_invoice_id'))
                 ->lockForUpdate()
-                ->exists();
+                ->get()
+                ->contains(fn (Invoice $existing) => $existing->remainingCreditable() > 0);
 
             if ($hasLiveInvoice) {
                 throw InvoiceException::alreadyInvoiced($orderNumber);

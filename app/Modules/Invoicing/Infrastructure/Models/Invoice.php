@@ -76,6 +76,18 @@ class Invoice extends Model
         return $this->hasMany(InvoiceLine::class);
     }
 
+    /** Amount already cancelled by credit notes (full or partial). */
+    public function creditedAmount(): int
+    {
+        return (int) self::query()->where('credited_invoice_id', $this->id)->sum('total_amount');
+    }
+
+    /** What a further credit note may still cancel; 0 for credit notes and fully credited invoices. */
+    public function remainingCreditable(): int
+    {
+        return $this->type === InvoiceType::Invoice ? max(0, $this->total_amount - $this->creditedAmount()) : 0;
+    }
+
     protected static function newFactory(): InvoiceFactory
     {
         return InvoiceFactory::new();

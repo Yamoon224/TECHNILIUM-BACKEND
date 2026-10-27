@@ -28,6 +28,11 @@ final class InvoiceException extends DomainException
         return new self("Le document {$number} ne peut pas être annulé par un avoir (déjà crédité ou lui-même un avoir).");
     }
 
+    public static function amountExceedsRemaining(string $number, int $remaining): self
+    {
+        return new self("Le montant dépasse ce qui reste à créditer sur {$number} ({$remaining}).");
+    }
+
     public static function immutable(): self
     {
         return new self('Un document émis est immuable : toute correction passe par un avoir.');

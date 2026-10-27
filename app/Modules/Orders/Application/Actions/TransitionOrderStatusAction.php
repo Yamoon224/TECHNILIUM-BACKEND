@@ -17,6 +17,12 @@ final class TransitionOrderStatusAction
         }
 
         $order->status = $target;
+
+        if ($target === OrderStatus::Delivered) {
+            // Starts the return window that makes a vendor's share payable (cahier §3.1).
+            $order->delivered_at = now();
+        }
+
         $order->save();
 
         return $order->refresh();

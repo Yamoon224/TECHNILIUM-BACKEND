@@ -48,11 +48,24 @@ arch('Accounting only learns about other modules through Shared events')
         'App\Modules\Orders',
         'App\Modules\Payments',
         'App\Modules\Invoicing',
+        'App\Modules\Payouts',
     ]);
 
 arch('Payments and Invoicing never reach into Accounting')
-    ->expect(['App\Modules\Payments', 'App\Modules\Invoicing'])
+    ->expect(['App\Modules\Payments', 'App\Modules\Invoicing', 'App\Modules\Payouts'])
     ->not->toUse('App\Modules\Accounting');
+
+arch('Payouts only uses Orders public Application contracts, never Orders or Vendors Infrastructure')
+    ->expect('App\Modules\Payouts')
+    ->not->toUse(['App\Modules\Orders\Infrastructure', 'App\Modules\Vendors\Infrastructure']);
+
+arch('Returns never reaches into Orders Infrastructure')
+    ->expect('App\Modules\Returns')
+    ->not->toUse('App\Modules\Orders\Infrastructure');
+
+arch('Payouts never reaches into Returns Infrastructure')
+    ->expect('App\Modules\Payouts')
+    ->not->toUse('App\Modules\Returns\Infrastructure');
 
 arch('value objects have no framework dependency')
     ->expect('App\Modules\Shared\ValueObjects')

@@ -6,8 +6,11 @@ namespace App\Modules\Accounting;
 
 use App\Modules\Accounting\Application\Listeners\PostInvoiceEntry;
 use App\Modules\Accounting\Application\Listeners\PostPaymentEntry;
+use App\Modules\Accounting\Application\Listeners\PostPayoutEntry;
 use App\Modules\Shared\Events\InvoiceIssued;
 use App\Modules\Shared\Events\PaymentSettled;
+use App\Modules\Shared\Events\PayoutCalculated;
+use App\Modules\Shared\Events\PayoutPaid;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,5 +27,7 @@ class AccountingModuleServiceProvider extends ServiceProvider
         // écriture", cahier §2.2).
         Event::listen(InvoiceIssued::class, PostInvoiceEntry::class);
         Event::listen(PaymentSettled::class, PostPaymentEntry::class);
+        Event::listen(PayoutCalculated::class, [PostPayoutEntry::class, 'handleCalculated']);
+        Event::listen(PayoutPaid::class, [PostPayoutEntry::class, 'handlePaid']);
     }
 }

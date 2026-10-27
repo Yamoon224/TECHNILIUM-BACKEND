@@ -135,6 +135,47 @@ it('refuses to credit an invoice twice or to credit a credit note', function () 
         ->assertUnprocessable();
 });
 
+it('issues several partial credit notes up to the invoice total, never beyond', function () {
+    $invoice = Invoice::factory()->create(['total_amount' => 118_000, 'net_amount' => 100_000, 'vat_amount' => 18_000]);
+    $user = invoicingUser();
+
+    $first = $this->actingAs($user, 'sanctum')
+        ->postJson("/api/v1/admin/invoices/{$invoice->id}/credit-note", ['reason' => 'Geste', 'amount' => 59_000]);
+    $first->assertCreated()
+        ->assertJsonPath('total_amount', 59_000)
+        ->assertJsonPath('net_amount', 50_000)
+        ->assertJsonPath('vat_amount', 9_000);
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson("/api/v1/admin/invoices/{$invoice->id}/credit-note", ['reason' => 'Trop', 'amount' => 59_001])
+        ->assertUnprocessable();
+
+    // Without an amount, the remaining balance is credited.
+    $this->actingAs($user, 'sanctum')
+        ->postJson("/api/v1/admin/invoices/{$invoice->id}/credit-note", ['reason' => 'Solde'])
+        ->assertCreated()
+        ->assertJsonPath('total_amount', 59_000);
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson("/api/v1/admin/invoices/{$invoice->id}/credit-note", ['reason' => 'Encore'])
+        ->assertUnprocessable();
+});
+
+it('keeps a partially credited invoice live, so the order cannot be invoiced twice', function () {
+    $order = confirmedOrder();
+    $user = invoicingUser();
+
+    $invoice = $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/admin/invoices', ['order_number' => $order->order_number])->json();
+    $this->actingAs($user, 'sanctum')
+        ->postJson("/api/v1/admin/invoices/{$invoice['id']}/credit-note", ['reason' => 'Geste', 'amount' => 1_000])
+        ->assertCreated();
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/admin/invoices', ['order_number' => $order->order_number])
+        ->assertUnprocessable();
+});
+
 it('requires a reason for a credit note', function () {
     $invoice = Invoice::factory()->create();
 

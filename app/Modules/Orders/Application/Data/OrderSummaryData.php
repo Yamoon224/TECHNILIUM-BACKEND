@@ -22,5 +22,7 @@ final readonly class OrderSummaryData
         public int $subtotalAmount = 0,
         /** @var list<OrderLineData> */
         public array $lines = [],
+        /** ISO-8601 delivery time, null until delivered. */
+        public ?string $deliveredAt = null,
     ) {}
 }

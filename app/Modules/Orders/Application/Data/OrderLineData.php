@@ -15,5 +15,7 @@ final readonly class OrderLineData
         public int $quantity,
         public int $unitPriceAmount,
         public int $lineTotalAmount,
+        /** Null for Technilium's own stock (1P). */
+        public ?int $vendorId = null,
     ) {}
 }

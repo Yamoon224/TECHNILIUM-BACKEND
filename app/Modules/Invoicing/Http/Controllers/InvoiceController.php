@@ -109,6 +109,7 @@ class InvoiceController extends Controller
                 $invoice,
                 $request->string('reason')->toString(),
                 $request->user()?->id,
+                $request->filled('amount') ? $request->integer('amount') : null,
             );
         } catch (InvoiceException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);

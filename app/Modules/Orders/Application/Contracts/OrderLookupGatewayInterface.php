@@ -25,6 +25,14 @@ interface OrderLookupGatewayInterface
      */
     public function markShipped(string $orderNumber): bool;
 
+    /**
+     * Delivered orders (with their lines) whose delivery is at or before the
+     * cutoff — i.e. past the return window.
+     *
+     * @return list<OrderSummaryData>
+     */
+    public function deliveredUntil(\DateTimeInterface $cutoff): array;
+
     /** Same best-effort contract as markShipped(), for "delivered". */
     public function markDelivered(string $orderNumber): bool;
 }

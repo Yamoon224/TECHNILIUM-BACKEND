@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property OrderStatus $status
  * @property int $subtotal_amount
  * @property string $currency
+ * @property Carbon|null $delivered_at
  * @property Carbon|null $created_at
  * @property-read Collection<int, OrderItem> $items
  */
@@ -47,12 +48,14 @@ class Order extends Model
         'status',
         'subtotal_amount',
         'currency',
+        'delivered_at',
     ];
 
     protected function casts(): array
     {
         return [
             'status' => OrderStatus::class,
+            'delivered_at' => 'datetime',
         ];
     }
 

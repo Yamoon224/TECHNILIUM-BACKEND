@@ -21,6 +21,17 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
         return $order ? $this->toData($order) : null;
     }
 
+    public function deliveredUntil(\DateTimeInterface $cutoff): array
+    {
+        return Order::query()
+            ->with('items')
+            ->where('status', OrderStatus::Delivered)
+            ->where('delivered_at', '<=', $cutoff)
+            ->get()
+            ->map(fn (Order $order) => $this->toData($order))
+            ->all();
+    }
+
     public function markShipped(string $orderNumber): bool
     {
         return $this->transition($orderNumber, OrderStatus::Shipped);
@@ -60,7 +71,9 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
                 quantity: $item->quantity,
                 unitPriceAmount: $item->unit_price_amount,
                 lineTotalAmount: $item->line_total_amount,
+                vendorId: $item->vendor_id,
             ))->all(),
+            deliveredAt: $order->delivered_at?->toIso8601String(),
         );
     }
 }

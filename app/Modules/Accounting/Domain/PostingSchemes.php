@@ -21,6 +21,10 @@ final class PostingSchemes
 
     public const SALES = '701';
 
+    public const COMMISSIONS = '706';
+
+    public const VENDOR_PAYABLES = '4011';
+
     /**
      * Sale: customer owes the VAT-inclusive total; revenue net, VAT to the state.
      * A credit note is the exact mirror.
@@ -51,6 +55,34 @@ final class PostingSchemes
         ];
 
         return $refunded ? array_map(fn (EntryLine $l) => $l->reversed(), $lines) : $lines;
+    }
+
+    /**
+     * Invoices book every sale to 701; for a vendor's share, the gross leaves
+     * revenue, Technilium keeps the commission and owes the net to the vendor.
+     *
+     * @return list<EntryLine>
+     */
+    public static function payoutCalculated(int $gross, int $commission, int $net): array
+    {
+        return array_values(array_filter([
+            new EntryLine(self::SALES, debit: $gross),
+            $commission > 0 ? new EntryLine(self::COMMISSIONS, credit: $commission) : null,
+            $net > 0 ? new EntryLine(self::VENDOR_PAYABLES, credit: $net) : null,
+        ]));
+    }
+
+    /**
+     * The transfer settles the vendor payable out of mobile money / bank.
+     *
+     * @return list<EntryLine>
+     */
+    public static function payoutPaid(int $net): array
+    {
+        return [
+            new EntryLine(self::VENDOR_PAYABLES, debit: $net),
+            new EntryLine(self::MOBILE_MONEY, credit: $net),
+        ];
     }
 
     public static function paymentJournal(string $method): string
