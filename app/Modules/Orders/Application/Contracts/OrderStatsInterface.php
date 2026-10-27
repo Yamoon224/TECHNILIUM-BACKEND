@@ -40,6 +40,20 @@ interface OrderStatsInterface
      */
     public function revenueBySeller(DateTimeInterface $from, DateTimeInterface $to): array;
 
+    /**
+     * Orders delivered in [from, to] that include at least one line of
+     * Technilium's own stock (vendor_id null), with those lines. The order's
+     * full list-price total and its coupon discount come along, because the
+     * discount is borne by Technilium and must be shared out by the caller.
+     *
+     * @return list<array{
+     *     order_id: int, order_number: string, delivered_on: string,
+     *     items_total: int, discount: int,
+     *     lines: list<array{offer_id: int, product: string, quantity: int, line_total: int}>
+     * }>
+     */
+    public function deliveredOwnStockSales(DateTimeInterface $from, DateTimeInterface $to): array;
+
     /** Orders still pending or confirmed that were placed before the given moment. */
     public function countStalledBefore(DateTimeInterface $moment): int;
 }

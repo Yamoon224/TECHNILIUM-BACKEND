@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Reporting\Http\Controllers;
 
+use App\Modules\Reporting\Application\MarginReport;
 use App\Modules\Reporting\Application\ReportingService;
 use App\Modules\Reporting\Http\Requests\ReportPeriodRequest;
 use Illuminate\Http\JsonResponse;
@@ -52,6 +53,43 @@ class ReportController extends Controller
         [$from, $to] = $request->period();
 
         return response()->json(['data' => $this->reports->salesBySeller($from, $to)]);
+    }
+
+    #[OA\Get(
+        path: '/admin/reports/margin',
+        summary: 'Marge brute de Technilium sur ses ventes en propre livrées (hors TVA, remises comprises, hors vendeurs tiers)',
+        security: [['sanctum' => []]],
+        tags: ['Reporting'],
+        responses: [new OA\Response(response: 200, description: 'Marge par produit et par jour')],
+    )]
+    public function margin(ReportPeriodRequest $request, MarginReport $report): JsonResponse
+    {
+        [$from, $to] = $request->period();
+
+        return response()->json($report->build($from, $to));
+    }
+
+    #[OA\Get(
+        path: '/admin/reports/margin.csv',
+        summary: 'Export CSV de la marge par produit (séparateur point-virgule, UTF-8)',
+        security: [['sanctum' => []]],
+        tags: ['Reporting'],
+        responses: [new OA\Response(response: 200, description: 'Fichier CSV')],
+    )]
+    public function marginCsv(ReportPeriodRequest $request, MarginReport $report): StreamedResponse
+    {
+        [$from, $to] = $request->period();
+        $products = $report->build($from, $to)['by_product'];
+
+        return response()->streamDownload(function () use ($products) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['produit', 'unites', 'chiffre_affaires_ht', 'cout', 'marge', 'marge_pourcent'], ';');
+            foreach ($products as $p) {
+                fputcsv($out, [$p['product'], $p['units'], $p['revenue'], $p['cost'], $p['margin'], $p['margin_percent'] ?? ''], ';');
+            }
+            fclose($out);
+        }, 'marge-'.$from->format('Ymd').'-'.$to->format('Ymd').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     #[OA\Get(

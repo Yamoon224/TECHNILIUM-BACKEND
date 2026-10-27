@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Procurement;
 
+use App\Modules\Procurement\Application\Contracts\CostOfSalesInterface;
 use App\Modules\Procurement\Application\Contracts\OfferCostInterface;
+use App\Modules\Procurement\Application\Gateways\EloquentCostOfSales;
 use App\Modules\Procurement\Application\Gateways\EloquentOfferCost;
 use App\Modules\Procurement\Application\Listeners\RecognizeCostOfGoodsSold;
 use App\Modules\Procurement\Application\Listeners\ReverseCostOfGoodsSold;
@@ -18,6 +20,7 @@ class ProcurementModuleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(OfferCostInterface::class, EloquentOfferCost::class);
+        $this->app->bind(CostOfSalesInterface::class, EloquentCostOfSales::class);
     }
 
     public function boot(): void

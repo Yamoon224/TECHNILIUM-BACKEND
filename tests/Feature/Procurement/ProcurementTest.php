@@ -454,3 +454,142 @@ it('audits purchasing actions, refused ones included', function () {
 
     expect(\App\Modules\Audit\Infrastructure\Models\AuditLog::query()->where('path', 'like', '%/receipts')->where('status', 422)->count())->toBe(1);
 });
+
+/* ---------------- cost of sales given back on a resellable customer return ---------------- */
+
+/** Opens, accepts and receives a return of $qty units; $restock = the inspector's decision. */
+function returnUnits(Order $order, Offer $offer, int $qty, bool $restock): int
+{
+    $admin = buyerStaff(Role::Administrateur);
+
+    $id = test()->actingAs($admin, 'sanctum')->postJson('/api/v1/admin/returns', [
+        'order_number' => $order->order_number, 'reason' => 'Défaut',
+        'items' => [['offer_id' => $offer->id, 'quantity' => $qty]],
+    ])->assertCreated()->json('id');
+
+    test()->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/returns/{$id}/accept")->assertOk();
+    test()->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/returns/{$id}/receive", ['restock' => $restock])->assertOk();
+
+    return $id;
+}
+
+it('gives the cost of sales back when resellable goods return to stock', function () {
+    $buyer = buyerStaff();
+    [$po, $offer, $lineId] = placedOrder($buyer, quantity: 10, unitCost: 100);
+    receive($buyer, $po, $lineId, 10)->assertCreated();
+    $order = deliverOwnStockOrder($offer, 3);          // cost of sales 3 × 100 = 300
+
+    $returnId = returnUnits($order, $offer, 2, restock: true);
+
+    $entry = JournalEntry::query()->with('lines')->where('source_type', 'cogs_return')->sole();
+    expect($entry->source_id)->toBe($returnId)
+        ->and($entry->reference)->toBe($order->order_number)
+        ->and($entry->lines->firstWhere('account_code', '311')->debit)->toBe(200)    // stock up
+        ->and($entry->lines->firstWhere('account_code', '601')->credit)->toBe(200);  // cost of sales down
+
+    // 1 000 received − 300 sold + 200 returned; net cost of sales is the one unit really kept.
+    $books = balances();
+    expect($books['311']['balance'])->toBe(900)
+        ->and($books['601']['balance'])->toBe(100)
+        // The test order was built directly (no checkout), so its sale did not take units
+        // out of physical stock: 10 received + the 2 returned units restocked.
+        ->and($offer->fresh()->stock_quantity)->toBe(10 + 2);
+
+    $totals = ledger();
+    expect($totals['total_debit'])->toBe($totals['total_credit']);
+});
+
+it('gives nothing back when the inspector does not restock the goods', function () {
+    $buyer = buyerStaff();
+    [$po, $offer, $lineId] = placedOrder($buyer, quantity: 10, unitCost: 100);
+    receive($buyer, $po, $lineId, 10)->assertCreated();
+    $order = deliverOwnStockOrder($offer, 3);
+
+    returnUnits($order, $offer, 2, restock: false);   // damaged: not back on sale
+
+    expect(JournalEntry::query()->where('source_type', 'cogs_return')->count())->toBe(0)
+        ->and(balances()['601']['balance'])->toBe(300);   // the cost stays: the goods are lost
+});
+
+it('gives nothing back for a third-party vendor\'s lines', function () {
+    $vendor = Vendor::factory()->active()->create();
+    $vendorOffer = Offer::factory()->fromVendor($vendor->id)->create(['stock_quantity' => 5]);
+    $order = deliverOwnStockOrder($vendorOffer, 2, vendorId: $vendor->id);
+    // Pretend a cost had been recognised for the order anyway.
+    \App\Modules\Procurement\Infrastructure\Models\OrderCost::query()->create(['order_id' => $order->id, 'order_number' => $order->order_number, 'cost_amount' => 999]);
+    OfferCost::query()->create(['offer_id' => $vendorOffer->id, 'average_cost_amount' => 100]);
+
+    event(new \App\Modules\Shared\Events\ReturnReceived(7_001, $order->order_number, [['offer_id' => $vendorOffer->id, 'quantity' => 1]]));
+
+    expect(JournalEntry::query()->where('source_type', 'cogs_return')->count())->toBe(0);
+});
+
+it('gives nothing back for an order whose cost of sales was never recognised', function () {
+    $offer = Offer::factory()->create(['stock_quantity' => 5]);
+    $order = deliverOwnStockOrder($offer, 2);   // own stock, but no purchase history: no cost recognised
+    OfferCost::query()->create(['offer_id' => $offer->id, 'average_cost_amount' => 100]);   // a cost appears later
+
+    event(new \App\Modules\Shared\Events\ReturnReceived(7_002, $order->order_number, [['offer_id' => $offer->id, 'quantity' => 1]]));
+
+    expect(JournalEntry::query()->where('source_type', 'cogs_return')->count())->toBe(0);
+});
+
+it('never gives back more than was recognised, across several returns', function () {
+    $buyer = buyerStaff();
+    [$po, $offer, $lineId] = placedOrder($buyer, quantity: 10, unitCost: 100);
+    receive($buyer, $po, $lineId, 10)->assertCreated();
+    $order = deliverOwnStockOrder($offer, 3);            // recognised: 300
+
+    $item = [['offer_id' => $offer->id, 'quantity' => 2]];
+    event(new \App\Modules\Shared\Events\ReturnReceived(8_001, $order->order_number, $item));   // 200
+    event(new \App\Modules\Shared\Events\ReturnReceived(8_002, $order->order_number, $item));   // would be 200, only 100 left
+    event(new \App\Modules\Shared\Events\ReturnReceived(8_003, $order->order_number, $item));   // nothing left
+
+    $amounts = JournalEntry::query()->with('lines')->where('source_type', 'cogs_return')->orderBy('id')->get()
+        ->map(fn ($e) => $e->lines->firstWhere('account_code', '311')->debit)->all();
+
+    expect($amounts)->toBe([200, 100])
+        ->and(array_sum($amounts))->toBe(300)
+        ->and(balances()['601']['balance'])->toBe(0);
+});
+
+it('gives the cost back once per return even if the event is replayed', function () {
+    $buyer = buyerStaff();
+    [$po, $offer, $lineId] = placedOrder($buyer, quantity: 10, unitCost: 100);
+    receive($buyer, $po, $lineId, 10)->assertCreated();
+    $order = deliverOwnStockOrder($offer, 3);
+
+    $event = new \App\Modules\Shared\Events\ReturnReceived(9_001, $order->order_number, [['offer_id' => $offer->id, 'quantity' => 1]]);
+    event($event);
+    event($event);
+
+    expect(JournalEntry::query()->where('source_type', 'cogs_return')->count())->toBe(1)
+        ->and(\App\Modules\Procurement\Infrastructure\Models\CostReversal::query()->count())->toBe(1);
+});
+
+it('recognises the cost of sales once even if the delivery is announced twice', function () {
+    $buyer = buyerStaff();
+    [$po, $offer, $lineId] = placedOrder($buyer, quantity: 10, unitCost: 100);
+    receive($buyer, $po, $lineId, 10)->assertCreated();
+    $order = deliverOwnStockOrder($offer, 3);
+
+    event(new \App\Modules\Shared\Events\OrderStatusChanged($order->order_number, 'X', '0700000000', 'delivered', $order->id));
+
+    expect(JournalEntry::query()->where('source_type', 'cogs')->count())->toBe(1)
+        ->and(\App\Modules\Procurement\Infrastructure\Models\OrderCost::query()->sole()->cost_amount)->toBe(300);
+});
+
+it('uses the cost recognised at delivery as the ceiling even when the average cost has since changed', function () {
+    $buyer = buyerStaff();
+    [$po, $offer, $lineId] = placedOrder($buyer, quantity: 10, unitCost: 100);
+    receive($buyer, $po, $lineId, 10)->assertCreated();
+    $order = deliverOwnStockOrder($offer, 2);            // recognised: 200
+
+    OfferCost::query()->where('offer_id', $offer->id)->update(['average_cost_amount' => 500]);   // cost went up since
+
+    event(new \App\Modules\Shared\Events\ReturnReceived(9_101, $order->order_number, [['offer_id' => $offer->id, 'quantity' => 2]]));
+
+    // 2 × 500 = 1 000 would exceed what was ever recognised: capped at 200.
+    $entry = JournalEntry::query()->with('lines')->where('source_type', 'cogs_return')->sole();
+    expect($entry->lines->firstWhere('account_code', '311')->debit)->toBe(200);
+});

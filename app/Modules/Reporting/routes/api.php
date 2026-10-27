@@ -9,4 +9,6 @@ Route::prefix('admin/reports')->middleware(['auth:sanctum', 'can:view-reports'])
     Route::get('/dashboard', [ReportController::class, 'dashboard']);
     Route::get('/sales-by-seller', [ReportController::class, 'salesBySeller']);
     Route::get('/sales.csv', [ReportController::class, 'salesCsv']);
+    Route::get('/margin', [ReportController::class, 'margin']);
+    Route::get('/margin.csv', [ReportController::class, 'marginCsv']);
 });

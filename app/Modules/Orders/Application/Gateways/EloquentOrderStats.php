@@ -77,6 +77,36 @@ final class EloquentOrderStats implements OrderStatsInterface
             ->all();
     }
 
+    public function deliveredOwnStockSales(DateTimeInterface $from, DateTimeInterface $to): array
+    {
+        $orders = Order::query()
+            ->with('items')
+            ->where('status', OrderStatus::Delivered)
+            ->whereBetween('delivered_at', [$from, $to])
+            ->whereHas('items', fn ($query) => $query->whereNull('vendor_id'))
+            ->orderBy('delivered_at')
+            ->orderBy('id')
+            ->get();
+
+        return $orders->map(fn (Order $order) => [
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'delivered_on' => $order->delivered_at?->toDateString() ?? '',
+            'items_total' => (int) $order->items->sum('line_total_amount'),
+            'discount' => $order->discount_amount,
+            'lines' => $order->items
+                ->whereNull('vendor_id')
+                ->map(fn (OrderItem $item) => [
+                    'offer_id' => $item->offer_id,
+                    'product' => trim($item->brand.' '.$item->product_name),
+                    'quantity' => $item->quantity,
+                    'line_total' => $item->line_total_amount,
+                ])
+                ->values()
+                ->all(),
+        ])->all();
+    }
+
     public function countStalledBefore(DateTimeInterface $moment): int
     {
         return Order::query()

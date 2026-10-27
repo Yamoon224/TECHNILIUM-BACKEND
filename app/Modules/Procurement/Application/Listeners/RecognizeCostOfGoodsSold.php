@@ -7,6 +7,7 @@ namespace App\Modules\Procurement\Application\Listeners;
 use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
 use App\Modules\Procurement\Application\Contracts\OfferCostInterface;
 use App\Modules\Procurement\Infrastructure\Models\OrderCost;
+use App\Modules\Procurement\Infrastructure\Models\OrderCostLine;
 use App\Modules\Shared\Events\OrderStatusChanged;
 use App\Modules\Shared\Events\StockConsumed;
 use Throwable;
@@ -43,10 +44,18 @@ final class RecognizeCostOfGoodsSold
             }
 
             $cost = 0;
+            /** @var array<int, array{quantity: int, cost: int}> $byOffer */
+            $byOffer = [];
 
             foreach ($order->lines as $line) {
                 if ($line->vendorId === null && $line->offerId !== null) {
-                    $cost += $this->costs->averageCost($line->offerId) * $line->quantity;
+                    $lineCost = $this->costs->averageCost($line->offerId) * $line->quantity;
+                    $cost += $lineCost;
+
+                    $byOffer[$line->offerId] = [
+                        'quantity' => ($byOffer[$line->offerId]['quantity'] ?? 0) + $line->quantity,
+                        'cost' => ($byOffer[$line->offerId]['cost'] ?? 0) + $lineCost,
+                    ];
                 }
             }
 
@@ -62,6 +71,15 @@ final class RecognizeCostOfGoodsSold
 
             // A replayed "delivered" finds the row already there and books nothing more.
             if ($recorded->wasRecentlyCreated) {
+                foreach ($byOffer as $offerId => $row) {
+                    OrderCostLine::query()->create([
+                        'order_id' => $event->orderId,
+                        'offer_id' => $offerId,
+                        'quantity' => $row['quantity'],
+                        'cost_amount' => $row['cost'],
+                    ]);
+                }
+
                 event(new StockConsumed($event->orderId, $event->orderNumber, $cost, $order->currency));
             }
         } catch (Throwable $exception) {
