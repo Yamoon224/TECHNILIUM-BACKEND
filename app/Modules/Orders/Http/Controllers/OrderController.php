@@ -66,6 +66,7 @@ class OrderController extends Controller
             address: $request->string('delivery_address')->toString(),
             city: $request->string('delivery_city')->toString() ?: null,
             notes: $request->string('notes')->toString() ?: null,
+            customerEmail: $request->string('customer_email')->toString() ?: null,
         );
 
         try {

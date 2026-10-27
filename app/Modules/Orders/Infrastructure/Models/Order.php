@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $customer_id
  * @property string $customer_name
  * @property string $customer_phone
+ * @property string|null $customer_email
  * @property string $delivery_address
  * @property string|null $delivery_city
  * @property string|null $notes
@@ -45,6 +46,7 @@ class Order extends Model
         'customer_id',
         'customer_name',
         'customer_phone',
+        'customer_email',
         'delivery_address',
         'delivery_city',
         'notes',

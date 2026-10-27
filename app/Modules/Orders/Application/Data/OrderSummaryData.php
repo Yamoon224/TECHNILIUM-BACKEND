@@ -29,5 +29,7 @@ final readonly class OrderSummaryData
         public ?string $couponCode = null,
         /** The customer account the order belongs to; null for a guest order. */
         public ?int $customerId = null,
+        /** Optional contact e-mail given at checkout; never part of a vendor's view. */
+        public ?string $customerEmail = null,
     ) {}
 }

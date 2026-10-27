@@ -87,6 +87,7 @@ final class PlaceOrderAction
                 'customer_id' => $customerId,
                 'customer_name' => $delivery->customerName,
                 'customer_phone' => $delivery->customerPhone,
+                'customer_email' => $delivery->customerEmail,
                 'delivery_address' => $delivery->address,
                 'delivery_city' => $delivery->city,
                 'notes' => $delivery->notes,
@@ -130,7 +131,7 @@ final class PlaceOrderAction
             // Raised inside the transaction: a rolled-back order sends nothing.
             event(new OrderPlaced(
                 $order->order_number, $order->customer_name, $order->customer_phone,
-                $order->subtotal_amount, $order->currency, $order->delivery_code,
+                $order->subtotal_amount, $order->currency, $order->delivery_code, $order->customer_email,
             ));
 
             return $order->load('items', 'subOrders');

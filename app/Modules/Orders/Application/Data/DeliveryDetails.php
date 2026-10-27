@@ -17,5 +17,6 @@ final readonly class DeliveryDetails
         public string $address,
         public ?string $city,
         public ?string $notes,
+        public ?string $customerEmail = null,
     ) {}
 }

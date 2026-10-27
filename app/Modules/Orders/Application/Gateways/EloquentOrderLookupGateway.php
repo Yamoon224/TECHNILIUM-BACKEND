@@ -194,6 +194,7 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
             discountAmount: $order->discount_amount,
             couponCode: $order->coupon_code,
             customerId: $order->customer_id,
+            customerEmail: $order->customer_email,
         );
     }
 }

@@ -31,6 +31,7 @@ final class NotifyOnOrderEvents
             $event->orderNumber,
             $event->customerPhone,
             MessageTemplates::orderPlaced($event->customerName, $event->orderNumber, $event->totalAmount, $event->currency, $event->deliveryCode),
+            $event->customerEmail,
         ));
     }
 
@@ -42,7 +43,7 @@ final class NotifyOnOrderEvents
             return;
         }
 
-        $this->safely(fn () => $this->notify->execute("order.{$event->status}", $event->orderNumber, $event->customerPhone, $body));
+        $this->safely(fn () => $this->notify->execute("order.{$event->status}", $event->orderNumber, $event->customerPhone, $body, $event->customerEmail));
     }
 
     public function onReturnRefunded(ReturnRefunded $event): void
@@ -60,6 +61,7 @@ final class NotifyOnOrderEvents
                 "{$event->orderNumber}#{$event->returnId}",
                 $order->customerPhone,
                 MessageTemplates::returnRefunded($event->orderNumber, $event->amount, $event->currency),
+                $order->customerEmail,
             );
         });
     }

@@ -14,24 +14,28 @@ use App\Modules\Notifications\Infrastructure\Models\Notification;
  */
 final class NotifyCustomerAction
 {
-    public function execute(string $event, string $reference, string $phone, string $body): void
+    public function execute(string $event, string $reference, string $phone, string $body, ?string $email = null): void
     {
         $phone = trim($phone);
-
-        if ($phone === '') {
-            return;
-        }
+        $email = trim((string) $email);
 
         /** @var list<string> $channels */
         $channels = array_values((array) config('notifications.channels'));
 
         foreach ($channels as $channel) {
+            // E-mail goes to the optional address, every other channel to the phone.
+            $recipient = $channel === 'email' ? $email : $phone;
+
+            if ($recipient === '') {
+                continue;
+            }
+
             $notification = Notification::query()->firstOrCreate(
                 ['dedupe_key' => "{$event}:{$reference}:{$channel}"],
                 [
                     'event' => $event,
                     'channel' => $channel,
-                    'recipient' => $phone,
+                    'recipient' => $recipient,
                     'body' => $body,
                     'reference' => $reference,
                     'status' => NotificationStatus::Pending,

@@ -15,5 +15,7 @@ final readonly class OrderPlaced implements DomainEvent
         public string $currency,
         /** The delivery confirmation code the customer must keep (cahier §5.6). */
         public ?string $deliveryCode,
+        /** Optional: lets Notifications also write to the customer. */
+        public ?string $customerEmail = null,
     ) {}
 }
