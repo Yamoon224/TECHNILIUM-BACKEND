@@ -70,8 +70,10 @@ final class ReceiveGoodsAction
             }
             $receiptValue = array_sum($lineValues);
 
+            // What the earlier receipts really carried, so a cost added since catches up here.
+            $alreadyAllocated = (int) GoodsReceipt::query()->where('purchase_order_id', $order->id)->sum('landed_amount');
             $landedShare = LandedCostAllocator::shareForReceipt(
-                $order->landedTotal(), $goodsTotal, $valueBefore, $valueBefore + $receiptValue,
+                $order->landedTotal(), $goodsTotal, $valueBefore + $receiptValue, $alreadyAllocated,
             );
             $landedByLine = array_combine(
                 array_keys($lineValues),

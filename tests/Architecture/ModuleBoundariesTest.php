@@ -118,6 +118,20 @@ arch('Customers reads Orders only through its public contract, and touches no ot
         'App\Modules\Returns',
     ]);
 
+arch('Procurement reaches Catalog and Orders only through their public contracts')
+    ->expect('App\Modules\Procurement')
+    ->not->toUse([
+        'App\Modules\Catalog\Infrastructure',
+        'App\Modules\Orders\Infrastructure',
+        'App\Modules\Inventory',
+        'App\Modules\Accounting',
+        'App\Modules\Payments',
+    ]);
+
+arch('Accounting and Inventory hear about purchasing only through Shared events')
+    ->expect(['App\Modules\Accounting', 'App\Modules\Inventory'])
+    ->not->toUse('App\Modules\Procurement');
+
 arch('Payouts never reaches into Returns Infrastructure')
     ->expect('App\Modules\Payouts')
     ->not->toUse('App\Modules\Returns\Infrastructure');

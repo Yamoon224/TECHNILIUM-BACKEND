@@ -11,6 +11,7 @@ use App\Modules\Notifications\NotificationsModuleServiceProvider;
 use App\Modules\Orders\OrdersModuleServiceProvider;
 use App\Modules\Payments\PaymentsModuleServiceProvider;
 use App\Modules\Payouts\PayoutsModuleServiceProvider;
+use App\Modules\Procurement\ProcurementModuleServiceProvider;
 use App\Modules\Promotions\PromotionsModuleServiceProvider;
 use App\Modules\Reporting\ReportingModuleServiceProvider;
 use App\Modules\Returns\ReturnsModuleServiceProvider;
@@ -36,4 +37,5 @@ return [
     NotificationsModuleServiceProvider::class,
     AuditModuleServiceProvider::class,
     CustomersModuleServiceProvider::class,
+    ProcurementModuleServiceProvider::class,
 ];

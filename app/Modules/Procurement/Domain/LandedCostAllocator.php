@@ -10,37 +10,31 @@ namespace App\Modules\Procurement\Domain;
  * receipt carries its fair share and the shares add up to exactly the total
  * once everything is received, with no minor unit lost or invented.
  *
- * The share is computed on CUMULATIVE values: what had been allocated before
- * this receipt is subtracted from what should have been allocated after it.
- * That makes it correct when a cost is added late (the next receipt catches
- * up) and when receipts arrive in several parts.
+ * The share is what SHOULD have been allocated once this receipt is counted
+ * (cumulative received value / goods total x landed total), minus what earlier
+ * receipts ACTUALLY carried. Comparing to what was really allocated — not to a
+ * recomputation — is what makes a cost added after a first receipt catch up on
+ * the next one instead of being lost.
  */
 final class LandedCostAllocator
 {
     /**
-     * @param  int  $landedTotal  all landed costs recorded on the purchase
+     * @param  int  $landedTotal  all landed costs recorded on the purchase so far
      * @param  int  $goodsTotal  value of everything ordered (the base the costs are spread over)
-     * @param  int  $receivedBefore  cumulative value received before this receipt
-     * @param  int  $receivedAfter  cumulative value received including this receipt
+     * @param  int  $receivedAfter  cumulative value received, including this receipt
+     * @param  int  $alreadyAllocated  landed costs carried by the earlier receipts
      */
-    public static function shareForReceipt(int $landedTotal, int $goodsTotal, int $receivedBefore, int $receivedAfter): int
+    public static function shareForReceipt(int $landedTotal, int $goodsTotal, int $receivedAfter, int $alreadyAllocated): int
     {
         if ($landedTotal <= 0 || $goodsTotal <= 0) {
             return 0;
         }
 
-        return self::allocatedTo($landedTotal, $goodsTotal, $receivedAfter)
-            - self::allocatedTo($landedTotal, $goodsTotal, $receivedBefore);
-    }
+        $dueToDate = $receivedAfter >= $goodsTotal
+            ? $landedTotal
+            : max(0, min($landedTotal, intdiv($landedTotal * $receivedAfter + intdiv($goodsTotal, 2), $goodsTotal)));
 
-    /** Portion of the landed costs owed by `$received` value, half up, never above the total. */
-    private static function allocatedTo(int $landedTotal, int $goodsTotal, int $received): int
-    {
-        if ($received >= $goodsTotal) {
-            return $landedTotal;
-        }
-
-        return max(0, min($landedTotal, intdiv($landedTotal * $received + intdiv($goodsTotal, 2), $goodsTotal)));
+        return max(0, $dueToDate - $alreadyAllocated);
     }
 
     /**
