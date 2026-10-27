@@ -14,6 +14,7 @@ use App\Modules\Shared\Events\PayoutCalculated;
 use App\Modules\Shared\Events\PayoutPaid;
 use App\Modules\Shared\Events\PurchaseReceived;
 use App\Modules\Shared\Events\StockConsumed;
+use App\Modules\Shared\Events\StockReturned;
 use App\Modules\Shared\Events\SupplierPaid;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -36,5 +37,6 @@ class AccountingModuleServiceProvider extends ServiceProvider
         Event::listen(PurchaseReceived::class, [PostProcurementEntries::class, 'handleReceived']);
         Event::listen(SupplierPaid::class, [PostProcurementEntries::class, 'handlePaid']);
         Event::listen(StockConsumed::class, [PostProcurementEntries::class, 'handleConsumed']);
+        Event::listen(StockReturned::class, [PostProcurementEntries::class, 'handleReturned']);
     }
 }

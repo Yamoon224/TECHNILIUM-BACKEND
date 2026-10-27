@@ -8,6 +8,7 @@ use App\Modules\Accounting\Application\Actions\PostJournalEntryAction;
 use App\Modules\Accounting\Domain\PostingSchemes;
 use App\Modules\Shared\Events\PurchaseReceived;
 use App\Modules\Shared\Events\StockConsumed;
+use App\Modules\Shared\Events\StockReturned;
 use App\Modules\Shared\Events\SupplierPaid;
 
 /** Books the purchase cycle: stock in, supplier paid, cost of goods sold. */
@@ -43,6 +44,19 @@ final class PostProcurementEntries
             lines: PostingSchemes::supplierPaid($event->kind, $event->amount),
             currency: $event->currency,
             reference: $event->invoiceNumber,
+        );
+    }
+
+    public function handleReturned(StockReturned $event): void
+    {
+        $this->post->execute(
+            journal: 'OD',
+            sourceType: 'cogs_return',
+            sourceId: $event->returnId,
+            description: "Retour en stock, annulation du coût des ventes, commande {$event->orderNumber}",
+            lines: PostingSchemes::costOfGoodsReturned($event->costAmount),
+            currency: $event->currency,
+            reference: $event->orderNumber,
         );
     }
 

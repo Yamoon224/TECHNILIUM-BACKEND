@@ -136,6 +136,17 @@ final class PostingSchemes
         ];
     }
 
+    /**
+     * Returned resellable goods are back in stock: the cost of sales recognised
+     * for them is given back — the exact mirror of costOfGoodsSold().
+     *
+     * @return list<EntryLine>
+     */
+    public static function costOfGoodsReturned(int $cost): array
+    {
+        return array_map(fn (EntryLine $line) => $line->reversed(), self::costOfGoodsSold($cost));
+    }
+
     public static function paymentJournal(string $method): string
     {
         return $method === 'mobile_money' ? 'MM' : 'CA';
