@@ -113,6 +113,7 @@ arch('Customers reads Orders only through its public contract, and touches no ot
     ->not->toUse([
         'App\Modules\Orders\Infrastructure',
         'App\Modules\Identity\Infrastructure',
+        'App\Modules\Catalog\Infrastructure',
         'App\Modules\Payments',
         'App\Modules\Returns',
     ]);
