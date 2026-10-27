@@ -7,10 +7,14 @@ namespace App\Modules\Accounting;
 use App\Modules\Accounting\Application\Listeners\PostInvoiceEntry;
 use App\Modules\Accounting\Application\Listeners\PostPaymentEntry;
 use App\Modules\Accounting\Application\Listeners\PostPayoutEntry;
+use App\Modules\Accounting\Application\Listeners\PostProcurementEntries;
 use App\Modules\Shared\Events\InvoiceIssued;
 use App\Modules\Shared\Events\PaymentSettled;
 use App\Modules\Shared\Events\PayoutCalculated;
 use App\Modules\Shared\Events\PayoutPaid;
+use App\Modules\Shared\Events\PurchaseReceived;
+use App\Modules\Shared\Events\StockConsumed;
+use App\Modules\Shared\Events\SupplierPaid;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,5 +33,8 @@ class AccountingModuleServiceProvider extends ServiceProvider
         Event::listen(PaymentSettled::class, PostPaymentEntry::class);
         Event::listen(PayoutCalculated::class, [PostPayoutEntry::class, 'handleCalculated']);
         Event::listen(PayoutPaid::class, [PostPayoutEntry::class, 'handlePaid']);
+        Event::listen(PurchaseReceived::class, [PostProcurementEntries::class, 'handleReceived']);
+        Event::listen(SupplierPaid::class, [PostProcurementEntries::class, 'handlePaid']);
+        Event::listen(StockConsumed::class, [PostProcurementEntries::class, 'handleConsumed']);
     }
 }

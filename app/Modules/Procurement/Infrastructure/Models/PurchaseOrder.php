@@ -66,6 +66,12 @@ class PurchaseOrder extends Model
         return $this->hasMany(PurchaseOrderLine::class)->orderBy('id');
     }
 
+    /** @return HasMany<GoodsReceipt, $this> */
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(GoodsReceipt::class)->orderBy('id');
+    }
+
     /** @return HasMany<LandedCost, $this> */
     public function landedCosts(): HasMany
     {

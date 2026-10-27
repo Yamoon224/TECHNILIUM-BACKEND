@@ -25,6 +25,16 @@ final class PostingSchemes
 
     public const VENDOR_PAYABLES = '4011';
 
+    public const STOCK = '311';
+
+    public const BANK = '521';
+
+    public const SUPPLIERS_GOODS = '4012';
+
+    public const SUPPLIERS_LANDED = '4013';
+
+    public const COST_OF_GOODS_SOLD = '601';
+
     /**
      * Sale: customer owes the VAT-inclusive total; revenue net, VAT to the state.
      * A credit note is the exact mirror.
@@ -82,6 +92,47 @@ final class PostingSchemes
         return [
             new EntryLine(self::VENDOR_PAYABLES, debit: $net),
             new EntryLine(self::MOBILE_MONEY, credit: $net),
+        ];
+    }
+
+    /**
+     * Goods received enter stock at their full cost (goods + landed costs);
+     * what is owed to the supplier and to the carriers/customs is booked apart.
+     *
+     * @return list<EntryLine>
+     */
+    public static function purchaseReceived(int $goods, int $landed): array
+    {
+        return array_values(array_filter([
+            new EntryLine(self::STOCK, debit: $goods + $landed),
+            $goods > 0 ? new EntryLine(self::SUPPLIERS_GOODS, credit: $goods) : null,
+            $landed > 0 ? new EntryLine(self::SUPPLIERS_LANDED, credit: $landed) : null,
+        ]));
+    }
+
+    /**
+     * Paying a supplier invoice settles the payable it created.
+     *
+     * @return list<EntryLine>
+     */
+    public static function supplierPaid(string $kind, int $amount): array
+    {
+        return [
+            new EntryLine($kind === 'landed_cost' ? self::SUPPLIERS_LANDED : self::SUPPLIERS_GOODS, debit: $amount),
+            new EntryLine(self::BANK, credit: $amount),
+        ];
+    }
+
+    /**
+     * Delivered goods leave stock at average cost and become the cost of sales.
+     *
+     * @return list<EntryLine>
+     */
+    public static function costOfGoodsSold(int $cost): array
+    {
+        return [
+            new EntryLine(self::COST_OF_GOODS_SOLD, debit: $cost),
+            new EntryLine(self::STOCK, credit: $cost),
         ];
     }
 
