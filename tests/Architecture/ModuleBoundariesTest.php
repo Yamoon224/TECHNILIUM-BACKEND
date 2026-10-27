@@ -108,6 +108,15 @@ arch('Audit does not depend on the business modules it watches')
         'App\Modules\Identity\Infrastructure',
     ]);
 
+arch('Customers reads Orders only through its public contract, and touches no other module')
+    ->expect('App\Modules\Customers')
+    ->not->toUse([
+        'App\Modules\Orders\Infrastructure',
+        'App\Modules\Identity\Infrastructure',
+        'App\Modules\Payments',
+        'App\Modules\Returns',
+    ]);
+
 arch('Payouts never reaches into Returns Infrastructure')
     ->expect('App\Modules\Payouts')
     ->not->toUse('App\Modules\Returns\Infrastructure');
