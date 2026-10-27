@@ -8,7 +8,7 @@ Dépôts liés : [TECHNILIUM-WEB-STORE](https://github.com/Yamoon224/TECHNILIUM-
 
 ## Stack
 
-- Laravel 11, PHP 8.3
+- Laravel 12, PHP 8.3
 - MySQL 8 (dev/prod via `docker compose`), SQLite accepté en local
 - Sanctum (jetons API), Spatie Permission (rôles)
 - Pest (Unit/Feature/Integration/Architecture), Larastan, Pint
