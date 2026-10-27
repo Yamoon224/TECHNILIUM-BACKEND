@@ -23,4 +23,5 @@ Route::prefix('v1')->group(function () {
     require base_path('app/Modules/Accounting/routes/api.php');
     require base_path('app/Modules/Payouts/routes/api.php');
     require base_path('app/Modules/Returns/routes/api.php');
+    require base_path('app/Modules/Reporting/routes/api.php');
 });

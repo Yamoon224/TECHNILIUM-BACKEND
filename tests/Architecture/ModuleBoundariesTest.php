@@ -67,6 +67,17 @@ arch('Payments, Invoicing and Inventory only hear about Returns through Shared e
     ->expect(['App\Modules\Payments', 'App\Modules\Invoicing', 'App\Modules\Inventory'])
     ->not->toUse('App\Modules\Returns');
 
+arch('Reporting reads other modules only through their public contracts, never their Infrastructure')
+    ->expect('App\Modules\Reporting')
+    ->not->toUse([
+        'App\Modules\Orders\Infrastructure',
+        'App\Modules\Payments\Infrastructure',
+        'App\Modules\Payouts\Infrastructure',
+        'App\Modules\Returns\Infrastructure',
+        'App\Modules\Catalog\Infrastructure',
+        'App\Modules\Vendors\Infrastructure',
+    ]);
+
 arch('Payouts never reaches into Returns Infrastructure')
     ->expect('App\Modules\Payouts')
     ->not->toUse('App\Modules\Returns\Infrastructure');
