@@ -30,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $delivered_at
  * @property Carbon|null $created_at
  * @property-read Collection<int, OrderItem> $items
+ * @property-read Collection<int, SubOrder> $subOrders
  */
 class Order extends Model
 {
@@ -65,6 +66,14 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * @return HasMany<SubOrder, $this>
+     */
+    public function subOrders(): HasMany
+    {
+        return $this->hasMany(SubOrder::class);
     }
 
     public function subtotal(): Money

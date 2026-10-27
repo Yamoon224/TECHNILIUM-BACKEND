@@ -93,7 +93,7 @@ class OrderController extends Controller
     )]
     public function show(string $orderNumber, ShowOrderRequest $request): OrderResource
     {
-        $order = Order::query()->where('order_number', $orderNumber)->with('items')->first();
+        $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders')->first();
 
         // Same 404 whether the order doesn't exist or the phone doesn't match —
         // the order number alone must never confirm an order's existence to a
@@ -116,7 +116,7 @@ class OrderController extends Controller
     {
         $orders = Order::query()
             ->where('customer_id', $request->user()->id)
-            ->with('items')
+            ->with('items', 'subOrders')
             ->orderByDesc('id')
             ->paginate(max(1, min($request->integer('per_page', 20), 100)));
 

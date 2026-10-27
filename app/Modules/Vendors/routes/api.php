@@ -14,6 +14,7 @@ Route::prefix('vendors')->group(function () {
     Route::middleware(['auth:sanctum', 'can:be-vendor'])->prefix('me')->group(function () {
         Route::get('/summary', [VendorSpaceController::class, 'summary']);
         Route::get('/orders', [VendorSpaceController::class, 'orders']);
+        Route::post('/orders/{orderNumber}/ship', [VendorSpaceController::class, 'ship']);
         Route::get('/payouts', [VendorSpaceController::class, 'payouts']);
         Route::get('/payouts/{payout}', [VendorSpaceController::class, 'payout']);
         Route::get('/offers', [VendorOfferController::class, 'index']);

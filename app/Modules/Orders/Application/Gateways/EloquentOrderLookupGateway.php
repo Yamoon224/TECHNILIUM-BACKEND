@@ -5,15 +5,24 @@ declare(strict_types=1);
 namespace App\Modules\Orders\Application\Gateways;
 
 use App\Modules\Orders\Application\Actions\TransitionOrderStatusAction;
+use App\Modules\Orders\Application\Actions\TransitionSubOrderAction;
 use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
 use App\Modules\Orders\Application\Data\OrderLineData;
 use App\Modules\Orders\Application\Data\OrderSummaryData;
+use App\Modules\Orders\Application\Data\VendorShareData;
+use App\Modules\Orders\Domain\Exceptions\InvalidOrderTransitionException;
 use App\Modules\Orders\Domain\OrderStatus;
 use App\Modules\Orders\Infrastructure\Models\Order;
 use App\Modules\Orders\Infrastructure\Models\OrderItem;
+use App\Modules\Orders\Infrastructure\Models\SubOrder;
 
 final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
 {
+    public function __construct(
+        private readonly TransitionOrderStatusAction $transitionOrder,
+        private readonly TransitionSubOrderAction $transitionSubOrder,
+    ) {}
+
     public function find(string $orderNumber): ?OrderSummaryData
     {
         $order = Order::query()->with('items')->where('order_number', $orderNumber)->first();
@@ -21,27 +30,92 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
         return $order ? $this->toData($order) : null;
     }
 
-    public function deliveredUntil(\DateTimeInterface $cutoff): array
+    public function deliveredVendorSharesUntil(int $vendorId, \DateTimeInterface $cutoff): array
     {
-        return Order::query()
-            ->with('items')
+        $shares = [];
+
+        $delivered = SubOrder::query()
+            ->with('order')
+            ->where('vendor_id', $vendorId)
             ->where('status', OrderStatus::Delivered)
             ->where('delivered_at', '<=', $cutoff)
-            ->get()
-            ->map(fn (Order $order) => $this->toData($order))
-            ->all();
+            ->get();
+
+        foreach ($delivered as $subOrder) {
+            $shares[] = new VendorShareData(
+                $subOrder->order->order_number,
+                $vendorId,
+                $subOrder->currency,
+                $subOrder->subtotal_amount,
+                $subOrder->order->subtotal_amount,
+            );
+        }
+
+        // Orders placed before sub-orders existed: the delivered order itself.
+        $legacy = Order::query()
+            ->with(['items' => fn ($query) => $query->where('vendor_id', $vendorId)])
+            ->whereDoesntHave('subOrders')
+            ->whereHas('items', fn ($query) => $query->where('vendor_id', $vendorId))
+            ->where('status', OrderStatus::Delivered)
+            ->where('delivered_at', '<=', $cutoff)
+            ->get();
+
+        foreach ($legacy as $order) {
+            $shares[] = new VendorShareData(
+                $order->order_number,
+                $vendorId,
+                $order->currency,
+                (int) $order->items->sum('line_total_amount'),
+                $order->subtotal_amount,
+            );
+        }
+
+        return $shares;
     }
 
     public function forVendor(int $vendorId, int $limit = 200): array
     {
         return Order::query()
             ->whereHas('items', fn ($query) => $query->where('vendor_id', $vendorId))
-            ->with(['items' => fn ($query) => $query->where('vendor_id', $vendorId)])
+            ->with([
+                'items' => fn ($query) => $query->where('vendor_id', $vendorId),
+                'subOrders' => fn ($query) => $query->where('vendor_id', $vendorId),
+            ])
             ->orderByDesc('id')
             ->limit($limit)
             ->get()
-            ->map(fn (Order $order) => $this->toData($order))
+            ->map(function (Order $order) {
+                $data = $this->toData($order);
+                $own = $order->subOrders->first();
+
+                // The vendor sees the state of its own share, not the parent's.
+                return $own === null ? $data : new OrderSummaryData(
+                    $data->orderNumber, $data->customerName, $data->customerPhone, $data->deliveryAddress,
+                    $data->deliveryCity, $own->status->value, $data->currency, $data->subtotalAmount,
+                    $data->lines, $own->delivered_at?->toIso8601String(),
+                );
+            })
             ->all();
+    }
+
+    public function shipForVendor(string $orderNumber, int $vendorId): bool
+    {
+        $subOrder = SubOrder::query()
+            ->where('vendor_id', $vendorId)
+            ->whereHas('order', fn ($query) => $query->where('order_number', $orderNumber))
+            ->first();
+
+        if ($subOrder === null) {
+            return false;
+        }
+
+        try {
+            $this->transitionSubOrder->execute($subOrder, OrderStatus::Shipped);
+        } catch (InvalidOrderTransitionException) {
+            return false;
+        }
+
+        return true;
     }
 
     public function markShipped(string $orderNumber): bool
@@ -62,7 +136,7 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
             return false;
         }
 
-        (new TransitionOrderStatusAction)->execute($order, $target);
+        $this->transitionOrder->execute($order, $target);
 
         return true;
     }

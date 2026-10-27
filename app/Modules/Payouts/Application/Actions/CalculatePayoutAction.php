@@ -6,19 +6,20 @@ namespace App\Modules\Payouts\Application\Actions;
 
 use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
 use App\Modules\Payouts\Domain\CommissionCalculator;
-use App\Modules\Returns\Application\Contracts\RefundLookupInterface;
 use App\Modules\Payouts\Domain\Exceptions\PayoutException;
 use App\Modules\Payouts\Domain\PayoutStatus;
 use App\Modules\Payouts\Infrastructure\Models\Payout;
 use App\Modules\Payouts\Infrastructure\Models\PayoutItem;
+use App\Modules\Returns\Application\Contracts\RefundLookupInterface;
 use App\Modules\Shared\Events\PayoutCalculated;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Builds a vendor's payout from every delivered order past the return
- * window that has not been paid yet: gross = the vendor's lines, minus
- * commission (cahier §6.8). Orders already in a payout are skipped, so
- * running it twice never pays twice.
+ * Builds a vendor's payout from each of its delivered shares (sub-orders)
+ * past the return window that has not been paid yet: gross = the vendor's
+ * lines, minus refunds, minus commission (cahier §6.8). Shares already in a
+ * payout are skipped, so running it twice never pays twice — and one
+ * vendor's delivery never waits for another vendor's.
  */
 final class CalculatePayoutAction
 {
@@ -38,33 +39,28 @@ final class CalculatePayoutAction
             $items = [];
             $currency = 'XOF';
 
-            foreach ($this->orders->deliveredUntil($cutoff) as $order) {
+            foreach ($this->orders->deliveredVendorSharesUntil($vendorId, $cutoff) as $share) {
                 // A return still being decided keeps the money in suspense.
-                if (in_array($order->orderNumber, $alreadyPaid, true) || $this->refunds->hasOpenReturn($order->orderNumber)) {
+                if (in_array($share->orderNumber, $alreadyPaid, true) || $this->refunds->hasOpenReturn($share->orderNumber)) {
                     continue;
                 }
 
-                $gross = 0;
-                foreach ($order->lines as $line) {
-                    if ($line->vendorId === $vendorId) {
-                        $gross += $line->lineTotalAmount;
-                    }
-                }
+                $gross = $share->grossAmount;
 
                 // Refunds are borne by the vendor in proportion to its share of
                 // the order, so the commission is only taken on what stayed sold.
                 $deduction = 0;
-                $refunded = $this->refunds->refundedAmount($order->orderNumber);
+                $refunded = $this->refunds->refundedAmount($share->orderNumber);
 
-                if ($refunded > 0 && $order->subtotalAmount > 0) {
-                    $deduction = min($gross, intdiv($refunded * $gross + intdiv($order->subtotalAmount, 2), $order->subtotalAmount));
+                if ($refunded > 0 && $share->orderSubtotalAmount > 0) {
+                    $deduction = min($gross, intdiv($refunded * $gross + intdiv($share->orderSubtotalAmount, 2), $share->orderSubtotalAmount));
                     $gross -= $deduction;
                 }
 
                 if ($gross > 0) {
-                    $currency = $order->currency;
+                    $currency = $share->currency;
                     $items[] = [
-                        'order_number' => $order->orderNumber,
+                        'order_number' => $share->orderNumber,
                         'gross_amount' => $gross,
                         'commission_amount' => $calculator->commissionOn($gross),
                         'refund_deduction_amount' => $deduction,
@@ -93,7 +89,7 @@ final class CalculatePayoutAction
             ]);
 
             // The unique (vendor_id, order_number) index rejects a concurrent
-            // run that picked the same orders; the loser's transaction rolls back.
+            // run that picked the same shares; the loser's transaction rolls back.
             foreach ($items as $item) {
                 $payout->items()->create($item + ['vendor_id' => $vendorId]);
             }

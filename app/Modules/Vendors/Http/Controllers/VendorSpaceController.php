@@ -93,6 +93,39 @@ class VendorSpaceController extends Controller
         ]);
     }
 
+    #[OA\Post(
+        path: '/vendors/me/orders/{orderNumber}/ship',
+        summary: 'Le vendeur marque sa part de la commande comme expédiée (confirmée → expédiée)',
+        security: [['sanctum' => []]],
+        tags: ['Vendors'],
+        responses: [
+            new OA\Response(response: 200, description: 'Part expédiée'),
+            new OA\Response(response: 404, description: 'Commande sans article de ce vendeur'),
+            new OA\Response(response: 422, description: "La part n'est pas expédiable dans son état actuel"),
+        ],
+    )]
+    public function ship(Request $request, string $orderNumber): JsonResponse
+    {
+        $vendor = $this->resolveActiveVendor($request);
+
+        // 404 (not 403) for an order that has none of this vendor's lines:
+        // other vendors' orders must not be distinguishable from missing ones.
+        $owned = array_filter(
+            $this->orders->forVendor($vendor->id),
+            fn (OrderSummaryData $order) => $order->orderNumber === $orderNumber,
+        );
+
+        if ($owned === []) {
+            abort(404, 'Commande introuvable.');
+        }
+
+        if (! $this->orders->shipForVendor($orderNumber, $vendor->id)) {
+            return response()->json(['message' => "Cette commande n'est pas expédiable dans son état actuel."], 422);
+        }
+
+        return response()->json(['order_number' => $orderNumber, 'status' => 'shipped']);
+    }
+
     #[OA\Get(
         path: '/vendors/me/payouts',
         summary: 'Reversements du vendeur connecté',

@@ -73,7 +73,23 @@ final class PlaceOrderAction
                 'currency' => $currency,
             ]);
 
-            $order->items()->createMany($lines);
+            // One sub-order per seller (vendor_id null = Technilium's own
+            // stock), each with its own status and delivery (cahier §3).
+            $groups = [];
+            foreach ($lines as $line) {
+                $groups[$line['vendor_id'] ?? 'own'][] = $line;
+            }
+
+            foreach ($groups as $group) {
+                $subOrder = $order->subOrders()->create([
+                    'vendor_id' => $group[0]['vendor_id'],
+                    'status' => OrderStatus::Pending,
+                    'subtotal_amount' => array_sum(array_column($group, 'line_total_amount')),
+                    'currency' => $currency,
+                ]);
+
+                $subOrder->items()->createMany(array_map(fn (array $line) => $line + ['order_id' => $order->id], $group));
+            }
 
             foreach ($lines as $line) {
                 try {
@@ -83,7 +99,7 @@ final class PlaceOrderAction
                 }
             }
 
-            return $order->load('items');
+            return $order->load('items', 'subOrders');
         });
     }
 

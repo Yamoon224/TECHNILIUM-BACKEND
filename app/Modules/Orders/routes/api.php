@@ -18,5 +18,6 @@ Route::prefix('orders')->group(function () {
     Route::middleware(['auth:sanctum', 'can:manage-orders'])->group(function () {
         Route::get('/', [BackofficeOrderController::class, 'index']);
         Route::post('/{orderNumber}/transition', [BackofficeOrderController::class, 'transition']);
+        Route::post('/{orderNumber}/sub-orders/{subOrder}/transition', [BackofficeOrderController::class, 'transitionSubOrder']);
     });
 });

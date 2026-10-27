@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Orders\Http\Controllers;
 
 use App\Modules\Orders\Application\Actions\TransitionOrderStatusAction;
+use App\Modules\Orders\Application\Actions\TransitionSubOrderAction;
 use App\Modules\Orders\Domain\Exceptions\InvalidOrderTransitionException;
 use App\Modules\Orders\Http\Requests\TransitionOrderStatusRequest;
 use App\Modules\Orders\Http\Resources\OrderResource;
@@ -25,6 +26,7 @@ class BackofficeOrderController extends Controller
 {
     public function __construct(
         private readonly TransitionOrderStatusAction $transitionStatus,
+        private readonly TransitionSubOrderAction $transitionSubOrder,
     ) {}
 
     #[OA\Get(
@@ -38,7 +40,7 @@ class BackofficeOrderController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $orders = Order::query()
-            ->with('items')
+            ->with('items', 'subOrders')
             ->when(
                 $request->string('status')->isNotEmpty(),
                 fn ($query) => $query->where('status', $request->string('status')->toString()),
@@ -67,7 +69,7 @@ class BackofficeOrderController extends Controller
     )]
     public function transition(string $orderNumber, TransitionOrderStatusRequest $request): OrderResource
     {
-        $order = Order::query()->where('order_number', $orderNumber)->with('items')->firstOrFail();
+        $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders')->firstOrFail();
 
         try {
             $order = $this->transitionStatus->execute($order, $request->targetStatus());
@@ -76,5 +78,35 @@ class BackofficeOrderController extends Controller
         }
 
         return new OrderResource($order);
+    }
+
+    #[OA\Post(
+        path: '/orders/{orderNumber}/sub-orders/{subOrder}/transition',
+        summary: "Fait avancer le statut d'une sous-commande (la part d'un vendeur) ; le statut de la commande en découle",
+        security: [['sanctum' => []]],
+        tags: ['Orders'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['status'],
+            properties: [new OA\Property(property: 'status', type: 'string', example: 'delivered')],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'Commande mise à jour'),
+            new OA\Response(response: 404, description: 'Commande ou sous-commande introuvable'),
+            new OA\Response(response: 422, description: 'Transition non autorisée'),
+        ],
+    )]
+    public function transitionSubOrder(string $orderNumber, int $subOrder, TransitionOrderStatusRequest $request): OrderResource
+    {
+        $order = Order::query()->where('order_number', $orderNumber)->firstOrFail();
+        // Scoped to the order in the URL: a sub-order id of another order is a 404.
+        $target = $order->subOrders()->findOrFail($subOrder);
+
+        try {
+            $this->transitionSubOrder->execute($target, $request->targetStatus());
+        } catch (InvalidOrderTransitionException $exception) {
+            abort(422, $exception->getMessage());
+        }
+
+        return new OrderResource($order->refresh()->load('items', 'subOrders'));
     }
 }

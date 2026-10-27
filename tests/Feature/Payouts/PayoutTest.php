@@ -173,7 +173,7 @@ it('lists payouts filtered by status and shows a statement', function () {
 it('stamps the delivery date when an order is delivered', function () {
     $order = Order::factory()->create(['status' => OrderStatus::Shipped]);
 
-    (new App\Modules\Orders\Application\Actions\TransitionOrderStatusAction)->execute($order, OrderStatus::Delivered);
+    app(App\Modules\Orders\Application\Actions\TransitionOrderStatusAction::class)->execute($order, OrderStatus::Delivered);
 
     expect($order->fresh()->delivered_at)->not->toBeNull();
     expect(DB::getSchemaBuilder()->hasColumn('order_items', 'vendor_id'))->toBeTrue();

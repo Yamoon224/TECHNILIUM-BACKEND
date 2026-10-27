@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property int $order_id
+ * @property int|null $sub_order_id
  * @property int $offer_id
  * @property int|null $vendor_id
  * @property string $product_name
@@ -30,6 +31,7 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
+        'sub_order_id',
         'offer_id',
         'vendor_id',
         'product_name',
