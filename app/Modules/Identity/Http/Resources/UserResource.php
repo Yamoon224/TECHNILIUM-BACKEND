@@ -24,6 +24,7 @@ class UserResource extends JsonResource
             'email' => $user->email,
             'phone' => $user->phone,
             'locale' => $user->locale,
+            'accent_color' => $user->accent_color,
             'roles' => $user->getRoleNames(),
             'created_at' => $user->created_at?->toIso8601String(),
         ];

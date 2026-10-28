@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 final class RegisterUserAction
 {
     /**
-     * @param  array{name: string, email: string, phone?: string|null, password: string}  $data
+     * @param  array{name: string, email: string, phone?: string|null, password: string, locale?: string|null}  $data
      */
     public function execute(array $data): User
     {
@@ -19,6 +19,7 @@ final class RegisterUserAction
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
+            'locale' => $data['locale'] ?? 'fr',
             'password' => Hash::make($data['password']),
         ]);
 

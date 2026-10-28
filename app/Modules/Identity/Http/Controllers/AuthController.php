@@ -11,6 +11,7 @@ use App\Modules\Identity\Domain\Exceptions\AccountInactiveException;
 use App\Modules\Identity\Domain\Exceptions\InvalidCredentialsException;
 use App\Modules\Identity\Http\Requests\LoginRequest;
 use App\Modules\Identity\Http\Requests\RegisterRequest;
+use App\Modules\Identity\Http\Requests\UpdatePreferencesRequest;
 use App\Modules\Identity\Http\Resources\UserResource;
 use App\Modules\Identity\Infrastructure\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -119,5 +120,30 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return (new UserResource($request->user()))->response();
+    }
+
+    #[OA\Put(
+        path: '/auth/preferences',
+        summary: "Enregistre la langue et la couleur principale de l'utilisateur connecté",
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(content: new OA\JsonContent(properties: [
+            new OA\Property(property: 'locale', type: 'string', enum: ['fr', 'en']),
+            new OA\Property(property: 'accent_color', type: 'string', nullable: true, example: '#f68b1e'),
+        ])),
+        responses: [
+            new OA\Response(response: 200, description: 'Préférences enregistrées'),
+            new OA\Response(response: 422, description: 'Valeur refusée'),
+        ],
+    )]
+    public function updatePreferences(UpdatePreferencesRequest $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        // Only the fields sent are touched; accent_color may be sent as null to go back to the default.
+        $user->update($request->validated());
+
+        return (new UserResource($user->refresh()))->response();
     }
 }

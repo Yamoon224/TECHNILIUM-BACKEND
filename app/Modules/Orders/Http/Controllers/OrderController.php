@@ -67,7 +67,7 @@ class OrderController extends Controller
             city: $request->string('delivery_city')->toString() ?: null,
             notes: $request->string('notes')->toString() ?: null,
             customerEmail: $request->string('customer_email')->toString() ?: null,
-            locale: $request->input('locale') === 'en' ? 'en' : 'fr',
+            locale: ($request->input('locale') ?: $request->user('sanctum')?->locale) === 'en' ? 'en' : 'fr',
         );
 
         try {
