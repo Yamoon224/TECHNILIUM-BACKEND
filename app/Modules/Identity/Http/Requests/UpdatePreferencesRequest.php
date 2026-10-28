@@ -22,6 +22,8 @@ class UpdatePreferencesRequest extends FormRequest
         return [
             'locale' => ['sometimes', 'string', 'in:fr,en'],
             // Six-digit hex only: the value ends up in a CSS variable, so nothing else is accepted.
+            // null = automatic (follow the device).
+            'theme' => ['sometimes', 'nullable', 'string', 'in:light,dark,auto'],
             'accent_color' => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
         ];
     }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\Invoicing\Application;
 
 use App\Modules\Invoicing\Domain\AmountInWords;
+use App\Modules\Invoicing\Domain\AmountInWordsEn;
+use App\Modules\Invoicing\Domain\InvoiceDocumentLabels;
 use App\Modules\Invoicing\Domain\InvoiceType;
 use App\Modules\Invoicing\Infrastructure\Models\Invoice;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,15 +19,19 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class RenderInvoiceDocument
 {
     /** The HTML the PDF is made from — kept separate so it can be inspected and tested. */
-    public function html(Invoice $invoice): string
+    public function html(Invoice $invoice, string $locale = 'fr'): string
     {
         $invoice->loadMissing('lines');
+        $locale = InvoiceDocumentLabels::normalize($locale);
+        $labels = InvoiceDocumentLabels::for($locale);
+        $isCredit = $invoice->type === InvoiceType::CreditNote;
 
         return view('invoicing::document', [
             'invoice' => $invoice,
-            'title' => $invoice->type === InvoiceType::CreditNote ? 'AVOIR' : 'FACTURE',
+            't' => $labels,
+            'title' => $isCredit ? $labels['credit_note'] : $labels['invoice'],
             'company' => (array) config('invoicing.company'),
-            'amountInWords' => ucfirst(AmountInWords::francsCfa($invoice->total_amount)),
+            'amountInWords' => ucfirst($locale === 'en' ? AmountInWordsEn::francsCfa($invoice->total_amount) : AmountInWords::francsCfa($invoice->total_amount)),
             // A credit note names the invoice it cancels.
             'creditedNumber' => $invoice->credited_invoice_id !== null
                 ? Invoice::query()->whereKey($invoice->credited_invoice_id)->value('number')
@@ -33,9 +39,9 @@ class RenderInvoiceDocument
         ])->render();
     }
 
-    public function pdf(Invoice $invoice): string
+    public function pdf(Invoice $invoice, string $locale = 'fr'): string
     {
-        return Pdf::loadHTML($this->html($invoice))
+        return Pdf::loadHTML($this->html($invoice, $locale))
             ->setPaper('a4')
             // Untrusted text (customer names, reasons) must never pull in a remote file.
             ->setOption('isRemoteEnabled', false)

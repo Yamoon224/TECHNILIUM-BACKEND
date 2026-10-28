@@ -22,6 +22,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $password
  * @property string $locale
  * @property string|null $accent_color
+ * @property string|null $theme
  * @property bool $is_active
  * @property Carbon|null $last_login_at
  * @property Carbon|null $created_at
@@ -44,6 +45,7 @@ class User extends Authenticatable
         'password',
         'locale',
         'accent_color',
+        'theme',
     ];
 
     /**

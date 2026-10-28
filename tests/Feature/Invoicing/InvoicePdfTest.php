@@ -155,3 +155,46 @@ it('renders the same document every time, since an issued invoice cannot change'
 
     expect(html($invoice))->toBe(html($invoice->fresh()));
 });
+
+it('renders an English version with English labels and the amount in English words', function () {
+    $invoice = issuedInvoice();
+
+    $page = app(RenderInvoiceDocument::class)->html($invoice, 'en');
+
+    expect($page)->toContain('INVOICE')->toContain('Customer')->toContain('Total incl. VAT')->toContain('VAT (18 %)')
+        ->toContain('One hundred eighteen thousand CFA francs')
+        ->toContain('Awa Diallo')->toContain('FAC-2026-000042')->toContain("118\u{00A0}000\u{00A0}F\u{00A0}CFA")
+        ->not->toContain('FACTURE')->not->toContain('francs CFA');
+});
+
+it('renders an English credit note, naming the invoice it cancels', function () {
+    $invoice = issuedInvoice();
+    $credit = Invoice::factory()->create([
+        'number' => 'AV-2026-000001', 'type' => InvoiceType::CreditNote, 'credited_invoice_id' => $invoice->id,
+        'order_number' => $invoice->order_number, 'customer_name' => 'Awa Diallo', 'reason' => 'Returned product',
+        'total_amount' => 59_000, 'net_amount' => 50_000, 'vat_amount' => 9_000, 'issued_at' => '2026-10-28 09:00:00',
+    ]);
+
+    $page = html_entity_decode(app(RenderInvoiceDocument::class)->html($credit, 'en'), ENT_QUOTES);
+
+    expect($page)->toContain('CREDIT NOTE')->toContain('Cancels invoice: FAC-2026-000042')->toContain('Credit note total incl. VAT')
+        ->toContain('Fifty-nine thousand CFA francs');
+});
+
+it('falls back to French for an unknown language and stays French by default', function () {
+    $invoice = issuedInvoice();
+
+    expect(app(RenderInvoiceDocument::class)->html($invoice, 'de'))->toContain('FACTURE')
+        ->and(html($invoice))->toContain('FACTURE');
+});
+
+it('lets staff ask for the English PDF, and gives French by default', function () {
+    $invoice = issuedInvoice();
+    $staff = docUser();
+
+    $en = $this->actingAs($staff, 'sanctum')->get("/api/v1/admin/invoices/{$invoice->id}/pdf?lang=en")->assertOk();
+    $fr = $this->actingAs($staff, 'sanctum')->get("/api/v1/admin/invoices/{$invoice->id}/pdf")->assertOk();
+
+    expect($en->getContent())->toStartWith('%PDF-')->and($fr->getContent())->toStartWith('%PDF-')
+        ->and($en->getContent())->not->toBe($fr->getContent());
+});

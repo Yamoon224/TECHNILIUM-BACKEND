@@ -20,6 +20,8 @@ final class RegisterUserAction
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
             'locale' => $data['locale'] ?? 'fr',
+            'accent_color' => null,
+            'theme' => null,
             'password' => Hash::make($data['password']),
         ]);
 

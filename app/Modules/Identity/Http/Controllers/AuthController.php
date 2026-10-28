@@ -124,12 +124,13 @@ class AuthController extends Controller
 
     #[OA\Put(
         path: '/auth/preferences',
-        summary: "Enregistre la langue et la couleur principale de l'utilisateur connecté",
+        summary: "Enregistre la langue, la couleur principale et le thème de l'utilisateur connecté",
         security: [['sanctum' => []]],
         tags: ['Auth'],
         requestBody: new OA\RequestBody(content: new OA\JsonContent(properties: [
             new OA\Property(property: 'locale', type: 'string', enum: ['fr', 'en']),
             new OA\Property(property: 'accent_color', type: 'string', nullable: true, example: '#f68b1e'),
+            new OA\Property(property: 'theme', type: 'string', nullable: true, enum: ['light', 'dark', 'auto']),
         ])),
         responses: [
             new OA\Response(response: 200, description: 'Préférences enregistrées'),

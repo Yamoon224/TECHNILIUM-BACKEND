@@ -57,9 +57,11 @@ class CustomerInvoiceController extends Controller
     )]
     public function pdf(Request $request, Invoice $invoice, RenderInvoiceDocument $document): Response
     {
-        abort_unless($this->owns($request, $invoice->order_number), 404);
+        $order = $this->orders->find($invoice->order_number);
+        abort_unless($order !== null && $order->customerId !== null && $order->customerId === $request->user()->id, 404);
 
-        return response($document->pdf($invoice), 200, [
+        // The document comes in the language the customer ordered in.
+        return response($document->pdf($invoice, $order->customerLocale), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$document->filename($invoice).'"',
         ]);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ $t['lang'] }}">
 <head>
     <meta charset="utf-8">
     <title>{{ $title }} {{ $invoice->number }}</title>
@@ -26,6 +26,7 @@
 @php
     $money = fn (int $amount) => \App\Modules\Invoicing\Domain\Money::format($amount, $invoice->currency);
     $isCredit = $invoice->type->value === 'credit_note';
+    $footer = str_replace([':issuer', ':number'], [$company['name'], $invoice->number], $isCredit ? $t['footer_credit'] : $t['footer_invoice']);
 @endphp
 
 <table class="row">
@@ -33,37 +34,37 @@
         <td style="width: 55%">
             <h1>{{ $company['name'] }}</h1>
             @if ($company['address'] !== '') <div>{{ $company['address'] }}</div> @endif
-            @if ($company['phone'] !== '') <div>Tél. : {{ $company['phone'] }}</div> @endif
+            @if ($company['phone'] !== '') <div>{{ $t['phone'] }} {{ $company['phone'] }}</div> @endif
             @if ($company['email'] !== '') <div>{{ $company['email'] }}</div> @endif
         </td>
         <td style="width: 45%" class="box">
             <strong style="font-size: 14px;">{{ $title }}</strong><br>
-            N° {{ $invoice->number }}<br>
-            Date : {{ $invoice->issued_at->format('d/m/Y') }}<br>
-            Commande : {{ $invoice->order_number }}
+            {{ $t['number'] }} {{ $invoice->number }}<br>
+            {{ $t['date'] }} {{ $invoice->issued_at->format('d/m/Y') }}<br>
+            {{ $t['order'] }} {{ $invoice->order_number }}
             @if ($creditedNumber !== null)
-                <br>Annule la facture : {{ $creditedNumber }}
+                <br>{{ $t['cancels'] }} {{ $creditedNumber }}
             @endif
         </td>
     </tr>
 </table>
 
 <p style="margin-top: 18px;">
-    <span class="muted">Client</span><br>
+    <span class="muted">{{ $t['customer'] }}</span><br>
     <strong>{{ $invoice->customer_name }}</strong>
 </p>
 
 @if ($isCredit && $invoice->reason)
-    <p><span class="muted">Motif de l'avoir :</span> {{ $invoice->reason }}</p>
+    <p><span class="muted">{{ $t['credit_reason'] }}</span> {{ $invoice->reason }}</p>
 @endif
 
 <table class="lines">
     <thead>
         <tr>
-            <th>Désignation</th>
-            <th class="num">Qté</th>
-            <th class="num">Prix unitaire TTC</th>
-            <th class="num">Total TTC</th>
+            <th>{{ $t['description'] }}</th>
+            <th class="num">{{ $t['quantity'] }}</th>
+            <th class="num">{{ $t['unit_price'] }}</th>
+            <th class="num">{{ $t['line_total'] }}</th>
         </tr>
     </thead>
     <tbody>
@@ -81,32 +82,32 @@
 <table class="totals">
     @if ($invoice->discount_amount > 0)
         <tr>
-            <td>Remise{{ $invoice->coupon_code ? ' ('.$invoice->coupon_code.')' : '' }}</td>
+            <td>{{ $t['discount'] }}{{ $invoice->coupon_code ? ' ('.$invoice->coupon_code.')' : '' }}</td>
             <td class="num">− {{ $money($invoice->discount_amount) }}</td>
         </tr>
     @endif
     <tr>
-        <td>Total HT</td>
+        <td>{{ $t['total_net'] }}</td>
         <td class="num">{{ $money($invoice->net_amount) }}</td>
     </tr>
     <tr>
-        <td>TVA ({{ rtrim(rtrim(number_format($invoice->vat_basis_points / 100, 2, ',', ''), '0'), ',') }} %)</td>
+        <td>{{ $t['vat'] }} ({{ rtrim(rtrim(number_format($invoice->vat_basis_points / 100, 2, ',', ''), '0'), ',') }} %)</td>
         <td class="num">{{ $money($invoice->vat_amount) }}</td>
     </tr>
     <tr class="grand">
-        <td>{{ $isCredit ? 'Total de l\'avoir TTC' : 'Total TTC' }}</td>
+        <td>{{ $isCredit ? $t['total_gross_credit'] : $t['total_gross_invoice'] }}</td>
         <td class="num">{{ $money($invoice->total_amount) }}</td>
     </tr>
 </table>
 
 <div class="words">
-    Arrêté {{ $isCredit ? 'le présent avoir' : 'la présente facture' }} à la somme de
+    {{ $isCredit ? $t['words_credit'] : $t['words_invoice'] }}
     <strong>{{ $amountInWords }}</strong>.
 </div>
 
 <div class="footer">
     @if ($company['legal'] !== '') <div>{{ $company['legal'] }}</div> @endif
-    <div>Document {{ $isCredit ? 'd\'avoir' : 'de facturation' }} émis par {{ $company['name'] }} — n° {{ $invoice->number }}. Un document émis ne se modifie pas : toute correction passe par un avoir.</div>
+    <div>{{ $footer }}</div>
 </div>
 
 </body>

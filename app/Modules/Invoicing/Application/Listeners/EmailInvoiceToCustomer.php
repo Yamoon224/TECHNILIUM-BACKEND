@@ -73,7 +73,7 @@ final class EmailInvoiceToCustomer implements ShouldHandleEventsAfterCommit
                     $invoice->number,
                     $invoice->order_number,
                 );
-            $pdf = $this->document->pdf($invoice);
+            $pdf = $this->document->pdf($invoice, $english ? 'en' : 'fr');
             $filename = $this->document->filename($invoice);
 
             Mail::send([], [], function (Message $message) use ($email, $invoice, $label, $body, $pdf, $filename, $english): void {

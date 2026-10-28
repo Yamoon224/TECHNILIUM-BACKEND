@@ -80,9 +80,10 @@ class InvoiceController extends Controller
             new OA\Response(response: 404, description: 'Introuvable'),
         ],
     )]
-    public function pdf(Invoice $invoice, RenderInvoiceDocument $document): Response
+    public function pdf(Request $request, Invoice $invoice, RenderInvoiceDocument $document): Response
     {
-        return response($document->pdf($invoice), 200, [
+        // French is the reference; ?lang=en gives the English version of the same document.
+        return response($document->pdf($invoice, (string) $request->query('lang', 'fr')), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$document->filename($invoice).'"',
         ]);

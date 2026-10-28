@@ -105,3 +105,21 @@ it('uses the signed-in customer\'s language for their order messages when none i
 
     expect(Notification::query()->where('event', 'order.placed')->sole()->body)->toContain('cash on delivery');
 });
+
+it('saves the theme, returns it, and goes back to automatic when null is sent', function () {
+    $user = prefsUser();
+
+    $this->actingAs($user, 'sanctum')->putJson('/api/v1/auth/preferences', ['theme' => 'dark'])->assertOk()->assertJsonPath('theme', 'dark');
+    expect($user->fresh()->theme)->toBe('dark');
+
+    $this->actingAs($user, 'sanctum')->putJson('/api/v1/auth/preferences', ['theme' => null])->assertOk()->assertJsonPath('theme', null);
+    expect($user->fresh()->theme)->toBeNull();
+});
+
+it('refuses an unknown theme', function () {
+    $user = prefsUser();
+
+    foreach (['neon', 'DARK', 7] as $theme) {
+        $this->actingAs($user, 'sanctum')->putJson('/api/v1/auth/preferences', ['theme' => $theme])->assertUnprocessable();
+    }
+});
