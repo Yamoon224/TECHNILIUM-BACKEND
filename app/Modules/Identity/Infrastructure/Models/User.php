@@ -63,6 +63,12 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    /** Laravel's password broker calls this with the plain reset token. */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new \App\Modules\Identity\Application\Notifications\ResetPasswordNotification((string) $token));
+    }
+
     protected function casts(): array
     {
         return [

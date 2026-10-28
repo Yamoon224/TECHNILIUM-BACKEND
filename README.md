@@ -77,3 +77,16 @@ Pas encore implémenté : numéros de série à la réception, retour fournisseu
 ## Conventions
 
 SOLID — contrôleurs fins, un cas d'usage = une classe `Action`, validation dans des `FormRequest`, formatage dans des `API Resource`. Montants toujours en entiers (plus petite unité monétaire), jamais en flottant. Tests d'architecture (Pest Arch) imposant les frontières entre modules.
+
+## Catalogue tech de démonstration (3 000 produits)
+
+```bash
+php artisan db:seed --class="App\Modules\Catalog\Infrastructure\Seeders\TechCatalogSeeder"
+SEED_PRODUCTS=500 php artisan db:seed --class="App\Modules\Catalog\Infrastructure\Seeders\TechCatalogSeeder"   # catalogue réduit
+```
+
+18 catégories (téléphones, tablettes, PC, écrans, TV, casques, enceintes, barres de son, sono/DJ, photo, jeux, montres, réseau, imprimantes, stockage, accessoires, sécurité), chaque produit avec variante, offre Technilium publiée, noms et descriptions FR/EN, stock, garantie, quelques prix barrés. Déterministe et rejouable (les SKU `SEED-*` existants sont ignorés). Prix plausibles, pas un tarif ; pas de photos.
+
+## Mot de passe oublié
+
+`POST /api/v1/auth/forgot-password` (réponse toujours identique) et `POST /api/v1/auth/reset-password` (jeton à usage unique, expire en 60 min, révoque les sessions). Le lien du mail pointe vers `STORE_URL` (client) ou `BACKOFFICE_URL` (équipe) + `/reinitialiser-mot-de-passe`. Le mail utilise la configuration `MAIL_*`.

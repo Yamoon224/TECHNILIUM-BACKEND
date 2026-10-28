@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Where the reset-password links lead: customers to the storefront, staff to the back office.
+    'store_url' => env('STORE_URL', 'http://localhost:3000'),
+    'backoffice_url' => env('BACKOFFICE_URL', 'http://localhost:3001'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
