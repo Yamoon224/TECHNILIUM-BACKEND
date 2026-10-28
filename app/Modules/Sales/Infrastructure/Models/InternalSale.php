@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $closing_id
  * @property Carbon|null $cancelled_at
  * @property int|null $cancelled_by
+ * @property int|null $refund_till_user_id
  * @property string|null $cancel_reason
  * @property int|null $cancel_closing_id
  * @property Carbon|null $created_at
@@ -26,7 +27,7 @@ class InternalSale extends Model
 {
     protected $fillable = [
         'order_number', 'seller_id', 'payment_id', 'method', 'amount', 'currency',
-        'closing_id', 'cancelled_at', 'cancelled_by', 'cancel_reason', 'cancel_closing_id',
+        'closing_id', 'cancelled_at', 'cancelled_by', 'refund_till_user_id', 'cancel_reason', 'cancel_closing_id',
     ];
 
     protected function casts(): array

@@ -26,9 +26,9 @@ final class CancelInternalSaleAction
         private readonly TransitionReturnAction $transition,
     ) {}
 
-    public function execute(string $orderNumber, string $reason, int $userId): InternalSale
+    public function execute(string $orderNumber, string $reason, int $userId, bool $byManagement = false): InternalSale
     {
-        return DB::transaction(function () use ($orderNumber, $reason, $userId) {
+        return DB::transaction(function () use ($orderNumber, $reason, $userId, $byManagement) {
             $sale = InternalSale::query()->where('order_number', $orderNumber)->lockForUpdate()->first()
                 ?? throw InternalSaleException::notFound($orderNumber);
 
@@ -51,7 +51,14 @@ final class CancelInternalSaleAction
             $return = $this->transition->execute($return, ReturnStatus::Received, restock: true);
             $this->transition->execute($return, ReturnStatus::Refunded, refundAmount: $order->subtotalAmount);
 
-            $sale->update(['cancelled_at' => now(), 'cancelled_by' => $userId, 'cancel_reason' => $reason]);
+            // Management cancelling remotely does not hand cash over: the refund falls on the seller's
+            // drawer. A cashier who cancels pays it out of their own.
+            $sale->update([
+                'cancelled_at' => now(),
+                'cancelled_by' => $userId,
+                'refund_till_user_id' => $byManagement ? $sale->seller_id : $userId,
+                'cancel_reason' => $reason,
+            ]);
 
             return $sale;
         });

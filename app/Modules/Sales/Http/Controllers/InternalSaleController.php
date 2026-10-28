@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Sales\Http\Controllers;
 
+use App\Modules\Identity\Domain\Role;
 use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
 use App\Modules\Orders\Application\Data\CheckoutItemInput;
 use App\Modules\Orders\Application\Data\DeliveryDetails;
@@ -150,7 +151,7 @@ class InternalSaleController extends Controller
         }
 
         try {
-            $record = $cancel->execute($orderNumber, $request->string('reason')->toString(), (int) $request->user()->id);
+            $record = $cancel->execute($orderNumber, $request->string('reason')->toString(), (int) $request->user()->id, $request->user()->hasAnyRole([Role::Administrateur->value, Role::SuperAdmin->value]));
         } catch (InternalSaleException|ReturnException $exception) {
             return response()->json(['message' => $exception->getMessage()], 422);
         }

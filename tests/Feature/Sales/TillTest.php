@@ -177,3 +177,31 @@ it('delivers the closing report as a PDF and lists the closings', function () {
     $this->actingAs($user, 'sanctum')->getJson('/api/v1/admin/cash-closings')->assertOk()->assertJsonCount(1, 'data');
     $this->actingAs($user, 'sanctum')->get('/api/v1/admin/cash-closings/9999/pdf')->assertNotFound();
 });
+
+it('lets an administrator and the super admin cancel a sale rung up by someone else', function () {
+    foreach ([Role::Administrateur, Role::SuperAdmin] as $role) {
+        [$number] = ring(cashier());
+        $admin = User::factory()->create();
+        $admin->assignRole($role->value);
+
+        $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/internal-sales/{$number}/cancel", ['reason' => 'Décision de la direction'])
+            ->assertOk()->assertJsonPath('cancel_reason', 'Décision de la direction');
+    }
+});
+
+it('charges a management cancellation to the seller\'s drawer, a cashier\'s own to theirs', function () {
+    $seller = cashier();
+    $admin = User::factory()->create();
+    $admin->assignRole(Role::Administrateur->value);
+    [$byAdmin] = ring($seller);
+    [$byPeer] = ring($seller, 10_000, 1);
+    $peer = cashier();
+
+    $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/internal-sales/{$byAdmin}/cancel", ['reason' => 'Direction'])->assertOk();
+    $this->actingAs($peer, 'sanctum')->postJson("/api/v1/admin/internal-sales/{$byPeer}/cancel", ['reason' => 'Collègue'])->assertOk();
+
+    // Seller: 110 000 rung up, the admin's 100 000 refund comes out of this drawer; the peer's 10 000 refund does not.
+    $this->actingAs($seller, 'sanctum')->getJson('/api/v1/admin/cash-closings/current')->assertJsonPath('expected_cash', 10_000)->assertJsonPath('cancellations_count', 1);
+    $this->actingAs($admin, 'sanctum')->getJson('/api/v1/admin/cash-closings/current')->assertJsonPath('cancellations_count', 0)->assertJsonPath('expected_cash', 0);
+    $this->actingAs($peer, 'sanctum')->getJson('/api/v1/admin/cash-closings/current')->assertJsonPath('cancellations_count', 1)->assertJsonPath('expected_cash', -10_000);
+});

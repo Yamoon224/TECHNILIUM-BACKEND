@@ -45,7 +45,7 @@ final class CloseTillAction
             ]);
 
             InternalSale::query()->where('seller_id', $userId)->whereNull('closing_id')->update(['closing_id' => $closing->id]);
-            InternalSale::query()->where('cancelled_by', $userId)->whereNotNull('cancelled_at')->whereNull('cancel_closing_id')->update(['cancel_closing_id' => $closing->id]);
+            InternalSale::query()->where('refund_till_user_id', $userId)->whereNotNull('cancelled_at')->whereNull('cancel_closing_id')->update(['cancel_closing_id' => $closing->id]);
 
             return $closing;
         });

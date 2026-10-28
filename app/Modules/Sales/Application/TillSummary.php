@@ -22,7 +22,7 @@ final class TillSummary
     public function forCashier(int $userId): array
     {
         $sales = InternalSale::query()->where('seller_id', $userId)->whereNull('closing_id')->get();
-        $refunds = InternalSale::query()->where('cancelled_by', $userId)->whereNotNull('cancelled_at')->whereNull('cancel_closing_id')->get();
+        $refunds = InternalSale::query()->where('refund_till_user_id', $userId)->whereNotNull('cancelled_at')->whereNull('cancel_closing_id')->get();
 
         $cashSales = (int) $sales->where('method', 'cash')->sum('amount');
         $cashRefunds = (int) $refunds->where('method', 'cash')->sum('amount');
