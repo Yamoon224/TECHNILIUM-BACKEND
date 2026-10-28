@@ -31,6 +31,7 @@ class ProductController extends Controller
             ->where('status', ProductStatus::Published)
             ->with([
                 'category',
+                'images',
                 'variants.offers' => fn ($query) => $query->where('status', OfferStatus::Published),
             ])
             ->when(
@@ -70,6 +71,7 @@ class ProductController extends Controller
             ->where('status', ProductStatus::Published)
             ->with([
                 'category',
+                'images',
                 'variants.offers' => fn ($query) => $query->where('status', OfferStatus::Published),
             ])
             ->firstOrFail();

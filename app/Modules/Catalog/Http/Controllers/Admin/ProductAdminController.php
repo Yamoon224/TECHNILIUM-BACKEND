@@ -32,6 +32,9 @@ use OpenApi\Attributes as OA;
  */
 class ProductAdminController extends Controller
 {
+    /** Photos per product. */
+    private const MAX_IMAGES = 8;
+
     #[OA\Get(
         path: '/admin/products',
         summary: 'Liste paginée des produits pour le backoffice (tous statuts)',
@@ -44,7 +47,7 @@ class ProductAdminController extends Controller
         $perPage = max(1, min($request->integer('per_page', 20), 100));
 
         $products = Product::query()
-            ->with(['variants.offers'])
+            ->with(['variants.offers', 'images'])
             ->orderByDesc('id')
             ->paginate($perPage);
 
@@ -93,51 +96,78 @@ class ProductAdminController extends Controller
             return $product;
         });
 
-        $product->load(['variants.offers']);
+        $product->load(['variants.offers', 'images']);
 
         return (new ProductResource($product))->response()->setStatusCode(201);
     }
 
     #[OA\Post(
-        path: '/admin/products/{product}/image',
-        summary: 'Envoie la photo du produit (JPG, PNG ou WebP, 2 Mo max) et remplace l\'ancienne',
+        path: '/admin/products/{product}/images',
+        summary: 'Ajoute une photo à la galerie du produit (JPG, PNG ou WebP, 2 Mo max, 8 photos au plus)',
         security: [['sanctum' => []]],
         tags: ['Catalog Admin'],
         responses: [
-            new OA\Response(response: 200, description: 'Photo enregistrée'),
-            new OA\Response(response: 422, description: 'Fichier refusé'),
+            new OA\Response(response: 200, description: 'Photo ajoutée'),
+            new OA\Response(response: 422, description: 'Fichier refusé ou galerie pleine'),
         ],
     )]
-    public function uploadImage(UploadProductImageRequest $request, Product $product): ProductResource
+    public function addImage(UploadProductImageRequest $request, Product $product): JsonResponse|ProductResource
     {
-        // Server-chosen name: the client's file name is never used.
-        $path = $request->file('image')->storePublicly('products', 'public');
-        $previous = $product->image_path;
-
-        $product->update(['image_path' => $path]);
-
-        if ($previous !== null) {
-            Storage::disk('public')->delete($previous);
+        if ($product->images()->count() >= self::MAX_IMAGES) {
+            return response()->json([
+                'message' => 'La galerie est pleine ('.self::MAX_IMAGES.' photos au plus).',
+                'errors' => ['image' => ['La galerie est pleine.']],
+            ], 422);
         }
 
-        return new ProductResource($product->load('variants.offers'));
+        // Server-chosen name: the client's file name is never used.
+        $path = $request->file('image')->storePublicly('products', 'public');
+
+        // The first photo is the cover; the next ones go to the end.
+        $next = $product->images()->exists() ? (int) $product->images()->max('position') + 1 : 0;
+        $product->images()->create(['path' => $path, 'position' => $next]);
+
+        return new ProductResource($product->load(['variants.offers', 'images']));
+    }
+
+    #[OA\Post(
+        path: '/admin/products/{product}/images/{image}/cover',
+        summary: 'Place une photo en première position (photo de couverture)',
+        security: [['sanctum' => []]],
+        tags: ['Catalog Admin'],
+        responses: [new OA\Response(response: 200, description: 'Photo de couverture changée')],
+    )]
+    public function setCover(Product $product, int $image): ProductResource
+    {
+        $cover = $product->images()->findOrFail($image);
+
+        DB::transaction(function () use ($product, $cover) {
+            // Cover first, the others keep their relative order after it.
+            $ordered = $product->images()->where('id', '!=', $cover->id)->get()->prepend($cover);
+
+            foreach ($ordered->values() as $position => $photo) {
+                $photo->update(['position' => $position]);
+            }
+        });
+
+        return new ProductResource($product->load(['variants.offers', 'images']));
     }
 
     #[OA\Delete(
-        path: '/admin/products/{product}/image',
-        summary: 'Retire la photo du produit',
+        path: '/admin/products/{product}/images/{image}',
+        summary: 'Retire une photo de la galerie',
         security: [['sanctum' => []]],
         tags: ['Catalog Admin'],
         responses: [new OA\Response(response: 200, description: 'Photo retirée')],
     )]
-    public function deleteImage(Product $product): ProductResource
+    public function deleteImage(Product $product, int $image): ProductResource
     {
-        if ($product->image_path !== null) {
-            Storage::disk('public')->delete($product->image_path);
-            $product->update(['image_path' => null]);
-        }
+        $photo = $product->images()->findOrFail($image);
 
-        return new ProductResource($product->load('variants.offers'));
+        Storage::disk('public')->delete($photo->path);
+        $photo->delete();
+
+        return new ProductResource($product->load(['variants.offers', 'images']));
     }
 
     #[OA\Put(
@@ -167,7 +197,7 @@ class ProductAdminController extends Controller
             $offer->save();
         }
 
-        $product->load(['variants.offers']);
+        $product->load(['variants.offers', 'images']);
 
         return new ProductResource($product);
     }
@@ -187,7 +217,7 @@ class ProductAdminController extends Controller
             $variant->offers()->update(['status' => OfferStatus::Archived->value]);
         }
 
-        $product->load(['variants.offers']);
+        $product->load(['variants.offers', 'images']);
 
         return new ProductResource($product);
     }

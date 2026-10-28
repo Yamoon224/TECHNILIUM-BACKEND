@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * @property int $id
@@ -21,7 +20,6 @@ use Illuminate\Support\Facades\Storage;
  * @property string $name
  * @property string $slug
  * @property string|null $description
- * @property string|null $image_path
  * @property array<string, mixed>|null $attributes
  * @property ConditionState $condition_state
  * @property ProductStatus $status
@@ -39,16 +37,25 @@ class Product extends Model
         'name',
         'slug',
         'description',
-        'image_path',
         'attributes',
         'condition_state',
         'status',
     ];
 
-    /** Public URL of the photo, or null when none was uploaded. */
+    /** Public URL of the cover photo (first of the gallery), or null when there is none. */
     public function imageUrl(): ?string
     {
-        return $this->image_path ? Storage::disk('public')->url($this->image_path) : null;
+        return $this->images->first()?->url();
+    }
+
+    /**
+     * Photos in display order; position 0 is the cover.
+     *
+     * @return HasMany<ProductImage, $this>
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('position')->orderBy('id');
     }
 
     protected function casts(): array

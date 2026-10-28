@@ -135,74 +135,133 @@ it('archives a product and its offers on destroy', function () {
         ->toBe(OfferStatus::Archived);
 });
 
-it('uploads a product photo, exposes its URL publicly and replaces the previous file', function () {
+function photo(string $name = 'a.jpg', int $size = 400): Illuminate\Http\UploadedFile
+{
+    return Illuminate\Http\UploadedFile::fake()->image($name, $size, $size);
+}
+
+function addPhoto(Product $product, ?Illuminate\Http\UploadedFile $file = null, ?User $by = null): Illuminate\Testing\TestResponse
+{
+    return test()->actingAs($by ?? anotherCatalogAdminUser(), 'sanctum')
+        ->post("/api/v1/admin/products/{$product->id}/images", ['image' => $file ?? photo()], ['Accept' => 'application/json']);
+}
+
+it('builds a gallery: the first photo is the cover, the next ones follow', function () {
     Illuminate\Support\Facades\Storage::fake('public');
     $product = Product::factory()->create();
 
-    $first = $this->actingAs(anotherCatalogAdminUser(), 'sanctum')
-        ->post("/api/v1/admin/products/{$product->id}/image", ['image' => Illuminate\Http\UploadedFile::fake()->image('a.jpg', 400, 400)], ['Accept' => 'application/json'])
-        ->assertOk();
+    $first = addPhoto($product)->assertOk();
+    addPhoto($product, photo('b.png'))->assertOk();
+    $third = addPhoto($product, photo('c.webp'))->assertOk();
 
-    $firstPath = $product->fresh()->image_path;
-    expect($firstPath)->toStartWith('products/')->and($first->json('image_url'))->toContain($firstPath);
-    Illuminate\Support\Facades\Storage::disk('public')->assertExists($firstPath);
+    $images = $third->json('images');
+    expect($images)->toHaveCount(3)
+        ->and($third->json('image_url'))->toBe($images[0]['url'])
+        ->and($first->json('images.0.id'))->toBe($images[0]['id'])
+        ->and($product->images()->pluck('position')->all())->toBe([0, 1, 2]);
+
+    foreach ($product->images as $image) {
+        Illuminate\Support\Facades\Storage::disk('public')->assertExists($image->path);
+    }
+});
+
+it('stops at eight photos', function () {
+    Illuminate\Support\Facades\Storage::fake('public');
+    $product = Product::factory()->create();
+
+    foreach (range(1, 8) as $i) {
+        addPhoto($product)->assertOk();
+    }
+
+    addPhoto($product)->assertUnprocessable()->assertJsonValidationErrors('image');
+    expect($product->images()->count())->toBe(8);
+});
+
+it('moves a chosen photo to the cover, keeping the others in order', function () {
+    Illuminate\Support\Facades\Storage::fake('public');
+    $product = Product::factory()->create();
+    foreach (range(1, 3) as $i) {
+        addPhoto($product);
+    }
+    [$a, $b, $c] = $product->images()->pluck('id')->all();
 
     $this->actingAs(anotherCatalogAdminUser(), 'sanctum')
-        ->post("/api/v1/admin/products/{$product->id}/image", ['image' => Illuminate\Http\UploadedFile::fake()->image('b.png', 400, 400)], ['Accept' => 'application/json'])
-        ->assertOk();
+        ->postJson("/api/v1/admin/products/{$product->id}/images/{$c}/cover")
+        ->assertOk()
+        ->assertJsonPath('images.0.id', $c);
 
-    Illuminate\Support\Facades\Storage::disk('public')->assertMissing($firstPath);
-    expect($product->fresh()->image_path)->not->toBe($firstPath);
+    expect($product->images()->pluck('id')->all())->toBe([$c, $a, $b]);
+});
+
+it('removes a photo and its file, and the next one becomes the cover', function () {
+    Illuminate\Support\Facades\Storage::fake('public');
+    $product = Product::factory()->create();
+    addPhoto($product);
+    addPhoto($product);
+    [$cover, $second] = $product->images()->get()->all();
+
+    $this->actingAs(anotherCatalogAdminUser(), 'sanctum')
+        ->deleteJson("/api/v1/admin/products/{$product->id}/images/{$cover->id}")
+        ->assertOk()
+        ->assertJsonPath('images.0.id', $second->id);
+
+    Illuminate\Support\Facades\Storage::disk('public')->assertMissing($cover->path);
+    Illuminate\Support\Facades\Storage::disk('public')->assertExists($second->path);
+});
+
+it('cannot touch another product\'s photo through the wrong product id', function () {
+    Illuminate\Support\Facades\Storage::fake('public');
+    $mine = Product::factory()->create();
+    $other = Product::factory()->create();
+    addPhoto($other);
+    $theirs = $other->images()->sole();
+    $admin = anotherCatalogAdminUser();
+
+    $this->actingAs($admin, 'sanctum')->deleteJson("/api/v1/admin/products/{$mine->id}/images/{$theirs->id}")->assertNotFound();
+    $this->actingAs($admin, 'sanctum')->postJson("/api/v1/admin/products/{$mine->id}/images/{$theirs->id}/cover")->assertNotFound();
+    expect($other->images()->count())->toBe(1);
 });
 
 it('refuses a non-image, an SVG, an oversized or a tiny file', function () {
     Illuminate\Support\Facades\Storage::fake('public');
     $product = Product::factory()->create();
-    $admin = anotherCatalogAdminUser();
 
     foreach ([
         Illuminate\Http\UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf'),
         Illuminate\Http\UploadedFile::fake()->createWithContent('x.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'),
-        Illuminate\Http\UploadedFile::fake()->image('big.jpg', 400, 400)->size(3000),
-        Illuminate\Http\UploadedFile::fake()->image('tiny.jpg', 50, 50),
+        photo('big.jpg')->size(3000),
+        photo('tiny.jpg', 50),
     ] as $file) {
-        $this->actingAs($admin, 'sanctum')
-            ->post("/api/v1/admin/products/{$product->id}/image", ['image' => $file], ['Accept' => 'application/json'])
-            ->assertUnprocessable()->assertJsonValidationErrors('image');
+        addPhoto($product, $file)->assertUnprocessable()->assertJsonValidationErrors('image');
     }
 
-    expect($product->fresh()->image_path)->toBeNull();
+    expect($product->images()->count())->toBe(0);
 });
 
-it('restricts photo changes to catalogue staff', function () {
+it('restricts gallery changes to catalogue staff', function () {
     $product = Product::factory()->create();
     $client = User::factory()->create();
     $client->assignRole(Role::Client->value);
 
-    $this->postJson("/api/v1/admin/products/{$product->id}/image")->assertUnauthorized();
-    $this->actingAs($client, 'sanctum')->postJson("/api/v1/admin/products/{$product->id}/image")->assertForbidden();
-    $this->actingAs($client, 'sanctum')->deleteJson("/api/v1/admin/products/{$product->id}/image")->assertForbidden();
+    $this->postJson("/api/v1/admin/products/{$product->id}/images")->assertUnauthorized();
+    $this->actingAs($client, 'sanctum')->postJson("/api/v1/admin/products/{$product->id}/images")->assertForbidden();
+    $this->actingAs($client, 'sanctum')->deleteJson("/api/v1/admin/products/{$product->id}/images/1")->assertForbidden();
+    $this->actingAs($client, 'sanctum')->postJson("/api/v1/admin/products/{$product->id}/images/1/cover")->assertForbidden();
 });
 
-it('removes a photo and its file', function () {
+it('serves the gallery on the public catalogue, empty when there is none', function () {
     Illuminate\Support\Facades\Storage::fake('public');
-    $product = Product::factory()->create();
-    $admin = anotherCatalogAdminUser();
-    $this->actingAs($admin, 'sanctum')
-        ->post("/api/v1/admin/products/{$product->id}/image", ['image' => Illuminate\Http\UploadedFile::fake()->image('a.jpg', 400, 400)], ['Accept' => 'application/json']);
-    $path = $product->fresh()->image_path;
+    $with = Product::factory()->create(['status' => 'published']);
+    $without = Product::factory()->create(['status' => 'published']);
+    addPhoto($with);
+    addPhoto($with);
 
-    $this->actingAs($admin, 'sanctum')->deleteJson("/api/v1/admin/products/{$product->id}/image")
-        ->assertOk()->assertJsonPath('image_url', null);
+    $this->getJson("/api/v1/catalog/products/{$with->slug}")->assertOk()
+        ->assertJsonCount(2, 'images')
+        ->assertJsonPath('image_url', fn ($url) => is_string($url) && str_contains($url, 'products/'));
+    $this->getJson("/api/v1/catalog/products/{$without->slug}")->assertOk()
+        ->assertJsonCount(0, 'images')->assertJsonPath('image_url', null);
 
-    Illuminate\Support\Facades\Storage::disk('public')->assertMissing($path);
-});
-
-it('serves the photo URL on the public catalogue, null when there is none', function () {
-    Illuminate\Support\Facades\Storage::fake('public');
-    $with = Product::factory()->create(['image_path' => 'products/x.jpg']);
-    $without = Product::factory()->create();
-
-    $this->getJson("/api/v1/catalog/products/{$with->slug}")->assertOk()->assertJsonPath('image_url', fn ($url) => str_ends_with($url, 'products/x.jpg'));
-    $this->getJson("/api/v1/catalog/products/{$without->slug}")->assertOk()->assertJsonPath('image_url', null);
+    $list = $this->getJson('/api/v1/catalog/products')->assertOk()->json('data');
+    expect(collect($list)->firstWhere('id', $with->id)['image_url'])->toBeString();
 });
