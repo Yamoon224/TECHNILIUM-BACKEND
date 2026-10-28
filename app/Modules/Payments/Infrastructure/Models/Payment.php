@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property PaymentStatus $status
  * @property int $amount_amount
  * @property int $refunded_amount
+ * @property int|null $tendered_amount
  * @property string $currency
  * @property string|null $provider
  * @property string|null $provider_reference
@@ -36,6 +37,7 @@ class Payment extends Model
         'status',
         'amount_amount',
         'refunded_amount',
+        'tendered_amount',
         'currency',
         'provider',
         'provider_reference',

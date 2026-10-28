@@ -73,6 +73,18 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
         return $shares;
     }
 
+    public function recentInternalSales(int $limit = 50): array
+    {
+        return Order::query()
+            ->with('items')
+            ->where('channel', 'internal')
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Order $order) => $this->toData($order))
+            ->all();
+    }
+
     public function forVendor(int $vendorId, int $limit = 200): array
     {
         return Order::query()
@@ -196,6 +208,7 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
             customerId: $order->customer_id,
             customerEmail: $order->customer_email,
             customerLocale: $order->customer_locale ?? 'fr',
+            channel: $order->channel,
         );
     }
 }

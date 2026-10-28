@@ -71,7 +71,8 @@ it('names the recipient, the address and the articles to hand over', function ()
 });
 
 it('never prints a price or the delivery confirmation code on the courier paper', function () {
-    $page = app(RenderDeliveryNote::class)->html(noteShipment());
+    // The inline logo is base64: strip it, its digits are not text on the paper.
+    $page = preg_replace('~data:image/png;base64,[A-Za-z0-9+/=]+~', '', app(RenderDeliveryNote::class)->html(noteShipment()));
 
     expect($page)->not->toContain('482913')
         ->and($page)->not->toContain('59')            // unit price 59 000
@@ -91,5 +92,5 @@ it('escapes hostile text in the address and notes', function () {
         'customer_name' => '<script>alert(1)</script>', 'notes' => '<img src="http://evil.example/x.png">',
     ]));
 
-    expect($page)->not->toContain('<script>')->not->toContain('<img src=')->toContain('&lt;script&gt;');
+    expect($page)->not->toContain('<script>')->not->toContain('<img src="http')->toContain('&lt;script&gt;');
 });

@@ -19,5 +19,7 @@ final readonly class OrderStatusChanged implements DomainEvent
         public int $orderId = 0,
         public ?string $customerEmail = null,
         public string $locale = 'fr',
+        /** "internal" for a counter sale: the customer is standing there, nothing is texted. */
+        public string $channel = 'online',
     ) {}
 }

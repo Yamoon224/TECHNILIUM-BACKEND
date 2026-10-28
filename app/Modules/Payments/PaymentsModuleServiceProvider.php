@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Payments;
 
+use App\Modules\Payments\Application\Contracts\PaymentLookupInterface;
 use App\Modules\Payments\Application\Contracts\PaymentStatsInterface;
+use App\Modules\Payments\Application\Gateways\EloquentPaymentLookup;
 use App\Modules\Payments\Application\Gateways\EloquentPaymentStats;
 use App\Modules\Payments\Application\Listeners\RefundOnReturn;
 use App\Modules\Shared\Events\ReturnRefunded;
@@ -16,6 +18,7 @@ class PaymentsModuleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(PaymentStatsInterface::class, EloquentPaymentStats::class);
+        $this->app->bind(PaymentLookupInterface::class, EloquentPaymentLookup::class);
     }
 
     public function boot(): void

@@ -8,4 +8,5 @@ enum PaymentMethod: string
 {
     case Cod = 'cod'; // paiement à la livraison
     case MobileMoney = 'mobile_money';
+    case Cash = 'cash'; // espèces encaissées au comptoir (vente interne)
 }

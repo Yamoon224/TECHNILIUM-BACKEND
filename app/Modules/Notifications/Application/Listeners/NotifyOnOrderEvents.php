@@ -39,6 +39,10 @@ final class NotifyOnOrderEvents
 
     public function onOrderStatusChanged(OrderStatusChanged $event): void
     {
+        if ($event->channel !== 'online') {
+            return;
+        }
+
         $body = MessageTemplates::orderStatus($event->customerName, $event->orderNumber, $event->status, $event->locale);
 
         if ($body === null) {

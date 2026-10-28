@@ -41,8 +41,13 @@ function issuedInvoice(array $overrides = []): Invoice
 
 function html(Invoice $invoice): string
 {
-    return app(RenderInvoiceDocument::class)->html($invoice);
+    // Without the inline logo: its base64 would otherwise look like text on the page.
+    return preg_replace('~data:image/png;base64,[A-Za-z0-9+/=]+~', '', app(RenderInvoiceDocument::class)->html($invoice));
 }
+
+it('prints the Technilium logo on the document', function () {
+    expect(app(RenderInvoiceDocument::class)->html(issuedInvoice()))->toContain('<img src="data:image/png;base64,');
+});
 
 it('restricts the document to finance roles', function () {
     $invoice = issuedInvoice();
@@ -118,7 +123,7 @@ it('escapes untrusted text: a hostile customer name or reason cannot inject mark
     $page = html(issuedInvoice(['customer_name' => '<script>alert(1)</script> <img src="http://evil.example/x.png">']));
 
     expect($page)->not->toContain('<script>')
-        ->and($page)->not->toContain('<img src=')
+        ->and($page)->not->toContain('<img src="http')
         ->and($page)->toContain('&lt;script&gt;');
 });
 

@@ -30,7 +30,7 @@ final class PlaceOrderAction
     /**
      * @param  list<CheckoutItemInput>  $items
      */
-    public function execute(array $items, DeliveryDetails $delivery, ?int $customerId = null, ?string $couponCode = null): Order
+    public function execute(array $items, DeliveryDetails $delivery, ?int $customerId = null, ?string $couponCode = null, string $channel = 'online', ?int $soldBy = null, string $paymentMethod = 'cod'): Order
     {
         if ($items === []) {
             throw EmptyCartException::create();
@@ -64,7 +64,7 @@ final class PlaceOrderAction
 
         $subtotal = array_sum(array_column($lines, 'line_total_amount'));
 
-        return DB::transaction(function () use ($lines, $delivery, $subtotal, $currency, $customerId, $couponCode) {
+        return DB::transaction(function () use ($lines, $delivery, $subtotal, $currency, $customerId, $couponCode, $channel, $soldBy, $paymentMethod) {
             $orderNumber = $this->generateOrderNumber();
 
             // Redeemed inside this transaction: if anything below fails the
@@ -94,7 +94,9 @@ final class PlaceOrderAction
                 'delivery_address' => $delivery->address,
                 'delivery_city' => $delivery->city,
                 'notes' => $delivery->notes,
-                'payment_method' => 'cod',
+                'payment_method' => $paymentMethod,
+                'channel' => $channel,
+                'sold_by' => $soldBy,
                 'status' => OrderStatus::Pending,
                 // What the customer owes: every downstream amount (payment,
                 // invoice, refunds, reports) is based on this net figure.
@@ -135,11 +137,14 @@ final class PlaceOrderAction
                 }
             }
 
-            // Raised inside the transaction: a rolled-back order sends nothing.
-            event(new OrderPlaced(
-                $order->order_number, $order->customer_name, $order->customer_phone,
-                $order->subtotal_amount, $order->currency, $order->delivery_code, $order->customer_email, $order->customer_locale ?? 'fr',
-            ));
+            // Raised inside the transaction: a rolled-back order sends nothing. A counter sale
+            // texts nobody: the customer is standing at the till and has no delivery code to use.
+            if ($channel === 'online') {
+                event(new OrderPlaced(
+                    $order->order_number, $order->customer_name, $order->customer_phone,
+                    $order->subtotal_amount, $order->currency, $order->delivery_code, $order->customer_email, $order->customer_locale ?? 'fr',
+                ));
+            }
 
             return $order->load('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents');
         });

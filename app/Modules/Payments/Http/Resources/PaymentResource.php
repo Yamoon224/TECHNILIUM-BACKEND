@@ -27,6 +27,7 @@ class PaymentResource extends JsonResource
             'amount_amount' => $payment->amount_amount,
             'refunded_amount' => $payment->refunded_amount,
             'refundable_amount' => $payment->status === PaymentStatus::Completed ? $payment->refundable() : 0,
+            'tendered_amount' => $payment->tendered_amount,
             'currency' => $payment->currency,
             'provider' => $payment->provider,
             'provider_reference' => $payment->provider_reference,

@@ -23,7 +23,7 @@ class StorePaymentRequest extends FormRequest
             // Payments can't touch Orders' Eloquent models, so this checks
             // by table/column name (cahier §9.1).
             'order_number' => ['required', 'string', Rule::exists('orders', 'order_number')],
-            'method' => ['required', Rule::in(['cod', 'mobile_money'])],
+            'method' => ['required', Rule::in(['cod', 'cash', 'mobile_money'])],
             'amount_amount' => ['required', 'integer', 'min:1'],
             'currency' => ['nullable', 'string', 'size:3'],
             'provider' => ['required_if:method,mobile_money', 'nullable', Rule::in(['orange_money', 'mtn_money', 'wave'])],

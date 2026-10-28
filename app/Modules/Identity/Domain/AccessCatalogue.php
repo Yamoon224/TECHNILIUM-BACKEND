@@ -21,6 +21,7 @@ final class AccessCatalogue
     {
         return [
             'manage-orders' => self::feature('Commandes', 'Orders', 'Ventes', 'Sales', [Role::OperateurCommandes]),
+            'manage-internal-sales' => self::feature('Ventes internes (caisse)', 'Internal sales (till)', 'Ventes', 'Sales', [Role::OperateurCommandes, Role::Comptable]),
             'manage-payments' => self::feature('Paiements', 'Payments', 'Ventes', 'Sales', [Role::Comptable]),
             'manage-shipments' => self::feature('Livraisons', 'Deliveries', 'Ventes', 'Sales', [Role::Logistique]),
             'manage-invoices' => self::feature('Factures', 'Invoices', 'Ventes', 'Sales', [Role::Comptable]),

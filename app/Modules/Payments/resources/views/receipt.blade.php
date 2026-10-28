@@ -22,6 +22,7 @@
 <table class="row">
     <tr>
         <td style="width: 55%">
+            @if ($logo !== '') <img src="{{ $logo }}" alt="{{ $company['name'] }}" style="height: 44px; margin-bottom: 4px;"><br> @endif
             <h1>{{ $company['name'] }}</h1>
             @if ($company['address'] !== '') <div>{{ $company['address'] }}</div> @endif
             @if ($company['phone'] !== '') <div>{{ $t['phone'] }} {{ $company['phone'] }}</div> @endif
@@ -39,12 +40,25 @@
     <p style="margin-top: 14px;"><span class="muted">{{ $t['received_from'] }}</span><br><strong>{{ $customerName }}</strong></p>
 @endif
 
+@if (count($lines) > 0)
+    <table class="rows">
+        <tr><td class="muted">{{ $t['items'] }}</td><td class="muted" style="text-align: right;">{{ $t['qty'] }}</td><td class="muted" style="text-align: right;">{{ $t['unit_price'] }}</td><td class="muted" style="text-align: right;">{{ $t['total'] }}</td></tr>
+        @foreach ($lines as $line)
+            <tr><td>{{ $line['description'] }}</td><td style="text-align: right;">{{ $line['quantity'] }}</td><td style="text-align: right;">{{ $line['unit'] }}</td><td class="value">{{ $line['total'] }}</td></tr>
+        @endforeach
+    </table>
+@endif
+
 <table class="rows">
     <tr><td>{{ $t['method'] }}</td><td class="value">{{ $methodLabel }}@if ($provider) — {{ $provider }}@endif</td></tr>
     @if ($payment->provider_reference)
         <tr><td>{{ $t['reference'] }}</td><td class="value">{{ $payment->provider_reference }}</td></tr>
     @endif
     <tr><td class="big">{{ $t['amount'] }}</td><td class="value big">{{ $amount }}</td></tr>
+    @if ($tendered)
+        <tr><td>{{ $t['tendered'] }}</td><td class="value">{{ $tendered }}</td></tr>
+        <tr><td>{{ $t['change'] }}</td><td class="value">{{ $change }}</td></tr>
+    @endif
     @if ($refunded)
         <tr><td>{{ $t['refunded'] }}</td><td class="value">− {{ $refunded }}</td></tr>
         <tr><td>{{ $t['net'] }}</td><td class="value">{{ $net }}</td></tr>

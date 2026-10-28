@@ -22,6 +22,7 @@ class OrderResource extends JsonResource
         return [
             'order_number' => $order->order_number,
             'status' => $order->status->value,
+            'channel' => $order->channel,
             'payment_method' => $order->payment_method,
             'customer_name' => $order->customer_name,
             'customer_phone' => $order->customer_phone,

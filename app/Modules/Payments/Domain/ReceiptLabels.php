@@ -17,14 +17,14 @@ final class ReceiptLabels
                 'lang' => 'en', 'title' => 'PAYMENT RECEIPT', 'number' => 'No.', 'date' => 'Date:', 'order' => 'Order:',
                 'received_from' => 'Received from', 'amount' => 'Amount received', 'method' => 'Payment method',
                 'reference' => 'Transaction reference', 'refunded' => 'Of which refunded', 'net' => 'Net amount kept',
-                'cod' => 'Cash on delivery', 'mobile_money' => 'Mobile money', 'phone' => 'Tel.:',
+                'cod' => 'Cash on delivery', 'cash' => 'Cash', 'items' => 'Items', 'qty' => 'Qty', 'unit_price' => 'Unit price', 'total' => 'Total', 'tendered' => 'Cash tendered', 'change' => 'Change given', 'served_by' => 'Served by', 'thanks' => 'Thank you for your purchase!', 'mobile_money' => 'Mobile money', 'phone' => 'Tel.:',
                 'signature' => 'For receipt', 'footer' => 'This receipt confirms the payment of the order above. It is not an invoice.',
             ]
             : [
                 'lang' => 'fr', 'title' => 'REÇU DE PAIEMENT', 'number' => 'N°', 'date' => 'Date :', 'order' => 'Commande :',
                 'received_from' => 'Reçu de', 'amount' => 'Montant reçu', 'method' => 'Mode de paiement',
                 'reference' => 'Référence de transaction', 'refunded' => 'Dont remboursé', 'net' => 'Montant net conservé',
-                'cod' => 'Paiement à la livraison', 'mobile_money' => 'Mobile money', 'phone' => 'Tél. :',
+                'cod' => 'Paiement à la livraison', 'cash' => 'Espèces', 'items' => 'Articles', 'qty' => 'Qté', 'unit_price' => 'Prix unitaire', 'total' => 'Total', 'tendered' => 'Espèces remises', 'change' => 'Monnaie rendue', 'served_by' => 'Servi par', 'thanks' => 'Merci pour votre achat !', 'mobile_money' => 'Mobile money', 'phone' => 'Tél. :',
                 'signature' => 'Pour acquit', 'footer' => 'Ce reçu atteste le paiement de la commande ci-dessus. Il ne tient pas lieu de facture.',
             ];
     }

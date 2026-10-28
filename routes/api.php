@@ -30,4 +30,5 @@ Route::prefix('v1')->group(function () {
     require base_path('app/Modules/Customers/routes/api.php');
     require base_path('app/Modules/Procurement/routes/api.php');
     require base_path('app/Modules/Qr/routes/api.php');
+    require base_path('app/Modules/Sales/routes/api.php');
 });

@@ -67,6 +67,13 @@ interface OrderLookupGatewayInterface
      */
     public function confirmDeliveryCode(string $orderNumber, string $code): bool;
 
+    /**
+     * The most recent counter sales (channel "internal"), newest first.
+     *
+     * @return list<OrderSummaryData>
+     */
+    public function recentInternalSales(int $limit = 50): array;
+
     /** Same best-effort contract as markShipped(), for "delivered". */
     public function markDelivered(string $orderNumber): bool;
 }

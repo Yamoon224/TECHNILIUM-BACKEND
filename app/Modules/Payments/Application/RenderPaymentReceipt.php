@@ -8,6 +8,7 @@ use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
 use App\Modules\Payments\Domain\PaymentStatus;
 use App\Modules\Payments\Domain\ReceiptLabels;
 use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Shared\Support\BrandLogo;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 /** The proof a customer keeps that a payment was received (never for a pending or failed one). */
@@ -37,6 +38,10 @@ class RenderPaymentReceipt
             't' => $labels,
             'number' => $this->number($payment),
             'company' => (array) config('invoicing.company'),
+            'logo' => BrandLogo::dataUri(),
+            'lines' => array_map(fn ($line) => ['description' => $line->description, 'quantity' => $line->quantity, 'unit' => $money($line->unitPriceAmount), 'total' => $money($line->lineTotalAmount)], $order?->lines ?? []),
+            'tendered' => $payment->tendered_amount !== null ? $money($payment->tendered_amount) : null,
+            'change' => $payment->tendered_amount !== null ? $money(max(0, $payment->tendered_amount - $payment->amount_amount)) : null,
             'customerName' => $order?->customerName ?? '',
             'customerPhone' => $order?->customerPhone ?? '',
             'methodLabel' => $labels[$payment->method->value] ?? $payment->method->value,

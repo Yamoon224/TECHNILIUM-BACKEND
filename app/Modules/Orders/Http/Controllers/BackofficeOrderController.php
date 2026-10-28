@@ -45,6 +45,10 @@ class BackofficeOrderController extends Controller
                 $request->string('status')->isNotEmpty(),
                 fn ($query) => $query->where('status', $request->string('status')->toString()),
             )
+            ->when(
+                $request->string('channel')->isNotEmpty(),
+                fn ($query) => $query->where('channel', $request->string('channel')->toString()),
+            )
             ->orderByDesc('id')
             ->paginate(max(1, min($request->integer('per_page', 20), 100)));
 

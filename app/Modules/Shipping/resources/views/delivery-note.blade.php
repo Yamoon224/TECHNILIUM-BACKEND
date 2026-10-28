@@ -22,6 +22,8 @@
 <table class="row">
     <tr>
         <td style="width: 55%">
+            @php $logo = \App\Modules\Shared\Support\BrandLogo::dataUri(); @endphp
+            @if ($logo !== '') <img src="{{ $logo }}" alt="{{ $company['name'] }}" style="height: 48px; margin-bottom: 4px;"><br> @endif
             <h1>{{ $company['name'] }}</h1>
             @if ($company['address'] !== '') <div>{{ $company['address'] }}</div> @endif
             @if ($company['phone'] !== '') <div>{{ $t['phone_short'] }} {{ $company['phone'] }}</div> @endif
