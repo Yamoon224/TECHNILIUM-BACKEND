@@ -13,10 +13,15 @@ use App\Modules\Orders\Domain\Exceptions\EmptyCartException;
 use App\Modules\Orders\Domain\Exceptions\OfferUnavailableException;
 use App\Modules\Payments\Application\Contracts\PaymentLookupInterface;
 use App\Modules\Payments\Application\Data\CollectedPaymentData;
+use App\Modules\Payments\Application\RenderPaymentReceipt;
 use App\Modules\Payments\Domain\PaymentMethod;
+use App\Modules\Returns\Domain\Exceptions\ReturnException;
+use App\Modules\Sales\Application\Actions\CancelInternalSaleAction;
 use App\Modules\Sales\Application\Actions\RecordInternalSaleAction;
 use App\Modules\Sales\Application\InternalSaleException;
+use App\Modules\Sales\Http\Requests\CancelInternalSaleRequest;
 use App\Modules\Sales\Http\Requests\RecordInternalSaleRequest;
+use App\Modules\Sales\Infrastructure\Models\InternalSale;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -42,10 +47,12 @@ class InternalSaleController extends Controller
     public function index(Request $request): JsonResponse
     {
         $sales = $this->orders->recentInternalSales(max(1, min($request->integer('limit', 50), 200)));
-        $payments = $this->payments->collectedForOrders(array_map(fn (OrderSummaryData $sale) => $sale->orderNumber, $sales));
+        $numbers = array_map(fn (OrderSummaryData $sale) => $sale->orderNumber, $sales);
+        $payments = $this->payments->collectedForOrders($numbers);
+        $records = InternalSale::query()->whereIn('order_number', $numbers)->get()->keyBy('order_number');
 
         return response()->json([
-            'data' => array_map(fn (OrderSummaryData $sale) => $this->present($sale, $payments[$sale->orderNumber] ?? null), $sales),
+            'data' => array_map(fn (OrderSummaryData $sale) => $this->present($sale, $payments[$sale->orderNumber] ?? null, $records[$sale->orderNumber] ?? null), $sales),
         ]);
     }
 
@@ -95,7 +102,7 @@ class InternalSaleController extends Controller
         $sale = $this->orders->find($orderNumber);
         $collected = $this->payments->collectedForOrders([$orderNumber])[$orderNumber] ?? null;
 
-        return response()->json($this->present($sale, $collected), 201);
+        return response()->json($this->present($sale, $collected, InternalSale::query()->where('order_number', $orderNumber)->first()), 201);
     }
 
     #[OA\Get(
@@ -112,7 +119,7 @@ class InternalSaleController extends Controller
     {
         $sale = $this->orders->find($orderNumber);
         $receipt = $sale?->channel === 'internal'
-            ? $this->payments->receiptPdfForOrder($orderNumber, (string) $request->query('lang', 'fr'))
+            ? $this->payments->receiptPdfForOrder($orderNumber, (string) $request->query('lang', 'fr'), RenderPaymentReceipt::normalizeFormat($request->query('format')))
             : null;
 
         if ($receipt === null) {
@@ -125,10 +132,38 @@ class InternalSaleController extends Controller
         ]);
     }
 
+    #[OA\Post(
+        path: '/admin/internal-sales/{orderNumber}/cancel',
+        summary: "Annule une vente interne : retour en stock, avoir, remboursement intégral et écritures inverses",
+        security: [['sanctum' => []]],
+        tags: ['Sales'],
+        responses: [
+            new OA\Response(response: 200, description: 'Vente annulée'),
+            new OA\Response(response: 404, description: 'Vente interne introuvable'),
+            new OA\Response(response: 422, description: 'Déjà annulée ou hors délai de retour'),
+        ],
+    )]
+    public function cancel(CancelInternalSaleRequest $request, string $orderNumber, CancelInternalSaleAction $cancel): JsonResponse
+    {
+        if (! InternalSale::query()->where('order_number', $orderNumber)->exists()) {
+            return response()->json(['message' => 'Vente interne introuvable.'], 404);
+        }
+
+        try {
+            $record = $cancel->execute($orderNumber, $request->string('reason')->toString(), (int) $request->user()->id);
+        } catch (InternalSaleException|ReturnException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        $sale = $this->orders->find($orderNumber);
+
+        return response()->json($this->present($sale, $this->payments->collectedForOrders([$orderNumber])[$orderNumber] ?? null, $record));
+    }
+
     /**
      * @return array<string, mixed>
      */
-    private function present(OrderSummaryData $sale, ?CollectedPaymentData $payment): array
+    private function present(OrderSummaryData $sale, ?CollectedPaymentData $payment, ?InternalSale $record = null): array
     {
         return [
             'order_number' => $sale->orderNumber,
@@ -140,6 +175,8 @@ class InternalSaleController extends Controller
             'discount_amount' => $sale->discountAmount,
             'coupon_code' => $sale->couponCode,
             'created_at' => $sale->deliveredAt,
+            'cancelled_at' => $record?->cancelled_at?->toIso8601String(),
+            'cancel_reason' => $record?->cancel_reason,
             'lines' => array_map(fn ($line) => [
                 'description' => $line->description,
                 'quantity' => $line->quantity,

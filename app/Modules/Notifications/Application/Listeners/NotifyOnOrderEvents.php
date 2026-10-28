@@ -58,7 +58,7 @@ final class NotifyOnOrderEvents
             // The event carries no phone: ask Orders through its public contract.
             $order = $this->orders->find($event->orderNumber);
 
-            if ($order === null) {
+            if ($order === null || $order->channel !== 'online') {
                 return;
             }
 
@@ -78,7 +78,7 @@ final class NotifyOnOrderEvents
         $this->safely(function () use ($event) {
             $order = $this->orders->find($event->orderNumber);
 
-            if ($order === null) {
+            if ($order === null || $order->channel !== 'online') {
                 return;
             }
 

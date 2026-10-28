@@ -26,5 +26,5 @@ interface PaymentLookupInterface
      *
      * @return array{filename: string, content: string}|null
      */
-    public function receiptPdfForOrder(string $orderNumber, string $locale = 'fr'): ?array;
+    public function receiptPdfForOrder(string $orderNumber, string $locale = 'fr', string $format = 'a5'): ?array;
 }

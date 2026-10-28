@@ -27,13 +27,21 @@ class RenderPaymentReceipt
         return 'REC-'.sprintf('%06d', $payment->id);
     }
 
-    public function html(Payment $payment, string $locale = 'fr'): string
+    /** The A5 landscape sheet, or the narrow 80 mm roll of a thermal printer. */
+    public const FORMATS = ['a5', 'ticket'];
+
+    public static function normalizeFormat(?string $format): string
+    {
+        return $format === 'ticket' ? 'ticket' : 'a5';
+    }
+
+    public function html(Payment $payment, string $locale = 'fr', string $format = 'a5'): string
     {
         $labels = ReceiptLabels::for(ReceiptLabels::normalize($locale));
         $order = $this->orders->find($payment->order_number);
         $money = fn (int $amount) => number_format($amount, 0, ',', "\u{00A0}")."\u{00A0}".($payment->currency === 'XOF' ? "F\u{00A0}CFA" : $payment->currency);
 
-        return view('payments::receipt', [
+        return view($format === 'ticket' ? 'payments::ticket' : 'payments::receipt', [
             'payment' => $payment,
             't' => $labels,
             'number' => $this->number($payment),
@@ -52,16 +60,22 @@ class RenderPaymentReceipt
         ])->render();
     }
 
-    public function pdf(Payment $payment, string $locale = 'fr'): string
+    public function pdf(Payment $payment, string $locale = 'fr', string $format = 'a5'): string
     {
-        return Pdf::loadHTML($this->html($payment, $locale))
-            ->setPaper('a5', 'landscape')
-            ->setOption('isRemoteEnabled', false)
-            ->output();
+        $pdf = Pdf::loadHTML($this->html($payment, $locale, $format))->setOption('isRemoteEnabled', false);
+
+        if ($format === 'ticket') {
+            // 80 mm = 226.77 pt wide; the roll is cut after the last line, so the height follows the content.
+            $lines = count($this->orders->find($payment->order_number)?->lines ?? []);
+
+            return $pdf->setPaper([0, 0, 226.77, 360 + 28 * $lines])->output();
+        }
+
+        return $pdf->setPaper('a5', 'landscape')->output();
     }
 
-    public function filename(Payment $payment): string
+    public function filename(Payment $payment, string $format = 'a5'): string
     {
-        return $this->number($payment).'.pdf';
+        return $this->number($payment).($format === 'ticket' ? '-ticket' : '').'.pdf';
     }
 }

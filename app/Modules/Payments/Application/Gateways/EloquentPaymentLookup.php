@@ -14,7 +14,7 @@ final class EloquentPaymentLookup implements PaymentLookupInterface
 {
     public function __construct(private readonly RenderPaymentReceipt $receipts) {}
 
-    public function receiptPdfForOrder(string $orderNumber, string $locale = 'fr'): ?array
+    public function receiptPdfForOrder(string $orderNumber, string $locale = 'fr', string $format = 'a5'): ?array
     {
         $payment = Payment::query()
             ->where('order_number', $orderNumber)
@@ -23,8 +23,8 @@ final class EloquentPaymentLookup implements PaymentLookupInterface
             ->first();
 
         return $payment === null ? null : [
-            'filename' => $this->receipts->filename($payment),
-            'content' => $this->receipts->pdf($payment, $locale),
+            'filename' => $this->receipts->filename($payment, $format),
+            'content' => $this->receipts->pdf($payment, $locale, $format),
         ];
     }
 

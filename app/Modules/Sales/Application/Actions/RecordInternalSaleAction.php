@@ -16,6 +16,7 @@ use App\Modules\Payments\Application\Actions\CollectPaymentAction;
 use App\Modules\Payments\Domain\PaymentMethod;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Sales\Application\InternalSaleException;
+use App\Modules\Sales\Infrastructure\Models\InternalSale;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -81,6 +82,15 @@ final class RecordInternalSaleAction
                 $method === PaymentMethod::Cash ? $tenderedAmount : null,
                 $sellerId,
             );
+
+            InternalSale::query()->create([
+                'order_number' => $order->order_number,
+                'seller_id' => $sellerId,
+                'payment_id' => $payment->id,
+                'method' => $method->value,
+                'amount' => $order->subtotal_amount,
+                'currency' => $order->currency,
+            ]);
 
             return ['order' => $order->load('items'), 'payment' => $payment];
         });

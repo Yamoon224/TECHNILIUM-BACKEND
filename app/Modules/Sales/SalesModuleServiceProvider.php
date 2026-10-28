@@ -15,5 +15,9 @@ class SalesModuleServiceProvider extends ServiceProvider
 {
     public function register(): void {}
 
-    public function boot(): void {}
+    public function boot(): void
+    {
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'sales');
+    }
 }

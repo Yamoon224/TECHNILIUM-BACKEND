@@ -166,9 +166,11 @@ class PaymentController extends Controller
             return response()->json(['message' => "Ce paiement n'a pas été encaissé : aucun reçu."], 422);
         }
 
-        return response($receipt->pdf($payment, (string) $request->query('lang', 'fr')), 200, [
+        $format = RenderPaymentReceipt::normalizeFormat($request->query('format'));
+
+        return response($receipt->pdf($payment, (string) $request->query('lang', 'fr'), $format), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$receipt->filename($payment).'"',
+            'Content-Disposition' => 'attachment; filename="'.$receipt->filename($payment, $format).'"',
         ]);
     }
 }
