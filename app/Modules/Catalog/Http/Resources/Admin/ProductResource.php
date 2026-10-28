@@ -27,6 +27,7 @@ class ProductResource extends JsonResource
             'name' => $product->name,
             'slug' => $product->slug,
             'description' => $product->description,
+            'image_url' => $product->imageUrl(),
             'condition_state' => $product->condition_state->value,
             'status' => $product->status->value,
             'sku' => $variant?->sku,

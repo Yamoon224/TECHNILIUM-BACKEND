@@ -7,6 +7,7 @@ namespace App\Modules\Catalog\Http\Controllers\Admin;
 use App\Modules\Catalog\Domain\OfferStatus;
 use App\Modules\Catalog\Http\Requests\Admin\StoreProductRequest;
 use App\Modules\Catalog\Http\Requests\Admin\UpdateProductRequest;
+use App\Modules\Catalog\Http\Requests\Admin\UploadProductImageRequest;
 use App\Modules\Catalog\Http\Resources\Admin\ProductResource;
 use App\Modules\Catalog\Infrastructure\Models\Offer;
 use App\Modules\Catalog\Infrastructure\Models\Product;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
@@ -94,6 +96,48 @@ class ProductAdminController extends Controller
         $product->load(['variants.offers']);
 
         return (new ProductResource($product))->response()->setStatusCode(201);
+    }
+
+    #[OA\Post(
+        path: '/admin/products/{product}/image',
+        summary: 'Envoie la photo du produit (JPG, PNG ou WebP, 2 Mo max) et remplace l\'ancienne',
+        security: [['sanctum' => []]],
+        tags: ['Catalog Admin'],
+        responses: [
+            new OA\Response(response: 200, description: 'Photo enregistrée'),
+            new OA\Response(response: 422, description: 'Fichier refusé'),
+        ],
+    )]
+    public function uploadImage(UploadProductImageRequest $request, Product $product): ProductResource
+    {
+        // Server-chosen name: the client's file name is never used.
+        $path = $request->file('image')->storePublicly('products', 'public');
+        $previous = $product->image_path;
+
+        $product->update(['image_path' => $path]);
+
+        if ($previous !== null) {
+            Storage::disk('public')->delete($previous);
+        }
+
+        return new ProductResource($product->load('variants.offers'));
+    }
+
+    #[OA\Delete(
+        path: '/admin/products/{product}/image',
+        summary: 'Retire la photo du produit',
+        security: [['sanctum' => []]],
+        tags: ['Catalog Admin'],
+        responses: [new OA\Response(response: 200, description: 'Photo retirée')],
+    )]
+    public function deleteImage(Product $product): ProductResource
+    {
+        if ($product->image_path !== null) {
+            Storage::disk('public')->delete($product->image_path);
+            $product->update(['image_path' => null]);
+        }
+
+        return new ProductResource($product->load('variants.offers'));
     }
 
     #[OA\Put(

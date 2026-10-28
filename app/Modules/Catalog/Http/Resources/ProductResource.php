@@ -27,6 +27,7 @@ class ProductResource extends JsonResource
             'name' => $product->name,
             'slug' => $product->slug,
             'description' => $product->description,
+            'image_url' => $product->imageUrl(),
             'attributes' => $product->attributes,
             'condition_state' => $product->condition_state->value,
             'category' => $this->whenLoaded('category', fn () => new CategoryResource($product->category)),

@@ -43,7 +43,7 @@ composer analyse        # PHPStan/Larastan niveau 6
 Implémenté :
 
 - **Identity** — inscription/connexion/déconnexion par jeton Sanctum, rôles.
-- **Catalog** — catégories, produits, variantes, offres multi-vendeurs avec modération, stock (palliatif en attendant le module Inventory).
+- **Catalog** — photo produit (`POST/DELETE /api/v1/admin/products/{id}/image`, JPG/PNG/WebP 2 Mo max, SVG refusé, nom de fichier choisi par le serveur, disque `public` : lancer `php artisan storage:link` ; `image_url` dans le catalogue public), catégories, produits, variantes, offres multi-vendeurs avec modération, stock (palliatif en attendant le module Inventory).
 - **Orders** — panier → commande en paiement à la livraison uniquement (pas de passerelle de paiement), machine à états simplifiée (pending → confirmed → shipped → delivered, ou cancelled), décrément de stock atomique et verrouillé pour éviter la survente. Communique avec Catalog via un contrat public (`Catalog\Application\Contracts\CheckoutGatewayInterface`), jamais via ses modèles Eloquent.
 - **Shared** — objets-valeur `Money`, `Currency`, `Quantity`, `TauxTVA`, `Sku`, `NumeroSerie` utilisés dans tout le code.
 

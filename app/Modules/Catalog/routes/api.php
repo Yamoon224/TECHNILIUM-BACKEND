@@ -25,6 +25,8 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'can:manage-catalog'])->grou
     Route::post('/products', [ProductAdminController::class, 'store']);
     Route::put('/products/{product}', [ProductAdminController::class, 'update']);
     Route::delete('/products/{product}', [ProductAdminController::class, 'destroy']);
+    Route::post('/products/{product}/image', [ProductAdminController::class, 'uploadImage']);
+    Route::delete('/products/{product}/image', [ProductAdminController::class, 'deleteImage']);
 
     Route::get('/offers', [OfferModerationController::class, 'index']);
     Route::post('/offers/{offer}/approve', [OfferModerationController::class, 'approve']);

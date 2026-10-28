@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @property int $id
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property string $slug
  * @property string|null $description
+ * @property string|null $image_path
  * @property array<string, mixed>|null $attributes
  * @property ConditionState $condition_state
  * @property ProductStatus $status
@@ -37,10 +39,17 @@ class Product extends Model
         'name',
         'slug',
         'description',
+        'image_path',
         'attributes',
         'condition_state',
         'status',
     ];
+
+    /** Public URL of the photo, or null when none was uploaded. */
+    public function imageUrl(): ?string
+    {
+        return $this->image_path ? Storage::disk('public')->url($this->image_path) : null;
+    }
 
     protected function casts(): array
     {
