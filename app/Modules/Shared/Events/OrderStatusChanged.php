@@ -18,5 +18,6 @@ final readonly class OrderStatusChanged implements DomainEvent
         /** Lets a consumer record the change idempotently (0 when unknown). */
         public int $orderId = 0,
         public ?string $customerEmail = null,
+        public string $locale = 'fr',
     ) {}
 }

@@ -195,6 +195,7 @@ final class EloquentOrderLookupGateway implements OrderLookupGatewayInterface
             couponCode: $order->coupon_code,
             customerId: $order->customer_id,
             customerEmail: $order->customer_email,
+            customerLocale: $order->customer_locale ?? 'fr',
         );
     }
 }

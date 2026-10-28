@@ -46,7 +46,7 @@ final class TransitionOrderStatusAction
 
                 $this->statusLog->record($order, $target->value);
 
-                event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $target->value, $order->id, $order->customer_email));
+                event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $target->value, $order->id, $order->customer_email, $order->customer_locale ?? 'fr'));
 
                 return;
             }

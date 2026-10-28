@@ -188,3 +188,36 @@ it('answers 404, never 403, for another customer\'s order, a guest order or an u
     $this->actingAs($intruder, 'sanctum')->getJson("/api/v1/orders/mine/{$guest->order_number}")->assertNotFound();
     $this->actingAs($owner, 'sanctum')->getJson('/api/v1/orders/mine/TCH-NOPE')->assertNotFound();
 });
+
+it('lets anyone order without an account with just a name, a phone number and a delivery place', function () {
+    $offer = Offer::factory()->create(['price_amount' => 10_000, 'stock_quantity' => 5]);
+
+    $response = $this->postJson('/api/v1/orders', [
+        'items' => [['offer_id' => $offer->id, 'quantity' => 1]],
+        'customer_name' => 'Awa Diallo',
+        'customer_phone' => '0700000001',
+        'delivery_address' => 'Cocody Angré, près de la pharmacie',
+    ])->assertCreated();
+
+    $order = Order::query()->where('order_number', $response->json('order_number'))->sole();
+    expect($order->customer_id)->toBeNull()
+        ->and($order->customer_email)->toBeNull()
+        ->and($order->delivery_city)->toBeNull()
+        ->and($response->json('delivery_code'))->toMatch('/^\d{6}$/');
+
+    // The guest follows it with the order number and the same phone.
+    $this->getJson("/api/v1/orders/{$order->order_number}?phone=0700000001")->assertOk();
+    $this->getJson("/api/v1/orders/{$order->order_number}?phone=0799999999")->assertNotFound();
+});
+
+it('still requires the three essentials', function () {
+    $offer = Offer::factory()->create(['price_amount' => 10_000, 'stock_quantity' => 5]);
+    $base = ['items' => [['offer_id' => $offer->id, 'quantity' => 1]], 'customer_name' => 'Awa', 'customer_phone' => '0700000001', 'delivery_address' => 'Cocody'];
+
+    foreach (['customer_name', 'customer_phone', 'delivery_address'] as $field) {
+        $payload = $base;
+        unset($payload[$field]);
+
+        $this->postJson('/api/v1/orders', $payload)->assertUnprocessable()->assertJsonValidationErrors($field);
+    }
+});

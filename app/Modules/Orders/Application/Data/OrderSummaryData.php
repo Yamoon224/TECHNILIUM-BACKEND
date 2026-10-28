@@ -31,5 +31,6 @@ final readonly class OrderSummaryData
         public ?int $customerId = null,
         /** Optional contact e-mail given at checkout; never part of a vendor's view. */
         public ?string $customerEmail = null,
+        public string $customerLocale = 'fr',
     ) {}
 }

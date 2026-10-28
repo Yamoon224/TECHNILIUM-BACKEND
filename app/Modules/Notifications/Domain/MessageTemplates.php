@@ -11,6 +11,13 @@ namespace App\Modules\Notifications\Domain;
  */
 final class MessageTemplates
 {
+    private const STATUS_WORDING_EN = [
+        'confirmed' => 'is confirmed',
+        'shipped' => 'has shipped and is on its way to you',
+        'delivered' => 'has been delivered. Thank you for your trust',
+        'cancelled' => 'has been cancelled',
+    ];
+
     /** Order statuses the customer is told about; "pending" is covered by the placed message. */
     private const STATUS_WORDING = [
         'confirmed' => 'est confirmée',
@@ -26,8 +33,21 @@ final class MessageTemplates
         return in_array($currency, ['XOF', 'XAF'], true) ? "{$number} F CFA" : "{$number} {$currency}";
     }
 
-    public static function orderPlaced(string $customerName, string $orderNumber, int $total, string $currency, ?string $deliveryCode): string
+    public static function orderPlaced(string $customerName, string $orderNumber, int $total, string $currency, ?string $deliveryCode, string $locale = 'fr'): string
     {
+        if ($locale === 'en') {
+            $message = sprintf(
+                'Technilium: thank you %s, your order %s is placed (%s, cash on delivery).',
+                self::firstName($customerName),
+                $orderNumber,
+                self::formatAmount($total, $currency),
+            );
+
+            return $deliveryCode === null
+                ? $message
+                : $message." Delivery code: {$deliveryCode} — only give it to the courier when you receive the parcel.";
+        }
+
         $message = sprintf(
             'Technilium : merci %s, votre commande %s est enregistrée (%s, paiement à la livraison).',
             self::firstName($customerName),
@@ -43,8 +63,16 @@ final class MessageTemplates
     }
 
     /** Null for a status the customer is not notified about. */
-    public static function orderStatus(string $customerName, string $orderNumber, string $status): ?string
+    public static function orderStatus(string $customerName, string $orderNumber, string $status, string $locale = 'fr'): ?string
     {
+        if ($locale === 'en') {
+            $wording = self::STATUS_WORDING_EN[$status] ?? null;
+
+            return $wording === null
+                ? null
+                : sprintf('Technilium: %s, your order %s %s.', self::firstName($customerName), $orderNumber, $wording);
+        }
+
         $wording = self::STATUS_WORDING[$status] ?? null;
 
         return $wording === null
@@ -52,8 +80,12 @@ final class MessageTemplates
             : sprintf('Technilium : %s, votre commande %s %s.', self::firstName($customerName), $orderNumber, $wording);
     }
 
-    public static function returnRefunded(string $orderNumber, int $amount, string $currency): string
+    public static function returnRefunded(string $orderNumber, int $amount, string $currency, string $locale = 'fr'): string
     {
+        if ($locale === 'en') {
+            return sprintf('Technilium: your return on order %s is refunded (%s).', $orderNumber, self::formatAmount($amount, $currency));
+        }
+
         return sprintf(
             'Technilium : votre retour sur la commande %s est remboursé (%s).',
             $orderNumber,
@@ -62,8 +94,26 @@ final class MessageTemplates
     }
 
     /** Null for a status the customer is not told about. */
-    public static function returnDecided(int $returnId, string $orderNumber, string $status, ?string $note): ?string
+    public static function returnDecided(int $returnId, string $orderNumber, string $status, ?string $note, string $locale = 'fr'): ?string
     {
+        if ($locale === 'en') {
+            $wording = match ($status) {
+                'accepted' => 'is accepted: please send the parcel back',
+                'received' => 'has been received, we are checking it',
+                'rejected' => 'is refused',
+                default => null,
+            };
+
+            if ($wording === null) {
+                return null;
+            }
+
+            $message = sprintf('Technilium: your return request RMA-%06d (order %s) %s.', $returnId, $orderNumber, $wording);
+            $note = trim((string) $note);
+
+            return $note === '' ? $message : $message.' '.mb_strimwidth($note, 0, 120, '…');
+        }
+
         $wording = match ($status) {
             'accepted' => 'est acceptée : renvoyez le colis',
             'received' => 'a été reçu, nous le vérifions',

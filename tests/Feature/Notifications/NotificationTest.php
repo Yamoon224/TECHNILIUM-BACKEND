@@ -236,3 +236,55 @@ it('words every decision and ignores unknown ones', function () {
         ->and(App\Modules\Notifications\Domain\MessageTemplates::returnDecided(7, 'TCH-1', 'refunded', null))->toBeNull()
         ->and(mb_strlen(App\Modules\Notifications\Domain\MessageTemplates::returnDecided(7, 'TCH-1', 'rejected', str_repeat('é', 500))))->toBeLessThan(260);
 });
+
+it('texts an English-speaking customer in English, for the order, its steps and a return decision', function () {
+    $offer = Offer::factory()->create(['price_amount' => 10_000, 'stock_quantity' => 3]);
+    $number = $this->postJson('/api/v1/orders', [
+        'items' => [['offer_id' => $offer->id, 'quantity' => 1]],
+        'customer_name' => 'Awa Diallo', 'customer_phone' => '0700000012', 'delivery_address' => 'Cocody', 'locale' => 'en',
+    ])->assertCreated()->json('order_number');
+
+    expect(Order::query()->where('order_number', $number)->value('customer_locale'))->toBe('en');
+    expect(Notification::query()->where('event', 'order.placed')->sole()->body)->toContain('thank you Awa')->toContain('cash on delivery');
+
+    $this->actingAs(agent(Role::OperateurCommandes), 'sanctum')->postJson("/api/v1/orders/{$number}/transition", ['status' => 'confirmed'])->assertOk();
+    expect(Notification::query()->where('event', 'order.confirmed')->sole()->body)->toContain('is confirmed');
+
+    $return = ReturnRequest::factory()->status(ReturnStatus::Requested)->create(['order_number' => $number]);
+    $this->actingAs(agent(Role::Support), 'sanctum')->postJson("/api/v1/admin/returns/{$return->id}/accept", ['note' => 'Drop it at the agency'])->assertOk();
+
+    $body = Notification::query()->where('event', 'return.accepted')->sole()->body;
+    expect($body)->toContain('is accepted')->and($body)->toContain('Drop it at the agency');
+});
+
+it('defaults to French, also for an unknown or missing language', function () {
+    foreach ([null, 'de', ''] as $index => $locale) {
+        $offer = Offer::factory()->create(['price_amount' => 10_000, 'stock_quantity' => 3]);
+        $payload = [
+            'items' => [['offer_id' => $offer->id, 'quantity' => 1]],
+            'customer_name' => 'Awa', 'customer_phone' => '07000000'.(20 + $index), 'delivery_address' => 'Cocody',
+        ];
+
+        $response = $this->postJson('/api/v1/orders', $payload + ($locale === null ? [] : ['locale' => $locale]));
+
+        // 'de' is refused by validation; missing or empty means French.
+        if ($locale === 'de') {
+            $response->assertUnprocessable();
+            continue;
+        }
+
+        $response->assertCreated();
+        expect(Order::query()->where('order_number', $response->json('order_number'))->value('customer_locale'))->toBe('fr');
+    }
+});
+
+it('words the English messages and keeps French the default', function () {
+    $templates = App\Modules\Notifications\Domain\MessageTemplates::class;
+
+    expect($templates::orderStatus('Awa Diallo', 'TCH-1', 'shipped', 'en'))->toBe('Technilium: Awa, your order TCH-1 has shipped and is on its way to you.')
+        ->and($templates::orderStatus('Awa Diallo', 'TCH-1', 'shipped'))->toContain('est expédiée')
+        ->and($templates::orderStatus('Awa Diallo', 'TCH-1', 'pending', 'en'))->toBeNull()
+        ->and($templates::returnRefunded('TCH-1', 30_000, 'XOF', 'en'))->toBe('Technilium: your return on order TCH-1 is refunded (30 000 F CFA).')
+        ->and($templates::returnDecided(7, 'TCH-1', 'rejected', null, 'en'))->toBe('Technilium: your return request RMA-000007 (order TCH-1) is refused.')
+        ->and($templates::returnDecided(7, 'TCH-1', 'refunded', null, 'en'))->toBeNull();
+});

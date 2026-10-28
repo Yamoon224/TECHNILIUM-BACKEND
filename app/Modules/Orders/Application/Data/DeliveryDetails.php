@@ -18,5 +18,6 @@ final readonly class DeliveryDetails
         public ?string $city,
         public ?string $notes,
         public ?string $customerEmail = null,
+        public string $locale = 'fr',
     ) {}
 }

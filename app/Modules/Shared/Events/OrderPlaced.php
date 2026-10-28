@@ -17,5 +17,7 @@ final readonly class OrderPlaced implements DomainEvent
         public ?string $deliveryCode,
         /** Optional: lets Notifications also write to the customer. */
         public ?string $customerEmail = null,
+        /** Language of the messages to the customer: fr | en. */
+        public string $locale = 'fr',
     ) {}
 }

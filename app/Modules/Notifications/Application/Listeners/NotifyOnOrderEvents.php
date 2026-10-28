@@ -31,14 +31,14 @@ final class NotifyOnOrderEvents
             'order.placed',
             $event->orderNumber,
             $event->customerPhone,
-            MessageTemplates::orderPlaced($event->customerName, $event->orderNumber, $event->totalAmount, $event->currency, $event->deliveryCode),
+            MessageTemplates::orderPlaced($event->customerName, $event->orderNumber, $event->totalAmount, $event->currency, $event->deliveryCode, $event->locale),
             $event->customerEmail,
         ));
     }
 
     public function onOrderStatusChanged(OrderStatusChanged $event): void
     {
-        $body = MessageTemplates::orderStatus($event->customerName, $event->orderNumber, $event->status);
+        $body = MessageTemplates::orderStatus($event->customerName, $event->orderNumber, $event->status, $event->locale);
 
         if ($body === null) {
             return;
@@ -61,7 +61,7 @@ final class NotifyOnOrderEvents
                 'return.refunded',
                 "{$event->orderNumber}#{$event->returnId}",
                 $order->customerPhone,
-                MessageTemplates::returnRefunded($event->orderNumber, $event->amount, $event->currency),
+                MessageTemplates::returnRefunded($event->orderNumber, $event->amount, $event->currency, $order->customerLocale),
                 $order->customerEmail,
             );
         });
@@ -69,16 +69,16 @@ final class NotifyOnOrderEvents
 
     public function onReturnDecided(ReturnDecided $event): void
     {
-        $body = MessageTemplates::returnDecided($event->returnId, $event->orderNumber, $event->status, $event->note);
-
-        if ($body === null) {
-            return;
-        }
-
-        $this->safely(function () use ($event, $body) {
+        $this->safely(function () use ($event) {
             $order = $this->orders->find($event->orderNumber);
 
             if ($order === null) {
+                return;
+            }
+
+            $body = MessageTemplates::returnDecided($event->returnId, $event->orderNumber, $event->status, $event->note, $order->customerLocale);
+
+            if ($body === null) {
                 return;
             }
 

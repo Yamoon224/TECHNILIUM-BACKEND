@@ -39,7 +39,7 @@ final class OrderStatusSynchronizer
         if ($changed) {
             $this->statusLog->record($order, $derived->value);
 
-            event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $derived->value, $order->id, $order->customer_email));
+            event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $derived->value, $order->id, $order->customer_email, $order->customer_locale ?? 'fr'));
         }
     }
 }

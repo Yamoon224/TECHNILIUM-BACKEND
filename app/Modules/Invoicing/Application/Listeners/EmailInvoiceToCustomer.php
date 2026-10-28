@@ -33,7 +33,9 @@ final class EmailInvoiceToCustomer implements ShouldHandleEventsAfterCommit
     public function handle(InvoiceIssued $event): void
     {
         try {
-            $email = trim((string) $this->orders->find($event->orderNumber)?->customerEmail);
+            $order = $this->orders->find($event->orderNumber);
+            $email = trim((string) $order?->customerEmail);
+            $english = $order?->customerLocale === 'en';
 
             if ($email === '') {
                 return;
@@ -53,20 +55,30 @@ final class EmailInvoiceToCustomer implements ShouldHandleEventsAfterCommit
                 return;
             }
 
-            $label = $event->isCreditNote ? 'avoir' : 'facture';
-            $body = sprintf(
-                "Bonjour %s,\n\nVous trouverez en pièce jointe votre %s %s (commande %s).\n\nMerci de votre confiance,\nTechnilium",
-                $invoice->customer_name,
-                $label,
-                $invoice->number,
-                $invoice->order_number,
-            );
+            $label = $english
+                ? ($event->isCreditNote ? 'credit note' : 'invoice')
+                : ($event->isCreditNote ? 'avoir' : 'facture');
+            $body = $english
+                ? sprintf(
+                    "Hello %s,\n\nPlease find attached your %s %s (order %s).\n\nThank you for your trust,\nTechnilium",
+                    $invoice->customer_name,
+                    $label,
+                    $invoice->number,
+                    $invoice->order_number,
+                )
+                : sprintf(
+                    "Bonjour %s,\n\nVous trouverez en pièce jointe votre %s %s (commande %s).\n\nMerci de votre confiance,\nTechnilium",
+                    $invoice->customer_name,
+                    $label,
+                    $invoice->number,
+                    $invoice->order_number,
+                );
             $pdf = $this->document->pdf($invoice);
             $filename = $this->document->filename($invoice);
 
-            Mail::send([], [], function (Message $message) use ($email, $invoice, $label, $body, $pdf, $filename): void {
+            Mail::send([], [], function (Message $message) use ($email, $invoice, $label, $body, $pdf, $filename, $english): void {
                 $message->to($email)
-                    ->subject(sprintf('%s — votre %s %s', config('app.name'), $label, $invoice->number))
+                    ->subject(sprintf($english ? '%s — your %s %s' : '%s — votre %s %s', config('app.name'), $label, $invoice->number))
                     ->text($body)
                     ->attachData($pdf, $filename, ['mime' => 'application/pdf']);
             });
