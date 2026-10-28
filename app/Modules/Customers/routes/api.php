@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use App\Modules\Customers\Http\Controllers\CustomerTicketController;
+use App\Modules\Customers\Http\Controllers\HelpController;
 use App\Modules\Customers\Http\Controllers\ReviewController;
 use App\Modules\Customers\Http\Controllers\ReviewModerationController;
 use App\Modules\Customers\Http\Controllers\StaffTicketController;
 use Illuminate\Support\Facades\Route;
+
+// Public: the help page.
+Route::get('/help', [HelpController::class, 'show'])->middleware('throttle:60,1');
 
 Route::prefix('reviews')->group(function () {
     // Public reading, throttled: reviews are shown on every product page.
