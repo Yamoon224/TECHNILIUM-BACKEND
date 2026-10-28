@@ -14,6 +14,7 @@ use App\Modules\Payouts\PayoutsModuleServiceProvider;
 use App\Modules\Procurement\ProcurementModuleServiceProvider;
 use App\Modules\Promotions\PromotionsModuleServiceProvider;
 use App\Modules\Reporting\ReportingModuleServiceProvider;
+use App\Modules\Qr\QrModuleServiceProvider;
 use App\Modules\Returns\ReturnsModuleServiceProvider;
 use App\Modules\Shipping\ShippingModuleServiceProvider;
 use App\Modules\Vendors\VendorsModuleServiceProvider;
@@ -38,4 +39,5 @@ return [
     AuditModuleServiceProvider::class,
     CustomersModuleServiceProvider::class,
     ProcurementModuleServiceProvider::class,
+    QrModuleServiceProvider::class,
 ];

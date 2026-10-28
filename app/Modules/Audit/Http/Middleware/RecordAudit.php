@@ -41,9 +41,9 @@ class RecordAudit
         }
 
         $roles = $user->getRoleNames()->all();
-        $backoffice = array_map(fn (Role $role) => $role->value, Role::backofficeRoles());
 
-        if (array_intersect($roles, $backoffice) === []) {
+        // Staff, vendors and the custom groups the super admin creates: everyone but customers.
+        if (array_diff($roles, [Role::Client->value]) === []) {
             return;
         }
 

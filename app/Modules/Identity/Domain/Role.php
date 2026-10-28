@@ -11,6 +11,7 @@ namespace App\Modules\Identity\Domain;
  */
 enum Role: string
 {
+    case SuperAdmin = 'super_admin';
     case Administrateur = 'administrateur';
     case GestionnaireCatalogue = 'gestionnaire_catalogue';
     case GestionnaireStock = 'gestionnaire_stock';
@@ -27,6 +28,7 @@ enum Role: string
     public function label(): string
     {
         return match ($this) {
+            self::SuperAdmin => 'Super administrateur',
             self::Administrateur => 'Administrateur / Direction',
             self::GestionnaireCatalogue => 'Gestionnaire catalogue',
             self::GestionnaireStock => 'Gestionnaire de stock / Magasinier',

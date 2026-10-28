@@ -29,5 +29,19 @@ class IdentitySeeder extends Seeder
         if (! $admin->hasRole(RoleEnum::Administrateur->value)) {
             $admin->assignRole(RoleEnum::Administrateur->value);
         }
+
+        // The only account that manages access (feature switches, groups). Change its password at once.
+        $super = User::query()->firstOrCreate(
+            ['email' => 'superadmin@technilium.app'],
+            [
+                'name' => 'Super Admin Technilium',
+                'password' => 'password',
+                'email_verified_at' => now(),
+            ],
+        );
+
+        if (! $super->hasRole(RoleEnum::SuperAdmin->value)) {
+            $super->assignRole(RoleEnum::SuperAdmin->value);
+        }
     }
 }
