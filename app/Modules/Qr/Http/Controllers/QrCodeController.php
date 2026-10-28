@@ -67,7 +67,8 @@ class QrCodeController extends Controller
             'product' => $this->productCaption($reference),
             'order' => $this->first(DB::table('orders')->where('order_number', $reference)->value('customer_name'), "Commande {$reference}"),
             'invoice' => DB::table('invoices')->where('number', $reference)->exists() ? "Facture {$reference}" : null,
-            'supply' => ctype_digit($reference) ? $this->supplyCaption((int) $reference) : null,
+            // A supply is written as on the purchase order: BC-000012 (the bare number is accepted too).
+            'supply' => preg_match('/^(?:BC-)?0*(\d+)$/i', $reference, $found) === 1 ? $this->supplyCaption((int) $found[1]) : null,
             default => null,
         };
     }
@@ -87,7 +88,7 @@ class QrCodeController extends Controller
         $row = DB::table('purchase_orders')->join('suppliers', 'suppliers.id', '=', 'purchase_orders.supplier_id')
             ->where('purchase_orders.id', $id)->first(['suppliers.name as supplier']);
 
-        return $row === null ? null : "Approvisionnement n°{$id} — {$row->supplier}";
+        return $row === null ? null : sprintf('Approvisionnement BC-%06d — %s', $id, $row->supplier);
     }
 
     /** The caption when the record exists; the lookup returns null for none (a customer name is never null). */

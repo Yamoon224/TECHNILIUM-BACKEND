@@ -90,3 +90,17 @@ SEED_PRODUCTS=500 php artisan db:seed --class="App\Modules\Catalog\Infrastructur
 ## Mot de passe oublié
 
 `POST /api/v1/auth/forgot-password` (réponse toujours identique) et `POST /api/v1/auth/reset-password` (jeton à usage unique, expire en 60 min, révoque les sessions). Le lien du mail pointe vers `STORE_URL` (client) ou `BACKOFFICE_URL` (équipe) + `/reinitialiser-mot-de-passe`. Le mail utilise la configuration `MAIL_*`.
+
+## Accès, groupes et fonctionnalités (super administrateur)
+
+Le rôle `super_admin` (compte de démo `superadmin@technilium.app` / `password` : à changer) gère les accès via `/api/v1/admin/access` (`can:manage-access`) :
+
+- `GET /admin/access` : fonctionnalités, groupes (profils d'origine et personnalisés), interrupteurs ; `GET /admin/access/users` : comptes de l'équipe.
+- `PUT /admin/access/switches` : active (`true`), désactive (`false`) ou rétablit (`null`) une fonctionnalité pour un groupe (`subject_type=role`) ou un compte (`user`), **y compris l'administrateur**. Le réglage d'un compte l'emporte sur celui de ses groupes. Le super administrateur n'est jamais restreint.
+- `POST|PUT|DELETE /admin/access/groups` : groupes personnalisés et leurs fonctionnalités ; les profils d'origine du cahier §4 sont verrouillés (on les restreint avec des interrupteurs). `PUT /admin/access/users/{id}/roles` : groupes d'un compte.
+
+Une fonctionnalité désactivée est refusée par l'API (403) et `GET /auth/me` ne la liste plus dans `abilities` (`disabled_features` donne les interrupteurs) : le backoffice ne l'affiche pas. Le catalogue des fonctionnalités est `Identity\Domain\AccessCatalogue` ; les gates `can:manage-…` passent par `AccessResolver`. Toute modification est tracée dans le journal d'audit (qui, quoi, quand, d'où), y compris pour les groupes personnalisés.
+
+## Codes QR
+
+`GET /api/v1/admin/qrcodes/payload?kind=product|order|invoice|supply&reference=…` (fonctionnalité `generate-qrcodes` + droit du document concerné) renvoie le contenu `TECHNILIUM:<TYPE>:<RÉFÉRENCE>` après avoir vérifié que l'enregistrement existe (produit = SKU, approvisionnement = `BC-000012`). L'image est dessinée dans le backoffice (page `/qrcodes`, boutons QR dans les listes) avec le logo au centre.

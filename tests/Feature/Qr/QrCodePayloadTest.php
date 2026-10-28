@@ -52,8 +52,10 @@ it('identifies a product by its SKU, an order, an invoice and a supply', functio
         ->assertJsonPath('payload', "TECHNILIUM:ORDER:{$order->order_number}");
     $this->getJson("/api/v1/admin/qrcodes/payload?kind=invoice&reference={$invoice->number}")->assertOk()
         ->assertJsonPath('payload', "TECHNILIUM:INVOICE:{$invoice->number}");
-    $this->getJson("/api/v1/admin/qrcodes/payload?kind=supply&reference={$supplyId}")->assertOk()
-        ->assertJsonPath('payload', "TECHNILIUM:SUPPLY:{$supplyId}")->assertJsonPath('caption', "Approvisionnement n°{$supplyId} — Dakar Import");
+    $number = sprintf('BC-%06d', $supplyId);
+    $this->getJson("/api/v1/admin/qrcodes/payload?kind=supply&reference={$number}")->assertOk()
+        ->assertJsonPath('payload', "TECHNILIUM:SUPPLY:{$number}")->assertJsonPath('caption', "Approvisionnement {$number} — Dakar Import");
+    $this->getJson("/api/v1/admin/qrcodes/payload?kind=supply&reference={$supplyId}")->assertOk();
 });
 
 it('answers 404 for a reference that does not exist', function () {
