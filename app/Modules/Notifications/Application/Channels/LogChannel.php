@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  */
 final class LogChannel implements NotificationChannelInterface
 {
-    public function send(string $recipient, string $body): void
+    public function send(string $recipient, string $body, string $locale = 'fr'): void
     {
         Log::info('Notification simulée', [
             'recipient' => self::mask($recipient),

@@ -16,5 +16,5 @@ interface NotificationChannelInterface
     /**
      * @throws DeliveryFailedException
      */
-    public function send(string $recipient, string $body): void;
+    public function send(string $recipient, string $body, string $locale = 'fr'): void;
 }

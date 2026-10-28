@@ -22,6 +22,7 @@ class NotificationResource extends JsonResource
             'id' => $notification->id,
             'event' => $notification->event,
             'channel' => $notification->channel,
+            'locale' => $notification->locale ?? 'fr',
             'recipient' => $notification->recipient,
             'body' => $notification->body,
             'reference' => $notification->reference,

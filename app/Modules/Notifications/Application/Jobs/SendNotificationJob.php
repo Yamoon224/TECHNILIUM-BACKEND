@@ -43,7 +43,7 @@ final class SendNotificationJob implements ShouldQueue
         $notification->attempts += 1;
 
         try {
-            $channels->resolve($notification->channel)->send($notification->recipient, $notification->body);
+            $channels->resolve($notification->channel)->send($notification->recipient, $notification->body, (string) ($notification->locale ?? 'fr'));
 
             $notification->status = NotificationStatus::Sent;
             $notification->sent_at = now();

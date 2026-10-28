@@ -12,11 +12,13 @@ use Throwable;
 /** Sends the message as a plain-text e-mail through the application mailer (MAIL_* settings). */
 final class MailChannel implements NotificationChannelInterface
 {
-    public function send(string $recipient, string $body): void
+    public function send(string $recipient, string $body, string $locale = 'fr'): void
     {
         try {
-            Mail::raw($body, function ($message) use ($recipient): void {
-                $message->to($recipient)->subject(config('app.name').' — votre commande');
+            $subject = config('app.name').($locale === 'en' ? ' — your order' : ' — votre commande');
+
+            Mail::raw($body, function ($message) use ($recipient, $subject): void {
+                $message->to($recipient)->subject($subject);
             });
         } catch (Throwable $exception) {
             throw DeliveryFailedException::providerError('email', $exception->getMessage());

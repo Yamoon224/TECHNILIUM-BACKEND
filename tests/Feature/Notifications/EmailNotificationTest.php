@@ -103,3 +103,28 @@ it('never shows the e-mail to a vendor viewing the order', function () {
         expect($row->customerEmail)->toBeNull();
     }
 });
+
+it('writes the e-mail subject in the customer\'s language and records the language on the message', function () {
+    config(['notifications.drivers.email' => 'mail']);
+
+    checkout(['customer_email' => 'awa@example.com', 'locale' => 'en'])->assertCreated();
+    checkout(['customer_email' => 'moussa@example.com', 'customer_phone' => '0700000002'])->assertCreated();
+
+    $subjects = app('mail.manager')->mailer('array')->getSymfonyTransport()->messages()
+        ->mapWithKeys(fn ($sent) => [$sent->getOriginalMessage()->getTo()[0]->getAddress() => (string) $sent->getOriginalMessage()->getSubject()]);
+
+    expect($subjects['awa@example.com'])->toEndWith('your order')
+        ->and($subjects['moussa@example.com'])->toEndWith('votre commande');
+    expect(Notification::query()->where('channel', 'email')->where('recipient', 'awa@example.com')->value('locale'))->toBe('en')
+        ->and(Notification::query()->where('channel', 'email')->where('recipient', 'moussa@example.com')->value('locale'))->toBe('fr');
+});
+
+it('shows the language of each message in the journal', function () {
+    checkout(['customer_email' => 'awa@example.com', 'locale' => 'en'])->assertCreated();
+    $staff = User::factory()->create();
+    $staff->assignRole(Role::Support->value);
+
+    $rows = $this->actingAs($staff, 'sanctum')->getJson('/api/v1/admin/notifications')->assertOk()->json('data');
+
+    expect(collect($rows)->pluck('locale')->unique()->all())->toBe(['en']);
+});

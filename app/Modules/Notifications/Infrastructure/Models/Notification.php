@@ -38,6 +38,7 @@ class Notification extends Model
         'dedupe_key',
         'event',
         'channel',
+        'locale',
         'recipient',
         'body',
         'reference',

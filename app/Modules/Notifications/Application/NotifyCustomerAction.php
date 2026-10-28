@@ -14,7 +14,7 @@ use App\Modules\Notifications\Infrastructure\Models\Notification;
  */
 final class NotifyCustomerAction
 {
-    public function execute(string $event, string $reference, string $phone, string $body, ?string $email = null): void
+    public function execute(string $event, string $reference, string $phone, string $body, ?string $email = null, string $locale = 'fr'): void
     {
         $phone = trim($phone);
         $email = trim((string) $email);
@@ -35,6 +35,7 @@ final class NotifyCustomerAction
                 [
                     'event' => $event,
                     'channel' => $channel,
+                    'locale' => $locale === 'en' ? 'en' : 'fr',
                     'recipient' => $recipient,
                     'body' => $body,
                     'reference' => $reference,
