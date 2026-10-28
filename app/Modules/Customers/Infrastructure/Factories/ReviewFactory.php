@@ -19,7 +19,7 @@ class ReviewFactory extends Factory
     {
         return [
             'product_id' => fake()->numberBetween(1, 1000),
-            'customer_id' => fake()->numberBetween(1, 1000),
+            'customer_id' => fake()->unique()->numberBetween(1, 10_000_000),
             'order_number' => 'TCH-'.fake()->numerify('########'),
             'rating' => 5,
             'title' => fake()->sentence(3),

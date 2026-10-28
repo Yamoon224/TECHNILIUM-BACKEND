@@ -180,3 +180,59 @@ it('only retries a failed notification', function () {
         ->postJson("/api/v1/admin/notifications/{$sent->id}/retry")
         ->assertUnprocessable();
 });
+
+it('tells the customer when the support accepts their return, with the support note', function () {
+    $order = Order::factory()->create(['customer_phone' => '0700000008', 'customer_email' => 'awa@example.com']);
+    $return = ReturnRequest::factory()->status(ReturnStatus::Requested)->create(['order_number' => $order->order_number]);
+
+    $this->actingAs(agent(Role::Support), 'sanctum')
+        ->postJson("/api/v1/admin/returns/{$return->id}/accept", ['note' => 'Déposez le colis en agence'])->assertOk();
+
+    $sms = Notification::query()->where('event', 'return.accepted')->where('channel', 'sms')->sole();
+    expect($sms->recipient)->toBe('0700000008')
+        ->and($sms->body)->toContain(sprintf('RMA-%06d', $return->id))
+        ->and($sms->body)->toContain('acceptée')
+        ->and($sms->body)->toContain('Déposez le colis en agence');
+    expect(Notification::query()->where('event', 'return.accepted')->where('channel', 'email')->sole()->recipient)->toBe('awa@example.com');
+});
+
+it('tells the customer when the parcel is received and when the return is refused', function () {
+    $order = Order::factory()->create(['customer_phone' => '0700000009']);
+    $accepted = ReturnRequest::factory()->status(ReturnStatus::Accepted)->create(['order_number' => $order->order_number]);
+    $requested = ReturnRequest::factory()->status(ReturnStatus::Requested)->create(['order_number' => $order->order_number]);
+    $support = agent(Role::Support);
+
+    $this->actingAs($support, 'sanctum')->postJson("/api/v1/admin/returns/{$accepted->id}/receive")->assertOk();
+    $this->actingAs($support, 'sanctum')->postJson("/api/v1/admin/returns/{$requested->id}/reject", ['note' => 'Hors délai'])->assertOk();
+
+    expect(Notification::query()->where('event', 'return.received')->sole()->body)->toContain('reçu');
+    $refused = Notification::query()->where('event', 'return.rejected')->sole();
+    expect($refused->body)->toContain('refusée')->and($refused->body)->toContain('Hors délai');
+});
+
+it('does not notify twice for the same return decision when the event is replayed', function () {
+    $order = Order::factory()->create(['customer_phone' => '0700000010']);
+    $return = ReturnRequest::factory()->status(ReturnStatus::Requested)->create(['order_number' => $order->order_number]);
+
+    $event = new App\Modules\Shared\Events\ReturnDecided($return->id, $order->order_number, 'accepted', null);
+    event($event);
+    event($event);
+
+    expect(Notification::query()->where('event', 'return.accepted')->count())->toBe(1);
+});
+
+it('never lets a notification failure block the support decision', function () {
+    $order = Order::factory()->create(['customer_phone' => '0700000011']);
+    $return = ReturnRequest::factory()->status(ReturnStatus::Requested)->create(['order_number' => $order->order_number]);
+    config(['notifications.drivers.sms' => 'nonexistent']);
+
+    $this->actingAs(agent(Role::Support), 'sanctum')->postJson("/api/v1/admin/returns/{$return->id}/accept")->assertOk();
+
+    expect($return->fresh()->status)->toBe(ReturnStatus::Accepted);
+});
+
+it('words every decision and ignores unknown ones', function () {
+    expect(App\Modules\Notifications\Domain\MessageTemplates::returnDecided(7, 'TCH-1', 'accepted', null))->toBe('Technilium : votre demande de retour RMA-000007 (commande TCH-1) est acceptée : renvoyez le colis.')
+        ->and(App\Modules\Notifications\Domain\MessageTemplates::returnDecided(7, 'TCH-1', 'refunded', null))->toBeNull()
+        ->and(mb_strlen(App\Modules\Notifications\Domain\MessageTemplates::returnDecided(7, 'TCH-1', 'rejected', str_repeat('é', 500))))->toBeLessThan(260);
+});

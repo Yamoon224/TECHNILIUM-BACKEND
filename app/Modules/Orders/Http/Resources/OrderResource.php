@@ -40,11 +40,26 @@ class OrderResource extends JsonResource
                 'status' => $subOrder->status->value,
                 'subtotal' => ['amount' => $subOrder->subtotal_amount, 'currency' => $subOrder->currency],
                 'delivered_at' => $subOrder->delivered_at?->toIso8601String(),
+                // What is in this parcel and when it reached each status (tracking page).
+                'items' => $subOrder->relationLoaded('items') ? $subOrder->items->map(fn ($item) => [
+                    'product_name' => $item->product_name,
+                    'brand' => $item->brand,
+                    'quantity' => $item->quantity,
+                ])->all() : null,
+                'status_history' => $subOrder->relationLoaded('statusEvents') ? $subOrder->statusEvents->map(fn ($event) => [
+                    'status' => $event->status,
+                    'at' => $event->occurred_at->toIso8601String(),
+                ])->all() : null,
             ])->all()),
             'partial' => $this->whenLoaded('subOrders', fn () => OrderStatusDeriver::isPartial(
                 $order->subOrders->map(fn ($subOrder) => $subOrder->status)->all(),
             )),
             'items' => $this->whenLoaded('items', fn () => OrderItemResource::collection($order->items)),
+            // When each status was reached (the tracking timeline), oldest first.
+            'status_history' => $this->whenLoaded('statusEvents', fn () => $order->statusEvents->map(fn ($event) => [
+                'status' => $event->status,
+                'at' => $event->occurred_at->toIso8601String(),
+            ])->all()),
             'created_at' => $order->created_at?->toIso8601String(),
         ];
     }

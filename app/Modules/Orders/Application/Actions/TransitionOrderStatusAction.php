@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Orders\Application\Actions;
 
 use App\Modules\Orders\Application\OrderStatusSynchronizer;
+use App\Modules\Orders\Application\OrderStatusLog;
 use App\Modules\Orders\Domain\Exceptions\InvalidOrderTransitionException;
 use App\Modules\Orders\Domain\OrderStatus;
 use App\Modules\Orders\Infrastructure\Models\Order;
@@ -19,7 +20,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class TransitionOrderStatusAction
 {
-    public function __construct(private readonly OrderStatusSynchronizer $synchronizer) {}
+    public function __construct(
+        private readonly OrderStatusSynchronizer $synchronizer,
+        private readonly OrderStatusLog $statusLog,
+    ) {}
 
     public function execute(Order $order, OrderStatus $target): Order
     {
@@ -40,6 +44,8 @@ final class TransitionOrderStatusAction
 
                 $order->save();
 
+                $this->statusLog->record($order, $target->value);
+
                 event(new OrderStatusChanged($order->order_number, $order->customer_name, $order->customer_phone, $target->value, $order->id, $order->customer_email));
 
                 return;
@@ -50,6 +56,7 @@ final class TransitionOrderStatusAction
                     $subOrder->status = $target;
                     $subOrder->delivered_at = $target === OrderStatus::Delivered ? now() : $subOrder->delivered_at;
                     $subOrder->save();
+                    $this->statusLog->recordParcel($subOrder, $target->value);
                 }
             }
 

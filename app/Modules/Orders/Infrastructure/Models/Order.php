@@ -87,6 +87,16 @@ class Order extends Model
         return $this->hasMany(SubOrder::class);
     }
 
+    /**
+     * Status history, oldest first.
+     *
+     * @return HasMany<OrderStatusEvent, $this>
+     */
+    public function statusEvents(): HasMany
+    {
+        return $this->hasMany(OrderStatusEvent::class)->whereNull('sub_order_id')->orderBy('occurred_at')->orderBy('id');
+    }
+
     public function subtotal(): Money
     {
         return Money::ofMinorUnits($this->subtotal_amount, Currency::from($this->currency));

@@ -7,6 +7,7 @@ namespace App\Modules\Notifications;
 use App\Modules\Notifications\Application\Listeners\NotifyOnOrderEvents;
 use App\Modules\Shared\Events\OrderPlaced;
 use App\Modules\Shared\Events\OrderStatusChanged;
+use App\Modules\Shared\Events\ReturnDecided;
 use App\Modules\Shared\Events\ReturnRefunded;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -22,5 +23,6 @@ class NotificationsModuleServiceProvider extends ServiceProvider
         Event::listen(OrderPlaced::class, [NotifyOnOrderEvents::class, 'onOrderPlaced']);
         Event::listen(OrderStatusChanged::class, [NotifyOnOrderEvents::class, 'onOrderStatusChanged']);
         Event::listen(ReturnRefunded::class, [NotifyOnOrderEvents::class, 'onReturnRefunded']);
+        Event::listen(ReturnDecided::class, [NotifyOnOrderEvents::class, 'onReturnDecided']);
     }
 }

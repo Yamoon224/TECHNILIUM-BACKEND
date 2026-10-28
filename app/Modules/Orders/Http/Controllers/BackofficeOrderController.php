@@ -40,7 +40,7 @@ class BackofficeOrderController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $orders = Order::query()
-            ->with('items', 'subOrders')
+            ->with('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents')
             ->when(
                 $request->string('status')->isNotEmpty(),
                 fn ($query) => $query->where('status', $request->string('status')->toString()),
@@ -69,7 +69,7 @@ class BackofficeOrderController extends Controller
     )]
     public function transition(string $orderNumber, TransitionOrderStatusRequest $request): OrderResource
     {
-        $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders')->firstOrFail();
+        $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents')->firstOrFail();
 
         try {
             $order = $this->transitionStatus->execute($order, $request->targetStatus());
@@ -107,6 +107,6 @@ class BackofficeOrderController extends Controller
             abort(422, $exception->getMessage());
         }
 
-        return new OrderResource($order->refresh()->load('items', 'subOrders'));
+        return new OrderResource($order->refresh()->load('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents'));
     }
 }

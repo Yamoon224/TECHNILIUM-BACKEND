@@ -101,7 +101,7 @@ class OrderController extends Controller
     )]
     public function show(string $orderNumber, ShowOrderRequest $request): CustomerOrderResource
     {
-        $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders')->first();
+        $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents')->first();
 
         // Same 404 whether the order doesn't exist or the phone doesn't match —
         // the order number alone must never confirm an order's existence to a
@@ -124,10 +124,36 @@ class OrderController extends Controller
     {
         $orders = Order::query()
             ->where('customer_id', $request->user()->id)
-            ->with('items', 'subOrders')
+            ->with('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents')
             ->orderByDesc('id')
             ->paginate(max(1, min($request->integer('per_page', 20), 100)));
 
         return CustomerOrderResource::collection($orders);
+    }
+
+    #[OA\Get(
+        path: '/orders/mine/{orderNumber}',
+        summary: "Suivi d'une commande du client connecté, avec ses colis et leur historique",
+        security: [['sanctum' => []]],
+        tags: ['Orders'],
+        responses: [
+            new OA\Response(response: 200, description: 'Commande du client'),
+            new OA\Response(response: 404, description: 'Introuvable ou non rattachée au client'),
+        ],
+    )]
+    public function mineShow(Request $request, string $orderNumber): CustomerOrderResource
+    {
+        $order = Order::query()
+            ->where('customer_id', $request->user()->id)
+            ->where('order_number', $orderNumber)
+            ->with('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents')
+            ->first();
+
+        // 404, not 403: another customer's order number must not be confirmable.
+        if (! $order) {
+            throw new NotFoundHttpException;
+        }
+
+        return new CustomerOrderResource($order);
     }
 }

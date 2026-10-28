@@ -65,6 +65,16 @@ class SubOrder extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    /**
+     * This parcel's own status history, oldest first.
+     *
+     * @return HasMany<OrderStatusEvent, $this>
+     */
+    public function statusEvents(): HasMany
+    {
+        return $this->hasMany(OrderStatusEvent::class)->orderBy('occurred_at')->orderBy('id');
+    }
+
     protected static function newFactory(): SubOrderFactory
     {
         return SubOrderFactory::new();

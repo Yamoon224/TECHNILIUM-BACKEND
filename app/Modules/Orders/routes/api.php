@@ -12,6 +12,7 @@ Route::prefix('orders')->group(function () {
     // Must come before /{orderNumber} — otherwise "mine" matches that
     // wildcard first and this route is never reached.
     Route::middleware('auth:sanctum')->get('/mine', [OrderController::class, 'mine']);
+    Route::middleware('auth:sanctum')->get('/mine/{orderNumber}', [OrderController::class, 'mineShow']);
 
     Route::get('/{orderNumber}', [OrderController::class, 'show'])->middleware('throttle:20,1');
 

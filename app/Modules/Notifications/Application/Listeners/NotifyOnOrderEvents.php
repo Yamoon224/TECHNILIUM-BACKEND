@@ -9,6 +9,7 @@ use App\Modules\Notifications\Domain\MessageTemplates;
 use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
 use App\Modules\Shared\Events\OrderPlaced;
 use App\Modules\Shared\Events\OrderStatusChanged;
+use App\Modules\Shared\Events\ReturnDecided;
 use App\Modules\Shared\Events\ReturnRefunded;
 use Throwable;
 
@@ -61,6 +62,31 @@ final class NotifyOnOrderEvents
                 "{$event->orderNumber}#{$event->returnId}",
                 $order->customerPhone,
                 MessageTemplates::returnRefunded($event->orderNumber, $event->amount, $event->currency),
+                $order->customerEmail,
+            );
+        });
+    }
+
+    public function onReturnDecided(ReturnDecided $event): void
+    {
+        $body = MessageTemplates::returnDecided($event->returnId, $event->orderNumber, $event->status, $event->note);
+
+        if ($body === null) {
+            return;
+        }
+
+        $this->safely(function () use ($event, $body) {
+            $order = $this->orders->find($event->orderNumber);
+
+            if ($order === null) {
+                return;
+            }
+
+            $this->notify->execute(
+                "return.{$event->status}",
+                "{$event->orderNumber}#{$event->returnId}",
+                $order->customerPhone,
+                $body,
                 $order->customerEmail,
             );
         });

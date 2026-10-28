@@ -61,6 +61,27 @@ final class MessageTemplates
         );
     }
 
+    /** Null for a status the customer is not told about. */
+    public static function returnDecided(int $returnId, string $orderNumber, string $status, ?string $note): ?string
+    {
+        $wording = match ($status) {
+            'accepted' => 'est acceptée : renvoyez le colis',
+            'received' => 'a été reçu, nous le vérifions',
+            'rejected' => 'est refusée',
+            default => null,
+        };
+
+        if ($wording === null) {
+            return null;
+        }
+
+        $message = sprintf('Technilium : votre demande de retour RMA-%06d (commande %s) %s.', $returnId, $orderNumber, $wording);
+        $note = trim((string) $note);
+
+        // SMS stays short: the full answer is in the customer's account.
+        return $note === '' ? $message : $message.' '.mb_strimwidth($note, 0, 120, '…');
+    }
+
     private static function firstName(string $fullName): string
     {
         return explode(' ', trim($fullName))[0] ?: 'client';

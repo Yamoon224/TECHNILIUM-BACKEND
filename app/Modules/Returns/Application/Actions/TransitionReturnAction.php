@@ -7,6 +7,7 @@ namespace App\Modules\Returns\Application\Actions;
 use App\Modules\Returns\Domain\Exceptions\ReturnException;
 use App\Modules\Returns\Domain\ReturnStatus;
 use App\Modules\Returns\Infrastructure\Models\ReturnRequest;
+use App\Modules\Shared\Events\ReturnDecided;
 use App\Modules\Shared\Events\ReturnReceived;
 use App\Modules\Shared\Events\ReturnRefunded;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  * ReturnRefunded in the same transaction so the credit note and the payment
  * refund are written atomically with the decision; receiving publishes
  * ReturnReceived only when the inspector judged the articles resellable.
+ * Accepting, receiving and rejecting publish ReturnDecided so the customer is told.
  */
 final class TransitionReturnAction
 {
@@ -55,6 +57,10 @@ final class TransitionReturnAction
 
             if ($shouldRestock) {
                 event(new ReturnReceived($return->id, $return->order_number, $return->items));
+            }
+
+            if (in_array($target, [ReturnStatus::Accepted, ReturnStatus::Received, ReturnStatus::Rejected], true)) {
+                event(new ReturnDecided($return->id, $return->order_number, $target->value, $return->decision_note));
             }
 
             if ($target === ReturnStatus::Refunded) {

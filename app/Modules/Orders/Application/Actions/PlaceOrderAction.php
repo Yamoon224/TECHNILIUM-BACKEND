@@ -8,6 +8,7 @@ use App\Modules\Catalog\Application\Contracts\CheckoutGatewayInterface;
 use App\Modules\Catalog\Domain\Exceptions\InsufficientStockException;
 use App\Modules\Orders\Application\Data\CheckoutItemInput;
 use App\Modules\Orders\Application\Data\DeliveryDetails;
+use App\Modules\Orders\Application\OrderStatusLog;
 use App\Modules\Orders\Domain\Exceptions\CouponRejectedException;
 use App\Modules\Orders\Domain\Exceptions\EmptyCartException;
 use App\Modules\Orders\Domain\Exceptions\OfferUnavailableException;
@@ -23,6 +24,7 @@ final class PlaceOrderAction
     public function __construct(
         private readonly CheckoutGatewayInterface $catalog,
         private readonly CouponGatewayInterface $coupons,
+        private readonly OrderStatusLog $statusLog,
     ) {}
 
     /**
@@ -102,6 +104,8 @@ final class PlaceOrderAction
                 'delivery_code' => sprintf('%06d', random_int(0, 999_999)),
             ]);
 
+            $this->statusLog->record($order, OrderStatus::Pending->value);
+
             // One sub-order per seller (vendor_id null = Technilium's own
             // stock), each with its own status and delivery (cahier §3).
             $groups = [];
@@ -116,6 +120,8 @@ final class PlaceOrderAction
                     'subtotal_amount' => array_sum(array_column($group, 'line_total_amount')),
                     'currency' => $currency,
                 ]);
+
+                $this->statusLog->recordParcel($subOrder, OrderStatus::Pending->value);
 
                 $subOrder->items()->createMany(array_map(fn (array $line) => $line + ['order_id' => $order->id], $group));
             }
@@ -134,7 +140,7 @@ final class PlaceOrderAction
                 $order->subtotal_amount, $order->currency, $order->delivery_code, $order->customer_email,
             ));
 
-            return $order->load('items', 'subOrders');
+            return $order->load('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents');
         });
     }
 
