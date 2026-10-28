@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('admin/shipments')->middleware(['auth:sanctum', 'can:manage-shipments'])->group(function () {
     Route::get('/', [ShipmentController::class, 'index']);
     Route::post('/', [ShipmentController::class, 'store']);
+    Route::get('/{shipment}/delivery-note', [ShipmentController::class, 'deliveryNote']);
     Route::post('/{shipment}/assign', [ShipmentController::class, 'assign']);
     Route::post('/{shipment}/start', [ShipmentController::class, 'start']);
     Route::post('/{shipment}/deliver', [ShipmentController::class, 'deliver']);

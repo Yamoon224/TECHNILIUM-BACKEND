@@ -53,6 +53,7 @@ class CategoryAdminController extends Controller
             'parent_id' => $request->integer('parent_id') ?: null,
             'name' => $request->string('name')->toString(),
             'slug' => $this->resolveSlug($request->string('slug')->toString(), $request->string('name')->toString()),
+            'name_en' => $request->string('name_en')->toString() ?: null,
             'description' => $request->string('description')->toString() ?: null,
             'position' => $request->integer('position', 0),
             'is_active' => $request->boolean('is_active', true),
@@ -73,7 +74,7 @@ class CategoryAdminController extends Controller
     )]
     public function update(UpdateCategoryRequest $request, Category $category): CategoryResource
     {
-        $category->fill($request->only(['parent_id', 'name', 'description', 'position', 'is_active']));
+        $category->fill($request->only(['parent_id', 'name', 'name_en', 'description', 'position', 'is_active']));
 
         if ($request->filled('slug')) {
             $category->slug = $this->resolveSlug($request->string('slug')->toString(), $category->name);

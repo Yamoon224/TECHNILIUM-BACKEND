@@ -73,6 +73,8 @@ class ProductAdminController extends Controller
                 'name' => $request->string('name')->toString(),
                 'slug' => $this->resolveSlug($request->string('slug')->toString(), $request->string('name')->toString()),
                 'description' => $request->string('description')->toString() ?: null,
+                'name_en' => $request->string('name_en')->toString() ?: null,
+                'description_en' => $request->string('description_en')->toString() ?: null,
                 'condition_state' => $request->string('condition_state')->toString() ?: 'neuf',
                 'status' => 'published',
             ]);
@@ -182,7 +184,7 @@ class ProductAdminController extends Controller
     )]
     public function update(UpdateProductRequest $request, Product $product): ProductResource
     {
-        $product->fill($request->only(['category_id', 'brand', 'name', 'description', 'condition_state', 'status']));
+        $product->fill($request->only(['category_id', 'brand', 'name', 'name_en', 'description', 'description_en', 'condition_state', 'status']));
 
         if ($request->filled('slug')) {
             $product->slug = $this->resolveSlug($request->string('slug')->toString(), $product->name);

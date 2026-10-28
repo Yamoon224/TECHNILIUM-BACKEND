@@ -6,6 +6,7 @@ namespace App\Modules\Payments\Http\Controllers;
 
 use App\Modules\Payments\Application\Actions\RefundPaymentAction;
 use App\Modules\Payments\Application\Actions\TransitionPaymentStatusAction;
+use App\Modules\Payments\Application\RenderPaymentReceipt;
 use App\Modules\Payments\Domain\Exceptions\InvalidPaymentTransitionException;
 use App\Modules\Payments\Domain\Exceptions\InvalidRefundException;
 use App\Modules\Payments\Domain\PaymentStatus;
@@ -14,6 +15,7 @@ use App\Modules\Payments\Http\Requests\StorePaymentRequest;
 use App\Modules\Payments\Http\Resources\PaymentResource;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
@@ -145,5 +147,28 @@ class PaymentController extends Controller
         }
 
         return new PaymentResource($payment);
+    }
+
+    #[OA\Get(
+        path: '/admin/payments/{payment}/receipt',
+        summary: "Reçu de paiement en PDF (uniquement pour un paiement réellement encaissé)",
+        security: [['sanctum' => []]],
+        tags: ['Payments'],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 404, description: 'Introuvable'),
+            new OA\Response(response: 422, description: "Paiement non encaissé : pas de reçu"),
+        ],
+    )]
+    public function receipt(Request $request, Payment $payment, RenderPaymentReceipt $receipt): Response|JsonResponse
+    {
+        if (! $receipt->isIssuable($payment)) {
+            return response()->json(['message' => "Ce paiement n'a pas été encaissé : aucun reçu."], 422);
+        }
+
+        return response($receipt->pdf($payment, (string) $request->query('lang', 'fr')), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$receipt->filename($payment).'"',
+        ]);
     }
 }

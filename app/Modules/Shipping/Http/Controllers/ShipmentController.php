@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Shipping\Http\Controllers;
 
 use App\Modules\Shipping\Application\Actions\CreateShipmentAction;
+use App\Modules\Shipping\Application\RenderDeliveryNote;
 use App\Modules\Shipping\Application\Actions\TransitionShipmentStatusAction;
 use App\Modules\Shipping\Application\Actions\ConfirmDeliveryAction;
 use App\Modules\Shipping\Domain\Exceptions\DeliveryCodeException;
@@ -17,6 +18,7 @@ use App\Modules\Shipping\Http\Requests\StoreShipmentRequest;
 use App\Modules\Shipping\Http\Resources\ShipmentResource;
 use App\Modules\Shipping\Infrastructure\Models\Shipment;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
@@ -189,5 +191,23 @@ class ShipmentController extends Controller
         }
 
         return new ShipmentResource($shipment);
+    }
+
+    #[OA\Get(
+        path: '/admin/shipments/{shipment}/delivery-note',
+        summary: 'Bon de livraison en PDF : destinataire, articles à remettre, signatures (sans prix ni code de confirmation)',
+        security: [['sanctum' => []]],
+        tags: ['Shipping'],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 404, description: 'Livraison introuvable'),
+        ],
+    )]
+    public function deliveryNote(Request $request, Shipment $shipment, RenderDeliveryNote $note): Response
+    {
+        return response($note->pdf($shipment, (string) $request->query('lang', 'fr')), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$note->filename($shipment).'"',
+        ]);
     }
 }

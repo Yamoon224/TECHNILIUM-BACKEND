@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Catalog\Http\Resources;
 
+use App\Modules\Catalog\Domain\CatalogLocale;
 use App\Modules\Catalog\Domain\OfferStatus;
 use App\Modules\Catalog\Infrastructure\Models\Offer;
 use App\Modules\Catalog\Infrastructure\Models\Product;
@@ -20,13 +21,14 @@ class ProductResource extends JsonResource
     {
         /** @var Product $product */
         $product = $this->resource;
+        $locale = CatalogLocale::resolve($request->query('lang'));
 
         return [
             'id' => $product->id,
             'brand' => $product->brand,
-            'name' => $product->name,
+            'name' => CatalogLocale::pick($locale, $product->name, $product->name_en),
             'slug' => $product->slug,
-            'description' => $product->description,
+            'description' => CatalogLocale::pick($locale, $product->description, $product->description_en),
             'image_url' => $product->relationLoaded('images') ? $product->imageUrl() : null,
             'images' => $this->whenLoaded('images', fn () => $product->images->map(fn ($image) => ['id' => $image->id, 'url' => $image->url()])->all()),
             'attributes' => $product->attributes,

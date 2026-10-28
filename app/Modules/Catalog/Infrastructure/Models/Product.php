@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property string $slug
  * @property string|null $description
+ * @property string|null $name_en
+ * @property string|null $description_en
  * @property array<string, mixed>|null $attributes
  * @property ConditionState $condition_state
  * @property ProductStatus $status
@@ -37,6 +39,8 @@ class Product extends Model
         'name',
         'slug',
         'description',
+        'name_en',
+        'description_en',
         'attributes',
         'condition_state',
         'status',

@@ -45,7 +45,7 @@ class ProductController extends Controller
                 $request->string('search')->isNotEmpty(),
                 fn ($query) => $query->where(function ($query) use ($request) {
                     $term = '%'.$request->string('search')->toString().'%';
-                    $query->where('name', 'like', $term)->orWhere('brand', 'like', $term);
+                    $query->where('name', 'like', $term)->orWhere('name_en', 'like', $term)->orWhere('brand', 'like', $term);
                 }),
             )
             ->orderByDesc('id')
