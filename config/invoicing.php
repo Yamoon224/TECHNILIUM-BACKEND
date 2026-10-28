@@ -9,6 +9,10 @@ return [
     // an order that already has a document is left to the accountant).
     'auto_issue' => (bool) env('INVOICING_AUTO_ISSUE', true),
 
+    // How the customer receives their invoice by e-mail: "mail" sends the PDF through the
+    // MAIL_* settings, "log" (default) sends nothing and only notes it in the log.
+    'email_driver' => env('INVOICING_EMAIL_DRIVER', 'log'),
+
     // The issuer printed on every document (cahier §6.7 "mentions légales").
     // Deliberately empty by default: legal identifiers (RCCM, numéro de compte
     // contribuable, capital...) are the company's to supply, never invented here.
