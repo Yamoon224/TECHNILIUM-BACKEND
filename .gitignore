@@ -4,7 +4,6 @@
 /public/hot
 /public/storage
 /storage/*.key
-/storage/api-docs
 /storage/pail
 /storage/phpstan
 /vendor

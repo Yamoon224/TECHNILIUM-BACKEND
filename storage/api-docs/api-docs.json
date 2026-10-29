@@ -1,0 +1,3419 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Technilium API",
+        "description": "API REST du backend Technilium — marketplace de produits technologiques et backoffice de gestion.\r\n\r\nAuthentification : jeton Bearer (Sanctum). Obtenez un jeton via les routes Auth, puis cliquez sur « Authorize ». Paiement à la livraison ; montants en F CFA.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api/v1",
+            "description": "Serveur courant"
+        }
+    ],
+    "paths": {
+        "/admin/accounting/entries": {
+            "get": {
+                "tags": [
+                    "Accounting"
+                ],
+                "summary": "Liste les écritures comptables, filtrables par journal ou référence",
+                "operationId": "12490d26624e54bcd145dc12e0b400ec",
+                "responses": {
+                    "200": {
+                        "description": "Écritures"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/accounting/trial-balance": {
+            "get": {
+                "tags": [
+                    "Accounting"
+                ],
+                "summary": "Balance générale : débit, crédit et solde par compte",
+                "operationId": "107fef6c25e515fe6a2d09fbbec76d79",
+                "responses": {
+                    "200": {
+                        "description": "Balance"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/audit": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Journal d'audit des actions backoffice (qui, quoi, quand, depuis où), du plus récent au plus ancien",
+                "operationId": "11d9809382d9d2b2b52cbbc78c03481f",
+                "responses": {
+                    "200": {
+                        "description": "Entrées"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/audit/verify": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Vérifie l'intégrité de la chaîne d'audit (signatures et chaînage)",
+                "operationId": "734da24dbd78933afbcf3841b4349eb2",
+                "responses": {
+                    "200": {
+                        "description": "Résultat de la vérification"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/categories": {
+            "get": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Liste complète des catégories pour le backoffice (actives et inactives)",
+                "operationId": "d0637145e7c5c580be36480f367bb205",
+                "responses": {
+                    "200": {
+                        "description": "Catégories"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Crée une catégorie",
+                "operationId": "3930f7b4371ecbcda1a4b67f1b07f5c3",
+                "responses": {
+                    "201": {
+                        "description": "Catégorie créée"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/categories/{category}": {
+            "put": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Met à jour une catégorie",
+                "operationId": "d1f8daade5772bebc5aac3d4198172b4",
+                "responses": {
+                    "200": {
+                        "description": "Catégorie mise à jour"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Supprime une catégorie (refusé si des produits y sont encore rattachés)",
+                "operationId": "1c353240609097d19672b75c36b1bd09",
+                "responses": {
+                    "204": {
+                        "description": "Catégorie supprimée"
+                    },
+                    "409": {
+                        "description": "Des produits sont encore rattachés à cette catégorie"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/offers": {
+            "get": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Liste les offres (par défaut celles en attente de modération)",
+                "operationId": "5864ba44335eb5147f733fc62a9383d7",
+                "responses": {
+                    "200": {
+                        "description": "Offres"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/offers/{offer}/approve": {
+            "post": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Publie une offre en attente de modération",
+                "operationId": "1d9cbd7a23e83bc179384b858ad88c2c",
+                "responses": {
+                    "200": {
+                        "description": "Offre publiée"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/offers/{offer}/reject": {
+            "post": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Rejette une offre en attente de modération",
+                "operationId": "1b19ce6338b55e56b76c60cb59b68b78",
+                "responses": {
+                    "200": {
+                        "description": "Offre rejetée"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/products": {
+            "get": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Liste paginée des produits pour le backoffice (tous statuts)",
+                "operationId": "af0173ddc1851b81c86d074b55645926",
+                "responses": {
+                    "200": {
+                        "description": "Produits"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Crée un produit simple (une variante, une offre Technilium publiée)",
+                "operationId": "8a75c8d4c90a64a40ae0c2f18804cec3",
+                "responses": {
+                    "201": {
+                        "description": "Produit créé"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/products/{product}/images": {
+            "post": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Ajoute une photo à la galerie du produit (JPG, PNG ou WebP, 2 Mo max, 8 photos au plus)",
+                "operationId": "0ef67947edbe817798cd3b3cd83ba69a",
+                "responses": {
+                    "200": {
+                        "description": "Photo ajoutée"
+                    },
+                    "422": {
+                        "description": "Fichier refusé ou galerie pleine"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/products/{product}/images/{image}/cover": {
+            "post": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Place une photo en première position (photo de couverture)",
+                "operationId": "4d48df28d5218cbadb34cc82c52552e4",
+                "responses": {
+                    "200": {
+                        "description": "Photo de couverture changée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/products/{product}/images/{image}": {
+            "delete": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Retire une photo de la galerie",
+                "operationId": "fa7ea796c91a13b02164d31b8a9a1f55",
+                "responses": {
+                    "200": {
+                        "description": "Photo retirée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/products/{product}": {
+            "put": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Met à jour un produit et son offre Technilium",
+                "operationId": "cffd759b1d2a20ef49aa2419c741261f",
+                "responses": {
+                    "200": {
+                        "description": "Produit mis à jour"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Catalog Admin"
+                ],
+                "summary": "Archive un produit (retiré de la vitrine, conservé pour l'historique des commandes)",
+                "operationId": "801d3078c874265000fe03f5b273566b",
+                "responses": {
+                    "200": {
+                        "description": "Produit archivé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/catalog/categories": {
+            "get": {
+                "tags": [
+                    "Catalog"
+                ],
+                "summary": "Arborescence des catégories actives (cahier des charges §5.2)",
+                "operationId": "20ba483bb7d4ab8ed1e739ecb72882c7",
+                "responses": {
+                    "200": {
+                        "description": "Arbre des catégories"
+                    }
+                }
+            }
+        },
+        "/catalog/products": {
+            "get": {
+                "tags": [
+                    "Catalog"
+                ],
+                "summary": "Liste paginée des produits publiés, filtrable par catégorie (cahier des charges §5.2)",
+                "operationId": "69c362f377b89aebf8a36e871f58ffc1",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produits publiés"
+                    }
+                }
+            }
+        },
+        "/catalog/products/{slug}": {
+            "get": {
+                "tags": [
+                    "Catalog"
+                ],
+                "summary": "Fiche produit détaillée avec variantes et offres (cahier des charges §5.3)",
+                "operationId": "b164219bcd781cb20f5fd14494599d07",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fiche produit"
+                    },
+                    "404": {
+                        "description": "Produit introuvable"
+                    }
+                }
+            }
+        },
+        "/support/tickets": {
+            "get": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Mes tickets de support",
+                "operationId": "288914f1166698cb42f4ddec80be331e",
+                "responses": {
+                    "200": {
+                        "description": "Tickets du client connecté"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Ouvre un ticket de support, éventuellement sur une de mes commandes",
+                "operationId": "d346985d559e765645fe5daea4dcef1e",
+                "responses": {
+                    "201": {
+                        "description": "Ticket ouvert"
+                    },
+                    "422": {
+                        "description": "Données invalides ou commande introuvable sur le compte"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/support/tickets/{ticket}": {
+            "get": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Un de mes tickets avec la conversation (notes internes exclues)",
+                "operationId": "ac885399b3412b830bd5c209588208f7",
+                "responses": {
+                    "200": {
+                        "description": "Ticket"
+                    },
+                    "404": {
+                        "description": "Introuvable (ou appartenant à un autre client)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/support/tickets/{ticket}/messages": {
+            "post": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Répond sur mon ticket (le rouvre s'il était résolu)",
+                "operationId": "69c112a7bd7185bc1425703041bceadc",
+                "responses": {
+                    "201": {
+                        "description": "Message ajouté"
+                    },
+                    "422": {
+                        "description": "Ticket clos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/help": {
+            "get": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Informations publiques pour la page d'aide : délai de retour, délai de réponse, contacts",
+                "operationId": "5556e1debdeb05f411e70c79bbbc1c34",
+                "responses": {
+                    "200": {
+                        "description": "Informations publiques"
+                    }
+                }
+            }
+        },
+        "/reviews/products/{productId}": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Avis publiés d'un produit, avec la note moyenne et la répartition",
+                "operationId": "96301d67e6dc071470cbe626b4d05160",
+                "responses": {
+                    "200": {
+                        "description": "Avis et synthèse"
+                    }
+                }
+            }
+        },
+        "/reviews/products/{productId}/eligibility": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Le client connecté peut-il donner un avis sur ce produit ?",
+                "operationId": "8f66d7b8c8cb1187d6b2948b3405b55e",
+                "responses": {
+                    "200": {
+                        "description": "Éligibilité et raison du refus"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/reviews": {
+            "post": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Donne un avis sur un produit reçu (publié tout de suite, ou en modération si signalé)",
+                "operationId": "3e6e47434696ccb488070a8f9e322a98",
+                "responses": {
+                    "201": {
+                        "description": "Avis enregistré"
+                    },
+                    "422": {
+                        "description": "Achat non vérifié, avis déjà donné ou données invalides"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/reviews/mine": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Mes avis, avec leur état de modération",
+                "operationId": "1131b35bde1146c0a94fafb64ff66b1f",
+                "responses": {
+                    "200": {
+                        "description": "Avis du client connecté"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reviews": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "File de modération des avis, filtrable par statut ou produit (les avis signalés d'abord)",
+                "operationId": "65b8c8bd0522e916d0bd9b1db995c3e6",
+                "responses": {
+                    "200": {
+                        "description": "Avis"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reviews/{review}/publish": {
+            "post": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Publie un avis (ou le rétablit après un rejet)",
+                "operationId": "bdd4db9b7cce36f02b455af95d8cace2",
+                "responses": {
+                    "200": {
+                        "description": "Avis publié"
+                    },
+                    "422": {
+                        "description": "Déjà publié"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reviews/{review}/reject": {
+            "post": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Rejette un avis, ou le retire de la vitrine, avec un motif",
+                "operationId": "d043bdbc987801c898038f99cc2647bb",
+                "responses": {
+                    "200": {
+                        "description": "Avis rejeté"
+                    },
+                    "422": {
+                        "description": "Déjà rejeté"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/tickets": {
+            "get": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "File des tickets, filtrable par statut, priorité, assignation, retard ou client",
+                "operationId": "536edd298f9471cc10c20888a544e039",
+                "responses": {
+                    "200": {
+                        "description": "Tickets"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/tickets/{ticket}": {
+            "get": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Un ticket avec toute la conversation, notes internes comprises",
+                "operationId": "0eae191d794cee1d71766461eb35584b",
+                "responses": {
+                    "200": {
+                        "description": "Ticket"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Change le statut, la priorité ou l'assignation d'un ticket",
+                "operationId": "23391b524c456f5c05de7aeb7f142e9b",
+                "responses": {
+                    "200": {
+                        "description": "Ticket mis à jour"
+                    },
+                    "422": {
+                        "description": "Transition interdite"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/tickets/{ticket}/messages": {
+            "post": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Répond au client, ou ajoute une note interne (internal=true) invisible du client",
+                "operationId": "e0186189df7a0253d6eaf47cfdeae25c",
+                "responses": {
+                    "201": {
+                        "description": "Message ajouté"
+                    },
+                    "422": {
+                        "description": "Ticket clos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/access": {
+            "get": {
+                "tags": [
+                    "Accès"
+                ],
+                "summary": "Fonctionnalités, groupes (profils d'origine et personnalisés) et interrupteurs en place",
+                "operationId": "34311b952a709cbdc5f425cfe6d688ee",
+                "responses": {
+                    "200": {
+                        "description": "Catalogue des accès"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/access/users": {
+            "get": {
+                "tags": [
+                    "Accès"
+                ],
+                "summary": "Comptes de l'équipe (hors clients) avec leurs groupes et leurs interrupteurs",
+                "operationId": "4b6af10ca0dd02992eb243bba1496c85",
+                "responses": {
+                    "200": {
+                        "description": "Comptes"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/access/users/{user}/roles": {
+            "put": {
+                "tags": [
+                    "Accès"
+                ],
+                "summary": "Remplace les groupes d'un compte",
+                "operationId": "a54a5fa1d9f9d8b715faa693df9eb40e",
+                "responses": {
+                    "200": {
+                        "description": "Groupes mis à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/access/groups": {
+            "post": {
+                "tags": [
+                    "Accès"
+                ],
+                "summary": "Crée un groupe d'utilisateurs personnalisé avec ses fonctionnalités",
+                "operationId": "0c5d5a6ec91c29d15086b0fa374f4a66",
+                "responses": {
+                    "201": {
+                        "description": "Groupe créé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/access/groups/{name}": {
+            "put": {
+                "tags": [
+                    "Accès"
+                ],
+                "summary": "Modifie un groupe personnalisé (nom, description, fonctionnalités)",
+                "operationId": "9b19f0a4c96d51b831b6d30de4cf2dfb",
+                "responses": {
+                    "200": {
+                        "description": "Groupe mis à jour"
+                    },
+                    "422": {
+                        "description": "Profil d'origine"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Accès"
+                ],
+                "summary": "Supprime un groupe personnalisé sans membre",
+                "operationId": "6b77a0304a5f8eb0bf43c43a3a9160f0",
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    },
+                    "422": {
+                        "description": "Groupe utilisé ou profil d'origine"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/access/switches": {
+            "put": {
+                "tags": [
+                    "Accès"
+                ],
+                "summary": "Active ou désactive une fonctionnalité pour un groupe ou un utilisateur (null = valeur par défaut)",
+                "operationId": "6a5061053a40239ed1563dc216233818",
+                "responses": {
+                    "204": {
+                        "description": "Enregistré"
+                    },
+                    "422": {
+                        "description": "Super administrateur non restreignable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Crée un compte client (cahier des charges §5.1)",
+                "operationId": "586566caa9ed16aefc1544ef5da13c4d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Awa Diallo"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Compte créé"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Authentifie un utilisateur et émet un jeton Sanctum",
+                "operationId": "5905e462ad705dcfde68c4ff0f0ead61",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "device_name"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "device_name": {
+                                        "type": "string",
+                                        "example": "iphone-de-awa"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Authentification réussie"
+                    },
+                    "401": {
+                        "description": "Identifiants invalides"
+                    },
+                    "403": {
+                        "description": "Compte désactivé"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Révoque le jeton courant",
+                "operationId": "3ef91337e0c652bdb2661119a2ab84f6",
+                "responses": {
+                    "204": {
+                        "description": "Déconnecté"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Retourne l'utilisateur authentifié",
+                "operationId": "dc352f4eb2879aef2a51f4f4b141f5cc",
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur courant"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/preferences": {
+            "put": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Enregistre la langue, la couleur principale et le thème de l'utilisateur connecté",
+                "operationId": "532b0b32ce09844bbd3f5b0550c1a65a",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "locale": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fr",
+                                            "en"
+                                        ]
+                                    },
+                                    "accent_color": {
+                                        "type": "string",
+                                        "example": "#f68b1e",
+                                        "nullable": true
+                                    },
+                                    "theme": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "enum": [
+                                            "light",
+                                            "dark",
+                                            "auto"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Préférences enregistrées"
+                    },
+                    "422": {
+                        "description": "Valeur refusée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Envoie un lien de réinitialisation du mot de passe (réponse identique que le compte existe ou non)",
+                "operationId": "1caed871669c7049250ec84e16a8ec41",
+                "responses": {
+                    "200": {
+                        "description": "Demande enregistrée"
+                    }
+                }
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Choisit un nouveau mot de passe avec le jeton reçu par e-mail (usage unique, durée limitée)",
+                "operationId": "014f2cdc3521323a18e2d2aeb44254b0",
+                "responses": {
+                    "200": {
+                        "description": "Mot de passe changé"
+                    },
+                    "422": {
+                        "description": "Lien invalide ou expiré, ou mot de passe refusé"
+                    }
+                }
+            }
+        },
+        "/admin/stock/movements": {
+            "get": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Historique des mouvements de stock, filtrable par offre",
+                "operationId": "0d39782364094c039d45d68729a471e5",
+                "responses": {
+                    "200": {
+                        "description": "Mouvements"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Enregistre un mouvement de stock manuel (réception, casse, correction d'inventaire)",
+                "operationId": "55f8128601dad2cbd78386578663db05",
+                "responses": {
+                    "201": {
+                        "description": "Mouvement enregistré"
+                    },
+                    "422": {
+                        "description": "Stock insuffisant ou erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/stock/low-stock": {
+            "get": {
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Liste les offres dont le stock est sous le seuil indiqué",
+                "operationId": "9734df14299a089d57f569b012a9960d",
+                "responses": {
+                    "200": {
+                        "description": "Offres en stock faible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/customer/orders/{orderNumber}/invoices": {
+            "get": {
+                "tags": [
+                    "Invoicing"
+                ],
+                "summary": "Factures et avoirs d'une commande du client connecté",
+                "operationId": "3241082d2953fd39e5e702646638b643",
+                "responses": {
+                    "200": {
+                        "description": "Documents"
+                    },
+                    "404": {
+                        "description": "Commande introuvable ou non rattachée au client"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/customer/invoices/{invoice}/pdf": {
+            "get": {
+                "tags": [
+                    "Invoicing"
+                ],
+                "summary": "Télécharge en PDF une facture ou un avoir du client connecté",
+                "operationId": "067818a7461300a776baf956a9834b4d",
+                "responses": {
+                    "200": {
+                        "description": "Fichier PDF"
+                    },
+                    "404": {
+                        "description": "Introuvable ou non rattaché au client"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/invoices": {
+            "get": {
+                "tags": [
+                    "Invoicing"
+                ],
+                "summary": "Liste les factures et avoirs, filtrables par commande ou type",
+                "operationId": "92af42c5614d5d82076885974e69467c",
+                "responses": {
+                    "200": {
+                        "description": "Documents"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Invoicing"
+                ],
+                "summary": "Émet la facture d'une commande confirmée",
+                "operationId": "2e8eba363f4b752245abe0288877ff1c",
+                "responses": {
+                    "201": {
+                        "description": "Facture émise"
+                    },
+                    "422": {
+                        "description": "Commande non facturable ou déjà facturée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/invoices/{invoice}": {
+            "get": {
+                "tags": [
+                    "Invoicing"
+                ],
+                "summary": "Détail d'une facture ou d'un avoir, avec ses lignes",
+                "operationId": "3f060e9ed0e17781d9a6d097fb00223a",
+                "responses": {
+                    "200": {
+                        "description": "Document"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/invoices/{invoice}/pdf": {
+            "get": {
+                "tags": [
+                    "Invoicing"
+                ],
+                "summary": "Télécharge la facture ou l'avoir en PDF (total en lettres, TVA, remise, mentions légales)",
+                "operationId": "b1d034fb9b71d0d77372f25f26dd124b",
+                "responses": {
+                    "200": {
+                        "description": "Fichier PDF"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/invoices/{invoice}/credit-note": {
+            "post": {
+                "tags": [
+                    "Invoicing"
+                ],
+                "summary": "Annule une facture par un avoir (total)",
+                "operationId": "409c7454cdf4d03ad05124dd078bd46c",
+                "responses": {
+                    "201": {
+                        "description": "Avoir émis"
+                    },
+                    "422": {
+                        "description": "Document non créditable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Journal des messages envoyés aux clients, filtrable par statut, canal ou commande",
+                "operationId": "0861f9f281a0025b7eb4b7745ebda4fa",
+                "responses": {
+                    "200": {
+                        "description": "Messages"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/notifications/{notification}/retry": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Relance l'envoi d'un message en échec",
+                "operationId": "be815724e199ed9ac0604d8570b277e2",
+                "responses": {
+                    "200": {
+                        "description": "Message remis en file"
+                    },
+                    "422": {
+                        "description": "Seul un message en échec peut être relancé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/orders": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Liste des commandes pour le backoffice, filtrable par statut (cahier des charges §6.5)",
+                "operationId": "98cd95a1235f80d1ccbea952a95a8ed9",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Commandes"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Passe une commande en paiement à la livraison (cahier des charges §5.4, §5.5)",
+                "operationId": "6b7388220f87bac0086352d6913ca356",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "items",
+                                    "customer_name",
+                                    "customer_phone",
+                                    "delivery_address"
+                                ],
+                                "properties": {
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "offer_id": {
+                                                    "type": "integer"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "customer_name": {
+                                        "type": "string"
+                                    },
+                                    "customer_phone": {
+                                        "type": "string"
+                                    },
+                                    "delivery_address": {
+                                        "type": "string"
+                                    },
+                                    "delivery_city": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "coupon_code": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Commande créée"
+                    },
+                    "422": {
+                        "description": "Erreur de validation ou panier invalide"
+                    }
+                }
+            }
+        },
+        "/orders/{orderNumber}/transition": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Fait avancer le statut d'une commande (pending -> confirmed -> shipped -> delivered, ou cancelled)",
+                "operationId": "49d8a21a8aee94e8df1a2e06dddb949d",
+                "parameters": [
+                    {
+                        "name": "orderNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "confirmed"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Statut mis à jour"
+                    },
+                    "404": {
+                        "description": "Commande introuvable"
+                    },
+                    "422": {
+                        "description": "Transition non autorisée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/orders/{orderNumber}/sub-orders/{subOrder}/transition": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Fait avancer le statut d'une sous-commande (la part d'un vendeur) ; le statut de la commande en découle",
+                "operationId": "17314bbb39c43bfef316cfb46506f368",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "delivered"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Commande mise à jour"
+                    },
+                    "404": {
+                        "description": "Commande ou sous-commande introuvable"
+                    },
+                    "422": {
+                        "description": "Transition non autorisée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/orders/{orderNumber}": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Récupère une commande par son numéro (confirmation, suivi). Le numéro de commande seul n'est pas un secret : le téléphone du client sert de preuve de possession.",
+                "operationId": "0214f6107b2d9bf63e223321e7475912",
+                "parameters": [
+                    {
+                        "name": "orderNumber",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "Téléphone fourni à la commande",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Commande trouvée"
+                    },
+                    "404": {
+                        "description": "Commande introuvable ou téléphone ne correspondant pas (réponse identique pour ne pas révéler l'existence de la commande)"
+                    }
+                }
+            }
+        },
+        "/orders/mine": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Historique des commandes du client connecté (cahier des charges §5.1 \"espace client\")",
+                "operationId": "100df1cd358867117382602d8a1db6e4",
+                "responses": {
+                    "200": {
+                        "description": "Commandes du client"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/orders/mine/{orderNumber}": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Suivi d'une commande du client connecté, avec ses colis et leur historique",
+                "operationId": "2263e56e057f4852b608607e6becf07f",
+                "responses": {
+                    "200": {
+                        "description": "Commande du client"
+                    },
+                    "404": {
+                        "description": "Introuvable ou non rattachée au client"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/customer/orders/{orderNumber}/receipts": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Reçus de paiement disponibles pour une commande du client connecté",
+                "operationId": "a24928f91e671bcb0f107ea7713cc054",
+                "responses": {
+                    "200": {
+                        "description": "Reçus"
+                    },
+                    "404": {
+                        "description": "Commande introuvable ou non rattachée au client"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/customer/payments/{payment}/receipt": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Télécharge le reçu d'un paiement du client connecté, dans la langue de sa commande",
+                "operationId": "24e493b7a4cbaddbda466f933356ffb6",
+                "responses": {
+                    "200": {
+                        "description": "Fichier PDF"
+                    },
+                    "404": {
+                        "description": "Introuvable ou non rattaché au client"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payments": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Liste les paiements, filtrables par commande ou statut",
+                "operationId": "119180a8ec1875dbd4b5ef7bbfaa68df",
+                "responses": {
+                    "200": {
+                        "description": "Paiements"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Enregistre un paiement (en attente de confirmation)",
+                "operationId": "db5f4505bfbd44fe0fd8c92f4d86f313",
+                "responses": {
+                    "201": {
+                        "description": "Paiement créé"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payments/{payment}/confirm": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Confirme un paiement en attente (ex. référence mobile money vérifiée)",
+                "operationId": "bc9fe95ce1a0c9f33ebdeeed4f54af38",
+                "responses": {
+                    "200": {
+                        "description": "Paiement confirmé"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payments/{payment}/fail": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Marque un paiement en attente comme échoué",
+                "operationId": "8330a34dde7785ff6e01bc037d1636d4",
+                "responses": {
+                    "200": {
+                        "description": "Paiement marqué échoué"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payments/{payment}/refund": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Rembourse un paiement confirmé, en totalité ou en partie (montant optionnel)",
+                "operationId": "2d061926b9fd58fc052783cb4001371f",
+                "responses": {
+                    "200": {
+                        "description": "Paiement remboursé"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payments/{payment}/receipt": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Reçu de paiement en PDF (uniquement pour un paiement réellement encaissé)",
+                "operationId": "3c720e35ae066fe34df4e35800dda54a",
+                "responses": {
+                    "200": {
+                        "description": "Fichier PDF"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    },
+                    "422": {
+                        "description": "Paiement non encaissé : pas de reçu"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payouts": {
+            "get": {
+                "tags": [
+                    "Payouts"
+                ],
+                "summary": "Liste les reversements, filtrables par vendeur ou statut",
+                "operationId": "63ceb7afc037ef7d2ce9a45fc19765d7",
+                "responses": {
+                    "200": {
+                        "description": "Reversements"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Payouts"
+                ],
+                "summary": "Calcule le reversement d'un vendeur (ventes livrées, hors délai de retour, moins commission)",
+                "operationId": "bbfe908ff0fc98e7a8ad2b519ee23412",
+                "responses": {
+                    "201": {
+                        "description": "Reversement calculé"
+                    },
+                    "422": {
+                        "description": "Rien d'exigible ou vendeur inconnu"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payouts/{payout}": {
+            "get": {
+                "tags": [
+                    "Payouts"
+                ],
+                "summary": "Relevé détaillé d'un reversement (commandes incluses)",
+                "operationId": "97092e27b3b54ca4284afac36bba3fa5",
+                "responses": {
+                    "200": {
+                        "description": "Reversement"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/payouts/{payout}/pay": {
+            "post": {
+                "tags": [
+                    "Payouts"
+                ],
+                "summary": "Enregistre l'exécution du virement ou du mobile money",
+                "operationId": "45e411bf53499736de654310cd804817",
+                "responses": {
+                    "200": {
+                        "description": "Reversement payé"
+                    },
+                    "422": {
+                        "description": "Déjà payé ou référence manquante"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/procurement/payables": {
+            "get": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Dettes fournisseurs : total dû, dont échu, et détail par fournisseur",
+                "operationId": "8e1ce2149857550cf6a2c80f64d663a9",
+                "responses": {
+                    "200": {
+                        "description": "Dettes"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/procurement/stock-valuation": {
+            "get": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Valorisation du stock acheté au coût moyen pondéré (CMP), par offre",
+                "operationId": "562745eec7df126f5400c500849b2603",
+                "responses": {
+                    "200": {
+                        "description": "Valorisation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/purchase-orders": {
+            "get": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Liste les bons de commande, filtrables par statut ou fournisseur",
+                "operationId": "445d461976c53f04ea72cda46d20c6db",
+                "responses": {
+                    "200": {
+                        "description": "Bons de commande"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Crée un bon de commande (brouillon) sur du stock propre de Technilium",
+                "operationId": "224639567ee334c7538ccdd6558b2da8",
+                "responses": {
+                    "201": {
+                        "description": "Bon créé"
+                    },
+                    "422": {
+                        "description": "Offre non achetable ou données invalides"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/purchase-orders/{purchaseOrder}": {
+            "get": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Un bon de commande avec ses lignes, frais d'approche et réceptions",
+                "operationId": "18f6e3cbe6d503a072a8e9d5ffbc2d5b",
+                "responses": {
+                    "200": {
+                        "description": "Bon"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/purchase-orders/{purchaseOrder}/place": {
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Envoie le bon au fournisseur (brouillon → commandé)",
+                "operationId": "e62375f71899450fdd7b506919d6171b",
+                "responses": {
+                    "200": {
+                        "description": "Bon commandé"
+                    },
+                    "422": {
+                        "description": "Transition interdite"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/purchase-orders/{purchaseOrder}/cancel": {
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Annule un bon, tant que rien n'a été reçu",
+                "operationId": "0cc16991dac64bfa5fc5148991a35428",
+                "responses": {
+                    "200": {
+                        "description": "Bon annulé"
+                    },
+                    "422": {
+                        "description": "Déjà reçu en partie ou clos"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/purchase-orders/{purchaseOrder}/landed-costs": {
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Ajoute un frais d'approche (transport, douane, manutention), réparti sur les marchandises reçues",
+                "operationId": "2adf22736437dfbad15fa6d77a5756f4",
+                "responses": {
+                    "201": {
+                        "description": "Frais ajouté"
+                    },
+                    "422": {
+                        "description": "Bon déjà soldé ou annulé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/purchase-orders/{purchaseOrder}/receipts": {
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Réceptionne des marchandises (acceptées / refusées au contrôle) : entrée en stock, coût moyen et écritures",
+                "operationId": "225467c6c65537960d9be33cc94d5b87",
+                "responses": {
+                    "201": {
+                        "description": "Réception enregistrée"
+                    },
+                    "422": {
+                        "description": "Quantité supérieure au reste à recevoir, ligne étrangère ou bon non réceptionnable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/suppliers": {
+            "get": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Liste les fournisseurs, filtrables par statut ou nom",
+                "operationId": "71089b5ec583876ff6b358ad695bf9f5",
+                "responses": {
+                    "200": {
+                        "description": "Fournisseurs"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Crée un fournisseur (coordonnées, conditions de paiement, délai)",
+                "operationId": "00953334c91094e0666306bb7b4b1feb",
+                "responses": {
+                    "201": {
+                        "description": "Fournisseur créé"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/suppliers/{supplier}": {
+            "patch": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Modifie un fournisseur ou le désactive",
+                "operationId": "a1c7268439a23c8337a0924ea6119104",
+                "responses": {
+                    "200": {
+                        "description": "Fournisseur mis à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/supplier-invoices": {
+            "get": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Liste les factures fournisseurs (ouvertes, soldées, en retard), filtrables par fournisseur",
+                "operationId": "3424f3139f6503e9719af2ba0f0725f5",
+                "responses": {
+                    "200": {
+                        "description": "Factures"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Enregistre une facture reçue d'un fournisseur (échéance = date + conditions de paiement par défaut)",
+                "operationId": "bbc90344fcdb1a79dccb49814f73f673",
+                "responses": {
+                    "201": {
+                        "description": "Facture enregistrée"
+                    },
+                    "422": {
+                        "description": "Numéro déjà saisi ou données invalides"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/supplier-invoices/{supplierInvoice}/payments": {
+            "post": {
+                "tags": [
+                    "Procurement"
+                ],
+                "summary": "Règle tout ou partie d'une facture fournisseur (jamais plus que le reste à payer)",
+                "operationId": "162fb6ed056ce292d00d95cf96c3c131",
+                "responses": {
+                    "200": {
+                        "description": "Facture mise à jour"
+                    },
+                    "422": {
+                        "description": "Montant trop élevé ou facture soldée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/coupons": {
+            "get": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Liste les codes promotionnels",
+                "operationId": "ee4ae2095f41d7b6392f3b20023ca2c8",
+                "responses": {
+                    "200": {
+                        "description": "Coupons"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Crée un code promotionnel (pourcentage ou montant fixe, à la charge de Technilium)",
+                "operationId": "5d4da630b55e6452b646bf226ef9edf3",
+                "responses": {
+                    "201": {
+                        "description": "Coupon créé"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/coupons/{coupon}/activate": {
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Réactive un code promotionnel",
+                "operationId": "b2484a33dc446c8d95d04465fb8e5799",
+                "responses": {
+                    "200": {
+                        "description": "Coupon actif"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/coupons/{coupon}/deactivate": {
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Désactive un code promotionnel (les commandes déjà passées ne changent pas)",
+                "operationId": "132f6013a1b0c14317538818d1dcc9d6",
+                "responses": {
+                    "200": {
+                        "description": "Coupon inactif"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/coupons/quote": {
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Aperçu de la remise d'un code sur un sous-total de panier (sans l'utiliser)",
+                "operationId": "4694dff731235de0cae329f03782a8b2",
+                "responses": {
+                    "200": {
+                        "description": "Remise applicable"
+                    },
+                    "422": {
+                        "description": "Code refusé (raison fournie)"
+                    }
+                }
+            }
+        },
+        "/admin/qrcodes/payload": {
+            "get": {
+                "tags": [
+                    "Codes QR"
+                ],
+                "summary": "Contenu du code QR qui identifie un produit (SKU), une commande, une facture ou un approvisionnement",
+                "operationId": "9b49bbdddec654680a870fa14436f75e",
+                "responses": {
+                    "200": {
+                        "description": "Contenu et légende du code"
+                    },
+                    "403": {
+                        "description": "Fonctionnalité non accordée"
+                    },
+                    "404": {
+                        "description": "Référence inconnue"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reports/dashboard": {
+            "get": {
+                "tags": [
+                    "Reporting"
+                ],
+                "summary": "Tableau de bord direction : ventes, panier moyen, top produits, finance, retours et alertes (30 derniers jours par défaut)",
+                "operationId": "19c832385fb9e074832cfb5980d1a793",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Synthèse de la période"
+                    },
+                    "422": {
+                        "description": "Période invalide ou trop longue"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reports/sales-by-seller": {
+            "get": {
+                "tags": [
+                    "Reporting"
+                ],
+                "summary": "Chiffre d'affaires par vendeur (Technilium inclus) sur la période",
+                "operationId": "12b67566452d6ac409aee8ece5d943b9",
+                "responses": {
+                    "200": {
+                        "description": "Ventes par vendeur"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reports/margin": {
+            "get": {
+                "tags": [
+                    "Reporting"
+                ],
+                "summary": "Marge brute de Technilium sur ses ventes en propre livrées (hors TVA, remises comprises, hors vendeurs tiers)",
+                "operationId": "185dc6f648f9ebcf67b69d92456c8418",
+                "responses": {
+                    "200": {
+                        "description": "Marge par produit et par jour"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reports/margin.csv": {
+            "get": {
+                "tags": [
+                    "Reporting"
+                ],
+                "summary": "Export CSV de la marge par produit (séparateur point-virgule, UTF-8)",
+                "operationId": "a311d4ee536922127095b3c4a70c80c9",
+                "responses": {
+                    "200": {
+                        "description": "Fichier CSV"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/reports/sales.csv": {
+            "get": {
+                "tags": [
+                    "Reporting"
+                ],
+                "summary": "Export CSV des ventes par jour (séparateur point-virgule, UTF-8)",
+                "operationId": "642eef94cdf33c8fa953157bdbe7939c",
+                "responses": {
+                    "200": {
+                        "description": "Fichier CSV"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/customer/orders/{orderNumber}/returns": {
+            "get": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Retours demandés sur une commande du client connecté, avec leur avancement",
+                "operationId": "1559b8e3f8ec3a5a511b221bb1f7f70d",
+                "responses": {
+                    "200": {
+                        "description": "Retours"
+                    },
+                    "404": {
+                        "description": "Commande introuvable ou non rattachée au client"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/customer/returns": {
+            "post": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Demande le retour d'articles d'une commande livrée du client connecté",
+                "operationId": "e879a39f6a9be15ad76e11855b21c13d",
+                "responses": {
+                    "201": {
+                        "description": "Retour demandé"
+                    },
+                    "404": {
+                        "description": "Commande introuvable ou non rattachée au client"
+                    },
+                    "422": {
+                        "description": "Commande non livrée, délai dépassé ou articles non retournables"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/returns": {
+            "get": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Liste les dossiers de retour, filtrables par commande ou statut",
+                "operationId": "5d0d69b7dba3cd12e23545a6d7af9305",
+                "responses": {
+                    "200": {
+                        "description": "Retours"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Ouvre un retour sur une commande livrée, dans le délai de retour",
+                "operationId": "78ca9ea40f92cb1d72bb085a64fc211c",
+                "responses": {
+                    "201": {
+                        "description": "Retour demandé"
+                    },
+                    "422": {
+                        "description": "Commande non livrée, délai dépassé ou montant trop élevé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/returns/{return}/accept": {
+            "post": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Accepte la demande de retour",
+                "operationId": "723a50e70e2e0955fe94abb4cd5386fc",
+                "responses": {
+                    "200": {
+                        "description": "Retour accepté"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/returns/{return}/reject": {
+            "post": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Refuse le retour (avant acceptation ou après contrôle)",
+                "operationId": "3cf74c3cb0f2a50231821e0dad95a4d6",
+                "responses": {
+                    "200": {
+                        "description": "Retour refusé"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/returns/{return}/receive": {
+            "post": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Enregistre la réception et le contrôle du colis",
+                "operationId": "05c27c8f8a7770c469bbe4a7695d0153",
+                "responses": {
+                    "200": {
+                        "description": "Retour reçu"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/returns/{return}/refund": {
+            "post": {
+                "tags": [
+                    "Returns"
+                ],
+                "summary": "Rembourse le retour (total ou partiel) et émet l'avoir correspondant",
+                "operationId": "0ab3368b6ffbdc8a33a04daf41e06834",
+                "responses": {
+                    "200": {
+                        "description": "Retour remboursé"
+                    },
+                    "422": {
+                        "description": "Transition impossible ou montant trop élevé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/cash-closings/current": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Ce que la caisse du caissier connecté doit contenir depuis sa dernière clôture",
+                "operationId": "c45ebf8a615972fcbb672007342bf347",
+                "responses": {
+                    "200": {
+                        "description": "Période en cours"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/cash-closings": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Historique des clôtures de caisse",
+                "operationId": "8cc67d80ac9a73e8862020e7f89f61f6",
+                "responses": {
+                    "200": {
+                        "description": "Clôtures"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Clôture la caisse : fige le attendu, enregistre le compté et l'écart",
+                "operationId": "e91d58e4425b16a24c49d5a3bf140b4a",
+                "responses": {
+                    "201": {
+                        "description": "Caisse clôturée"
+                    },
+                    "422": {
+                        "description": "Rien à clôturer"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/cash-closings/{closing}/pdf": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Rapport de clôture de caisse en PDF",
+                "operationId": "7430932d08aebdb6b77034f3ce5bf4c2",
+                "responses": {
+                    "200": {
+                        "description": "Fichier PDF"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/internal-sales": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Dernières ventes internes avec leur reçu",
+                "operationId": "5729992a744895b2777f116ac99be802",
+                "responses": {
+                    "200": {
+                        "description": "Ventes internes"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Enregistre une vente au comptoir : commande livrée et payée sur-le-champ, reçu de paiement délivré",
+                "operationId": "3309b20e38b2916c674044b60f15eabf",
+                "responses": {
+                    "201": {
+                        "description": "Vente enregistrée"
+                    },
+                    "422": {
+                        "description": "Panier invalide, stock insuffisant, offre de vendeur tiers ou espèces insuffisantes"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/internal-sales/{orderNumber}/receipt": {
+            "get": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Reçu de paiement (PDF) d'une vente interne",
+                "operationId": "79520081ec79df18779f923803e0d4be",
+                "responses": {
+                    "200": {
+                        "description": "Fichier PDF"
+                    },
+                    "404": {
+                        "description": "Vente interne introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/internal-sales/{orderNumber}/cancel": {
+            "post": {
+                "tags": [
+                    "Sales"
+                ],
+                "summary": "Annule une vente interne : retour en stock, avoir, remboursement intégral et écritures inverses",
+                "operationId": "95d25871308a90468023654da982d8cf",
+                "responses": {
+                    "200": {
+                        "description": "Vente annulée"
+                    },
+                    "404": {
+                        "description": "Vente interne introuvable"
+                    },
+                    "422": {
+                        "description": "Déjà annulée ou hors délai de retour"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments": {
+            "get": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Liste les livraisons, filtrables par statut ou livreur assigné",
+                "operationId": "ab04f3f9fe00cc271ad5567ec9ec8560",
+                "responses": {
+                    "200": {
+                        "description": "Livraisons"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Crée une livraison pour une commande",
+                "operationId": "04762383c7fb5b875c93c040bf9610ce",
+                "responses": {
+                    "201": {
+                        "description": "Livraison créée"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments/{shipment}/assign": {
+            "post": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Assigne ou réassigne un livreur",
+                "operationId": "acd3679e8489670f372cb6ae545ad297",
+                "responses": {
+                    "200": {
+                        "description": "Livreur assigné"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments/{shipment}/start": {
+            "post": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Marque la livraison comme en cours (sortie du livreur)",
+                "operationId": "8f556aa1d99561633b972025c237028d",
+                "responses": {
+                    "200": {
+                        "description": "Livraison en cours"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments/{shipment}/deliver": {
+            "post": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Confirme la livraison avec le code remis au client (preuve de remise)",
+                "operationId": "5d93845b5f6ea0d2a109e527734c0967",
+                "responses": {
+                    "200": {
+                        "description": "Livraison confirmée"
+                    },
+                    "422": {
+                        "description": "Code incorrect, livraison verrouillée ou transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments/{shipment}/fail": {
+            "post": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Enregistre une tentative de livraison échouée",
+                "operationId": "fa136f8ed3ec549dddce1df05080c6fa",
+                "responses": {
+                    "200": {
+                        "description": "Tentative échouée enregistrée"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments/{shipment}/retry": {
+            "post": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Relance une nouvelle tentative après un échec",
+                "operationId": "93f990e173a725fd8e79af4d76bf0ee4",
+                "responses": {
+                    "200": {
+                        "description": "Nouvelle tentative en cours"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments/{shipment}/return": {
+            "post": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Retourne le colis (livraison abandonnée)",
+                "operationId": "37bf6a47b07fa500835dfb44ee0dd4ae",
+                "responses": {
+                    "200": {
+                        "description": "Colis retourné"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/shipments/{shipment}/delivery-note": {
+            "get": {
+                "tags": [
+                    "Shipping"
+                ],
+                "summary": "Bon de livraison en PDF : destinataire, articles à remettre, signatures (sans prix ni code de confirmation)",
+                "operationId": "0a4e547cd76e358bba7cc1ca8d03c0bb",
+                "responses": {
+                    "200": {
+                        "description": "Fichier PDF"
+                    },
+                    "404": {
+                        "description": "Livraison introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/vendors": {
+            "get": {
+                "tags": [
+                    "Vendors Admin"
+                ],
+                "summary": "Liste les candidatures et comptes vendeurs tiers",
+                "operationId": "3bb817d8c6681e70933f7ecf18603b3a",
+                "responses": {
+                    "200": {
+                        "description": "Vendeurs"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/vendors/{vendor}/approve": {
+            "post": {
+                "tags": [
+                    "Vendors Admin"
+                ],
+                "summary": "Valide une candidature vendeur",
+                "operationId": "77bbe29fa34625d0823df6d457c15c4c",
+                "responses": {
+                    "200": {
+                        "description": "Vendeur activé"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/vendors/{vendor}/suspend": {
+            "post": {
+                "tags": [
+                    "Vendors Admin"
+                ],
+                "summary": "Suspend un vendeur",
+                "operationId": "152e25777feafafd15e5dd1a21ea7253",
+                "responses": {
+                    "200": {
+                        "description": "Vendeur suspendu"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/admin/vendors/{vendor}/reactivate": {
+            "post": {
+                "tags": [
+                    "Vendors Admin"
+                ],
+                "summary": "Réactive un vendeur suspendu",
+                "operationId": "42ae74873ddea6fd5eb5786156bb1a59",
+                "responses": {
+                    "200": {
+                        "description": "Vendeur réactivé"
+                    },
+                    "422": {
+                        "description": "Transition impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/vendors/apply": {
+            "post": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Candidature vendeur tiers : crée un compte et un profil vendeur en attente de validation",
+                "operationId": "98078fa056c2aa2ecd62e87b0fa2c75f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone",
+                                    "password",
+                                    "password_confirmation",
+                                    "company_name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "company_name": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Candidature enregistrée, en attente de validation"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                }
+            }
+        },
+        "/vendors/me/offers": {
+            "get": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Liste les offres du vendeur connecté",
+                "operationId": "ed7a343de849b85d46f0bbe6d6d260bd",
+                "responses": {
+                    "200": {
+                        "description": "Offres du vendeur"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Soumet une nouvelle offre (envoyée en modération)",
+                "operationId": "c0bd6bc76038275fecd7718fe7ae5ab4",
+                "responses": {
+                    "201": {
+                        "description": "Offre soumise"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/vendors/me/offers/{offer}": {
+            "put": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Met à jour le prix/stock d'une offre du vendeur",
+                "operationId": "91f54198b69eeb07fb3864dc4f36615e",
+                "responses": {
+                    "200": {
+                        "description": "Offre mise à jour"
+                    },
+                    "404": {
+                        "description": "Offre introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Retire une offre du vendeur (archivage)",
+                "operationId": "8cdcf6ab09e7a36d417dac75456e864f",
+                "responses": {
+                    "204": {
+                        "description": "Offre archivée"
+                    },
+                    "404": {
+                        "description": "Offre introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/vendors/me/summary": {
+            "get": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Tableau de bord du vendeur connecté (commandes, offres, reversements)",
+                "operationId": "7f30a828801c19abef89afe24c0e7787",
+                "responses": {
+                    "200": {
+                        "description": "Synthèse"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/vendors/me/orders": {
+            "get": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Commandes contenant des articles du vendeur (ses lignes uniquement)",
+                "operationId": "d60328c3efce4f884e7c070c06c27a5b",
+                "responses": {
+                    "200": {
+                        "description": "Commandes du vendeur"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/vendors/me/orders/{orderNumber}/ship": {
+            "post": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Le vendeur marque sa part de la commande comme expédiée (confirmée → expédiée)",
+                "operationId": "61d7a4811863e0dd204467f495e6ae41",
+                "responses": {
+                    "200": {
+                        "description": "Part expédiée"
+                    },
+                    "404": {
+                        "description": "Commande sans article de ce vendeur"
+                    },
+                    "422": {
+                        "description": "La part n'est pas expédiable dans son état actuel"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/vendors/me/payouts": {
+            "get": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Reversements du vendeur connecté",
+                "operationId": "6c1795e2131d84f0d0ede799bd5007c6",
+                "responses": {
+                    "200": {
+                        "description": "Reversements"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/vendors/me/payouts/{payout}": {
+            "get": {
+                "tags": [
+                    "Vendors"
+                ],
+                "summary": "Relevé détaillé d'un reversement du vendeur connecté",
+                "operationId": "a6e64805d62b60438230e27984b2580d",
+                "responses": {
+                    "200": {
+                        "description": "Relevé"
+                    },
+                    "404": {
+                        "description": "Introuvable (ou appartenant à un autre vendeur)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "bearerFormat": "Sanctum personal access token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Comptes, authentification (cahier des charges §5.1, §10.1 — module Identity)"
+        },
+        {
+            "name": "Catalog",
+            "description": "Catégories, produits, offres (cahier des charges §5.2, §5.3, §6.1 — module Catalog)"
+        },
+        {
+            "name": "Orders",
+            "description": "Panier et commandes, paiement à la livraison (cahier des charges §5.4, §5.5 — module Orders)"
+        },
+        {
+            "name": "Accounting",
+            "description": "Accounting"
+        },
+        {
+            "name": "Audit",
+            "description": "Audit"
+        },
+        {
+            "name": "Catalog Admin",
+            "description": "Catalog Admin"
+        },
+        {
+            "name": "Support",
+            "description": "Support"
+        },
+        {
+            "name": "Reviews",
+            "description": "Reviews"
+        },
+        {
+            "name": "Accès",
+            "description": "Accès"
+        },
+        {
+            "name": "Inventory",
+            "description": "Inventory"
+        },
+        {
+            "name": "Invoicing",
+            "description": "Invoicing"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
+        },
+        {
+            "name": "Payments",
+            "description": "Payments"
+        },
+        {
+            "name": "Payouts",
+            "description": "Payouts"
+        },
+        {
+            "name": "Procurement",
+            "description": "Procurement"
+        },
+        {
+            "name": "Promotions",
+            "description": "Promotions"
+        },
+        {
+            "name": "Codes QR",
+            "description": "Codes QR"
+        },
+        {
+            "name": "Reporting",
+            "description": "Reporting"
+        },
+        {
+            "name": "Returns",
+            "description": "Returns"
+        },
+        {
+            "name": "Sales",
+            "description": "Sales"
+        },
+        {
+            "name": "Shipping",
+            "description": "Shipping"
+        },
+        {
+            "name": "Vendors Admin",
+            "description": "Vendors Admin"
+        },
+        {
+            "name": "Vendors",
+            "description": "Vendors"
+        }
+    ]
+}
