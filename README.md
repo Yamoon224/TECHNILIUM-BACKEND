@@ -27,7 +27,7 @@ php artisan serve          # http://localhost:8000
 
 Documentation API interactive : `php artisan l5-swagger:generate` puis http://localhost:8000/api/documentation
 
-Compte de démonstration après le seed : `admin@technilium.app` / `password` (rôle `administrateur`), plus un petit catalogue (2 catégories, 3 produits avec offre publiée).
+Comptes de démonstration après le seed (tous avec le mot de passe `password`, à changer hors local) : `admin@technilium.app` (`administrateur`), `superadmin@technilium.app` et un compte par profil, de la forme `<role>@technilium.app` avec le `_` du rôle remplacé par `.` (ex. `gestionnaire.catalogue@technilium.app`, `client@technilium.app`), plus un petit catalogue (2 catégories, 3 produits avec offre publiée).
 
 ## Qualité
 

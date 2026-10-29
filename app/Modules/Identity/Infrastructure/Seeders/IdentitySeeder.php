@@ -43,5 +43,26 @@ class IdentitySeeder extends Seeder
         if (! $super->hasRole(RoleEnum::SuperAdmin->value)) {
             $super->assignRole(RoleEnum::SuperAdmin->value);
         }
+
+        // One demo account per remaining profile (<role>@technilium.app / password), to try each
+        // backoffice view and the storefront. Existing accounts are left untouched (password included).
+        foreach (RoleEnum::cases() as $role) {
+            if (in_array($role, [RoleEnum::SuperAdmin, RoleEnum::Administrateur], true)) {
+                continue;
+            }
+
+            $user = User::query()->firstOrCreate(
+                ['email' => str_replace('_', '.', $role->value).'@technilium.app'],
+                [
+                    'name' => $role->label().' (démo)',
+                    'password' => 'password',
+                    'email_verified_at' => now(),
+                ],
+            );
+
+            if (! $user->hasRole($role->value)) {
+                $user->assignRole($role->value);
+            }
+        }
     }
 }
