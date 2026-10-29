@@ -12,7 +12,7 @@
     .swagger-ui .topbar { background: var(--t-black); border-bottom: 3px solid var(--t-gold); padding: 10px 0; }
     .swagger-ui .topbar a { font-size: 0; }
     .swagger-ui .topbar .topbar-wrapper .link { display: flex; align-items: center; gap: 10px; }
-    .swagger-ui .topbar .topbar-wrapper .link img { display: none; }
+    .swagger-ui .topbar .topbar-wrapper .link img, .swagger-ui .topbar .topbar-wrapper .link svg { display: none; }
     .swagger-ui .topbar .topbar-wrapper .link::before {
         content: ""; width: 36px; height: 36px; background: url("{{ asset('brand/logo.png') }}") center / cover; border-radius: 6px;
     }

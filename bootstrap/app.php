@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Behind a TLS-terminating proxy the app sees plain http: trust X-Forwarded-* so generated
+        // URLs (Swagger assets, docs JSON) keep the https scheme instead of being blocked as mixed content.
+        $middleware->trustProxies(at: '*');
+
         // Same reasoning as shouldRenderJsonWhen below: there is no "login"
         // web route in this API-only backend, so the framework's default
         // guest redirect (route('login')) must never be resolved.
