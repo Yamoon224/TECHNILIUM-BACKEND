@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Modules\Catalog\Http\Controllers\Admin\BannerAdminController;
 use App\Modules\Catalog\Http\Controllers\Admin\CategoryAdminController;
 use App\Modules\Catalog\Http\Controllers\Admin\OfferModerationController;
 use App\Modules\Catalog\Http\Controllers\Admin\ProductAdminController;
+use App\Modules\Catalog\Http\Controllers\BannerController;
 use App\Modules\Catalog\Http\Controllers\CategoryController;
 use App\Modules\Catalog\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('catalog')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/banners', [BannerController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
 });
@@ -28,6 +31,11 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'can:manage-catalog'])->grou
     Route::post('/products/{product}/images', [ProductAdminController::class, 'addImage']);
     Route::post('/products/{product}/images/{image}/cover', [ProductAdminController::class, 'setCover']);
     Route::delete('/products/{product}/images/{image}', [ProductAdminController::class, 'deleteImage']);
+
+    Route::get('/banners', [BannerAdminController::class, 'index']);
+    Route::post('/banners', [BannerAdminController::class, 'store']);
+    Route::put('/banners/{banner}', [BannerAdminController::class, 'update']);
+    Route::delete('/banners/{banner}', [BannerAdminController::class, 'destroy']);
 
     Route::get('/offers', [OfferModerationController::class, 'index']);
     Route::post('/offers/{offer}/approve', [OfferModerationController::class, 'approve']);
