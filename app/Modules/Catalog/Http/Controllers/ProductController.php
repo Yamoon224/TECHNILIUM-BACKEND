@@ -43,10 +43,17 @@ class ProductController extends Controller
             )
             ->when(
                 $request->string('search')->isNotEmpty(),
-                fn ($query) => $query->where(function ($query) use ($request) {
-                    $term = '%'.$request->string('search')->toString().'%';
-                    $query->where('name', 'like', $term)->orWhere('name_en', 'like', $term)->orWhere('brand', 'like', $term);
-                }),
+                function ($query) use ($request) {
+                    // The storefront shows "brand + name", so shoppers type words from both:
+                    // every word must match the name or the brand, in any order.
+                    $words = preg_split('/\s+/', trim($request->string('search')->toString()), -1, PREG_SPLIT_NO_EMPTY);
+                    foreach ($words as $word) {
+                        $term = '%'.addcslashes($word, '%_\\').'%';
+                        $query->where(fn ($q) => $q->where('name', 'like', $term)
+                            ->orWhere('name_en', 'like', $term)
+                            ->orWhere('brand', 'like', $term));
+                    }
+                },
             )
             ->orderByDesc('id')
             ->paginate(max(1, min($request->integer('per_page', 20), 100)));
