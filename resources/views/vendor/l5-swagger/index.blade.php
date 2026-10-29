@@ -4,8 +4,33 @@
     <meta charset="UTF-8">
     <title>{{ $documentationTitle }}</title>
     <link rel="stylesheet" type="text/css" href="{{ l5_swagger_asset($documentation, 'swagger-ui.css') }}">
-    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-32x32.png') }}" sizes="32x32"/>
-    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-16x16.png') }}" sizes="16x16"/>
+    <link rel="icon" type="image/png" href="{{ asset('brand/logo.png') }}">
+    <style>
+    /* Technilium brand: black and gold, from the logo. */
+    :root { --t-gold: #f5a800; --t-gold-deep: #d87810; --t-black: #050505; }
+    body { background: #fafafa; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .swagger-ui .topbar { background: var(--t-black); border-bottom: 3px solid var(--t-gold); padding: 10px 0; }
+    .swagger-ui .topbar a { font-size: 0; }
+    .swagger-ui .topbar .topbar-wrapper .link { display: flex; align-items: center; gap: 10px; }
+    .swagger-ui .topbar .topbar-wrapper .link img { display: none; }
+    .swagger-ui .topbar .topbar-wrapper .link::before {
+        content: ""; width: 36px; height: 36px; background: url("{{ asset('brand/logo.png') }}") center / cover; border-radius: 6px;
+    }
+    .swagger-ui .topbar .topbar-wrapper .link::after { content: "Technilium API"; color: var(--t-gold); font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+    .swagger-ui .topbar .download-url-wrapper input[type=text] { border: 2px solid var(--t-gold); }
+    .swagger-ui .topbar .download-url-wrapper .download-url-button { background: var(--t-gold); color: #111; font-weight: 600; }
+    .swagger-ui .info .title { color: var(--t-black); }
+    .swagger-ui .info .title small.version-stamp { background: var(--t-gold); }
+    .swagger-ui .info a, .swagger-ui a.nostyle { color: var(--t-gold-deep); }
+    .swagger-ui .btn.authorize { color: var(--t-gold-deep); border-color: var(--t-gold); }
+    .swagger-ui .btn.authorize svg { fill: var(--t-gold-deep); }
+    .swagger-ui .btn.execute { background: var(--t-gold); border-color: var(--t-gold); color: #111; }
+    .swagger-ui .btn.execute:hover { background: var(--t-gold-deep); }
+    .swagger-ui .opblock-tag { border-bottom-color: #e5e7eb; }
+    .swagger-ui .opblock-tag:hover { background: rgba(245, 168, 0, .08); }
+    .swagger-ui .scheme-container { box-shadow: 0 1px 0 #e5e7eb; }
+    .swagger-ui select { border-color: var(--t-gold); }
+    </style>
     <style>
     html
     {

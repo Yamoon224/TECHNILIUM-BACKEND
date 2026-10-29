@@ -9,7 +9,9 @@ use OpenApi\Attributes as OA;
 #[OA\Info(
     version: '1.0.0',
     title: 'Technilium API',
-    description: 'API REST du backend Technilium — marketplace de produits technologiques et backoffice de gestion.',
+    description: "API REST du backend Technilium — marketplace de produits technologiques et backoffice de gestion.
+
+Authentification : jeton Bearer (Sanctum). Obtenez un jeton via les routes Auth, puis cliquez sur « Authorize ». Paiement à la livraison ; montants en F CFA.",
 )]
 #[OA\Server(url: '/api/v1', description: 'Serveur courant')]
 #[OA\SecurityScheme(
