@@ -29,6 +29,7 @@ class AnnouncementResource extends JsonResource
             'starts_at' => $announcement->starts_at?->toIso8601String(),
             'ends_at' => $announcement->ends_at?->toIso8601String(),
             'is_active' => $announcement->is_active,
+            'archived_at' => $announcement->archived_at?->toIso8601String(),
             // Changes with every edit: the storefront shows an edited announcement again to visitors who closed the old one.
             'version' => $announcement->updated_at?->getTimestamp(),
         ];

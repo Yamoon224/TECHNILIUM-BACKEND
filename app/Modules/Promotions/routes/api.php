@@ -17,6 +17,8 @@ Route::prefix('admin/announcements')->middleware(['auth:sanctum', 'can:manage-pr
     Route::post('/', [AnnouncementAdminController::class, 'store']);
     // POST (not PUT): a multipart body is only parsed on POST.
     Route::post('/{announcement}', [AnnouncementAdminController::class, 'update']);
+    Route::post('/{announcement}/archive', [AnnouncementAdminController::class, 'archive']);
+    Route::post('/{announcement}/restore', [AnnouncementAdminController::class, 'restore']);
     Route::delete('/{announcement}', [AnnouncementAdminController::class, 'destroy']);
 });
 

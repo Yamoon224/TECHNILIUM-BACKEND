@@ -103,3 +103,21 @@ it('replaces the image on update only when a new one is sent, and deletes files 
     expect(Announcement::count())->toBe(0);
     Storage::disk('public')->assertMissing($new);
 });
+
+it('archives an announcement: no longer shown, kept in the admin list, and restorable', function () {
+    $id = postAnnouncement()->json('id');
+    $this->getJson('/api/v1/announcements')->assertJsonCount(1);
+
+    $staff = announcementStaff();
+    $this->actingAs($staff, 'sanctum')->postJson("/api/v1/admin/announcements/{$id}/archive")
+        ->assertOk()->assertJsonPath('archived_at', fn ($value) => $value !== null);
+
+    $this->app['auth']->forgetGuards();
+    $this->getJson('/api/v1/announcements')->assertJsonCount(0);
+    $this->actingAs($staff, 'sanctum')->getJson('/api/v1/admin/announcements')->assertJsonCount(1)->assertJsonPath('0.id', $id);
+
+    $this->actingAs($staff, 'sanctum')->postJson("/api/v1/admin/announcements/{$id}/restore")
+        ->assertOk()->assertJsonPath('archived_at', null);
+    $this->app['auth']->forgetGuards();
+    $this->getJson('/api/v1/announcements')->assertJsonCount(1);
+});

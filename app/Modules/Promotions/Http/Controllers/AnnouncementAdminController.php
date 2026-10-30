@@ -69,6 +69,34 @@ class AnnouncementAdminController extends Controller
         return new AnnouncementResource($announcement->refresh());
     }
 
+    #[OA\Post(
+        path: '/admin/announcements/{announcement}/archive',
+        summary: "Archive une annonce : elle n'est plus affichée mais reste dans l'historique",
+        security: [['sanctum' => []]],
+        tags: ['Promotions'],
+        responses: [new OA\Response(response: 200, description: 'Annonce archivée')],
+    )]
+    public function archive(Announcement $announcement): AnnouncementResource
+    {
+        $announcement->update(['archived_at' => $announcement->archived_at ?? now()]);
+
+        return new AnnouncementResource($announcement->refresh());
+    }
+
+    #[OA\Post(
+        path: '/admin/announcements/{announcement}/restore',
+        summary: "Sort une annonce de l'archive",
+        security: [['sanctum' => []]],
+        tags: ['Promotions'],
+        responses: [new OA\Response(response: 200, description: 'Annonce restaurée')],
+    )]
+    public function restore(Announcement $announcement): AnnouncementResource
+    {
+        $announcement->update(['archived_at' => null]);
+
+        return new AnnouncementResource($announcement->refresh());
+    }
+
     #[OA\Delete(
         path: '/admin/announcements/{announcement}',
         summary: 'Supprime une annonce et son image',

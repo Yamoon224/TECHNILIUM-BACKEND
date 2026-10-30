@@ -22,10 +22,11 @@ use Illuminate\Support\Facades\Storage;
  * @property CarbonInterface|null $starts_at
  * @property CarbonInterface|null $ends_at
  * @property bool $is_active
+ * @property CarbonInterface|null $archived_at
  */
 class Announcement extends Model
 {
-    protected $fillable = ['title', 'path', 'link_url', 'width', 'height', 'delay_seconds', 'starts_at', 'ends_at', 'is_active'];
+    protected $fillable = ['title', 'path', 'link_url', 'width', 'height', 'delay_seconds', 'starts_at', 'ends_at', 'is_active', 'archived_at'];
 
     protected function casts(): array
     {
@@ -36,6 +37,7 @@ class Announcement extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'is_active' => 'boolean',
+            'archived_at' => 'datetime',
         ];
     }
 
@@ -45,7 +47,7 @@ class Announcement extends Model
     }
 
     /**
-     * Active announcements whose period includes now (an open end means no limit).
+     * Active, not archived announcements whose period includes now (an open end means no limit).
      *
      * @param  Builder<Announcement>  $query
      * @return Builder<Announcement>
@@ -54,6 +56,7 @@ class Announcement extends Model
     {
         return $query
             ->where('is_active', true)
+            ->whereNull('archived_at')
             ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
             ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()));
     }
