@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Accounting;
 
+use App\Modules\Accounting\Application\Dashboard\AccountingSection;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use App\Modules\Accounting\Application\Listeners\PostInvoiceEntry;
 use App\Modules\Accounting\Application\Listeners\PostPaymentEntry;
 use App\Modules\Accounting\Application\Listeners\PostPayoutEntry;
@@ -21,7 +23,10 @@ use Illuminate\Support\ServiceProvider;
 
 class AccountingModuleServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->tag([AccountingSection::class], DashboardSection::class);
+    }
 
     public function boot(): void
     {

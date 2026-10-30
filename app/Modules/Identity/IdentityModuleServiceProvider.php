@@ -7,6 +7,8 @@ namespace App\Modules\Identity;
 use App\Modules\Identity\Application\Contracts\UserProvisioningInterface;
 use App\Modules\Identity\Application\Gateways\EloquentUserProvisioning;
 use App\Modules\Identity\Application\AccessResolver;
+use App\Modules\Identity\Application\Dashboard\AccessSection;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use App\Modules\Identity\Domain\AccessCatalogue;
 use App\Modules\Identity\Infrastructure\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -18,6 +20,7 @@ class IdentityModuleServiceProvider extends ServiceProvider
     {
         $this->app->singleton(AccessResolver::class);
         $this->app->bind(UserProvisioningInterface::class, EloquentUserProvisioning::class);
+        $this->app->tag([AccessSection::class], DashboardSection::class);
     }
 
     public function boot(): void

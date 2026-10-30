@@ -8,6 +8,8 @@ use App\Modules\Payouts\Application\Contracts\PayoutStatsInterface;
 use App\Modules\Payouts\Application\Contracts\VendorPayoutReaderInterface;
 use App\Modules\Payouts\Application\Gateways\EloquentPayoutStats;
 use App\Modules\Payouts\Application\Gateways\EloquentVendorPayoutReader;
+use App\Modules\Payouts\Application\Dashboard\PayoutsSection;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use Illuminate\Support\ServiceProvider;
 
 class PayoutsModuleServiceProvider extends ServiceProvider
@@ -16,6 +18,7 @@ class PayoutsModuleServiceProvider extends ServiceProvider
     {
         $this->app->bind(VendorPayoutReaderInterface::class, EloquentVendorPayoutReader::class);
         $this->app->bind(PayoutStatsInterface::class, EloquentPayoutStats::class);
+        $this->app->tag([PayoutsSection::class], DashboardSection::class);
     }
 
     public function boot(): void

@@ -26,6 +26,7 @@ class AnnouncementResource extends JsonResource
             'width' => $announcement->width,
             'height' => $announcement->height,
             'delay_seconds' => $announcement->delay_seconds,
+            'max_displays' => $announcement->max_displays,
             'starts_at' => $announcement->starts_at?->toIso8601String(),
             'ends_at' => $announcement->ends_at?->toIso8601String(),
             'is_active' => $announcement->is_active,

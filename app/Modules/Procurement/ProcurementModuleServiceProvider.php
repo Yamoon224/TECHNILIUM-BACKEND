@@ -6,10 +6,12 @@ namespace App\Modules\Procurement;
 
 use App\Modules\Procurement\Application\Contracts\CostOfSalesInterface;
 use App\Modules\Procurement\Application\Contracts\OfferCostInterface;
+use App\Modules\Procurement\Application\Dashboard\ProcurementSection;
 use App\Modules\Procurement\Application\Gateways\EloquentCostOfSales;
 use App\Modules\Procurement\Application\Gateways\EloquentOfferCost;
 use App\Modules\Procurement\Application\Listeners\RecognizeCostOfGoodsSold;
 use App\Modules\Procurement\Application\Listeners\ReverseCostOfGoodsSold;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use App\Modules\Shared\Events\OrderStatusChanged;
 use App\Modules\Shared\Events\ReturnReceived;
 use Illuminate\Support\Facades\Event;
@@ -21,6 +23,8 @@ class ProcurementModuleServiceProvider extends ServiceProvider
     {
         $this->app->bind(OfferCostInterface::class, EloquentOfferCost::class);
         $this->app->bind(CostOfSalesInterface::class, EloquentCostOfSales::class);
+
+        $this->app->tag([ProcurementSection::class], DashboardSection::class);
     }
 
     public function boot(): void

@@ -29,10 +29,25 @@ final class ReportingService
         private readonly InventoryGatewayInterface $inventory,
     ) {}
 
+    /** @var array<string, array<string, mixed>> summaries computed during this request, by period */
+    private array $summaries = [];
+
     /**
+     * The period summary; the dashboard blocks of one request share a single computation.
+     *
      * @return array<string, mixed>
      */
     public function dashboard(DateTimeInterface $from, DateTimeInterface $to): array
+    {
+        $key = $from->format('c').'|'.$to->format('c');
+
+        return $this->summaries[$key] ??= $this->computeDashboard($from, $to);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function computeDashboard(DateTimeInterface $from, DateTimeInterface $to): array
     {
         $salesByDay = $this->orders->salesByDay($from, $to);
         $revenue = array_sum(array_column($salesByDay, 'revenue'));

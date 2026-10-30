@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Sales;
 
+use App\Modules\Sales\Application\Dashboard\InternalSalesSection;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -13,7 +15,10 @@ use Illuminate\Support\ServiceProvider;
  */
 class SalesModuleServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->tag([InternalSalesSection::class], DashboardSection::class);
+    }
 
     public function boot(): void
     {

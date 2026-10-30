@@ -121,3 +121,9 @@ it('archives an announcement: no longer shown, kept in the admin list, and resto
     $this->app['auth']->forgetGuards();
     $this->getJson('/api/v1/announcements')->assertJsonCount(1);
 });
+
+it('stores an optional number of displays', function () {
+    postAnnouncement(['max_displays' => 3])->assertCreated()->assertJsonPath('max_displays', 3);
+    postAnnouncement(['max_displays' => ''])->assertCreated()->assertJsonPath('max_displays', null);
+    postAnnouncement(['max_displays' => 0])->assertUnprocessable()->assertJsonValidationErrors('max_displays');
+});

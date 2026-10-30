@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int $width
  * @property int $height
  * @property int $delay_seconds
+ * @property int|null $max_displays
  * @property CarbonInterface|null $starts_at
  * @property CarbonInterface|null $ends_at
  * @property bool $is_active
@@ -26,7 +27,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class Announcement extends Model
 {
-    protected $fillable = ['title', 'path', 'link_url', 'width', 'height', 'delay_seconds', 'starts_at', 'ends_at', 'is_active', 'archived_at'];
+    protected $fillable = ['title', 'path', 'link_url', 'width', 'height', 'delay_seconds', 'max_displays', 'starts_at', 'ends_at', 'is_active', 'archived_at'];
 
     protected function casts(): array
     {
@@ -34,6 +35,7 @@ class Announcement extends Model
             'width' => 'integer',
             'height' => 'integer',
             'delay_seconds' => 'integer',
+            'max_displays' => 'integer',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'is_active' => 'boolean',

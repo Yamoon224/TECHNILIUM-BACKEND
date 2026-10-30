@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Invoicing;
 
+use App\Modules\Invoicing\Application\Dashboard\InvoicesSection;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use App\Modules\Invoicing\Application\Listeners\CreditInvoiceOnReturnRefund;
 use App\Modules\Invoicing\Application\Listeners\EmailInvoiceToCustomer;
 use App\Modules\Invoicing\Application\Listeners\IssueInvoiceOnConfirmation;
@@ -15,7 +17,10 @@ use Illuminate\Support\ServiceProvider;
 
 class InvoicingModuleServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->tag([InvoicesSection::class], DashboardSection::class);
+    }
 
     public function boot(): void
     {

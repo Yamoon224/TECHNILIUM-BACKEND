@@ -12,6 +12,8 @@ use App\Modules\Catalog\Application\Gateways\EloquentCheckoutGateway;
 use App\Modules\Catalog\Application\Gateways\EloquentInventoryGateway;
 use App\Modules\Catalog\Application\Gateways\EloquentProductLookup;
 use App\Modules\Catalog\Application\Gateways\EloquentVendorOfferGateway;
+use App\Modules\Catalog\Application\Dashboard\CatalogSection;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use Illuminate\Support\ServiceProvider;
 
 class CatalogModuleServiceProvider extends ServiceProvider
@@ -22,6 +24,8 @@ class CatalogModuleServiceProvider extends ServiceProvider
         $this->app->bind(VendorOfferGatewayInterface::class, EloquentVendorOfferGateway::class);
         $this->app->bind(InventoryGatewayInterface::class, EloquentInventoryGateway::class);
         $this->app->bind(ProductLookupInterface::class, EloquentProductLookup::class);
+
+        $this->app->tag([CatalogSection::class], DashboardSection::class);
     }
 
     public function boot(): void

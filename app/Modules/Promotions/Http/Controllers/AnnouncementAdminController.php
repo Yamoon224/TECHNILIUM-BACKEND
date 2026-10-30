@@ -123,6 +123,7 @@ class AnnouncementAdminController extends Controller
             'width' => $request->integer('width'),
             'height' => $request->integer('height'),
             'delay_seconds' => $request->integer('delay_seconds'),
+            'max_displays' => $request->filled('max_displays') ? $request->integer('max_displays') : null,
             'starts_at' => $request->input('starts_at') ?: null,
             'ends_at' => $request->input('ends_at') ?: null,
             'is_active' => $request->boolean('is_active', true),

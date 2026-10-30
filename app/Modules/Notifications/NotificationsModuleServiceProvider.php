@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Notifications;
 
+use App\Modules\Notifications\Application\Dashboard\NotificationsSection;
+use App\Modules\Shared\Dashboard\DashboardSection;
 use App\Modules\Notifications\Application\Listeners\NotifyOnOrderEvents;
 use App\Modules\Shared\Events\OrderPlaced;
 use App\Modules\Shared\Events\OrderStatusChanged;
@@ -14,7 +16,10 @@ use Illuminate\Support\ServiceProvider;
 
 class NotificationsModuleServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->tag([NotificationsSection::class], DashboardSection::class);
+    }
 
     public function boot(): void
     {

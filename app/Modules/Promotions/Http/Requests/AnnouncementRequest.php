@@ -30,6 +30,8 @@ class AnnouncementRequest extends FormRequest
             'width' => ['required', 'integer', 'min:100', 'max:2000'],
             'height' => ['required', 'integer', 'min:100', 'max:2000'],
             'delay_seconds' => ['required', 'integer', 'min:0', 'max:600'],
+            // Empty = shown until the visitor closes it.
+            'max_displays' => ['nullable', 'integer', 'min:1', 'max:100'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after:starts_at'],
             'is_active' => ['nullable', 'boolean'],
