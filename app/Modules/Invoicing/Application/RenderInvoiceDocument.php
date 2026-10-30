@@ -18,7 +18,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
  */
 class RenderInvoiceDocument
 {
-    /** The HTML the PDF is made from — kept separate so it can be inspected and tested. */
+    /** The HTML the PDF is made from - kept separate so it can be inspected and tested. */
     public function html(Invoice $invoice, string $locale = 'fr'): string
     {
         $invoice->loadMissing('lines');

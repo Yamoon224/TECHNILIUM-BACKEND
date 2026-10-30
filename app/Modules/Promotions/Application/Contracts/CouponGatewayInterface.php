@@ -12,7 +12,7 @@ use App\Modules\Promotions\Application\Data\CouponQuoteData;
  */
 interface CouponGatewayInterface
 {
-    /** What the coupon would take off — no side effect. */
+    /** What the coupon would take off - no side effect. */
     public function quote(string $code, int $subtotal, string $customerKey): CouponQuoteData;
 
     /**

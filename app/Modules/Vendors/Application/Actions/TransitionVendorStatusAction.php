@@ -10,7 +10,7 @@ use App\Modules\Vendors\Domain\VendorStatus;
 use App\Modules\Vendors\Infrastructure\Models\Vendor;
 
 /**
- * Single entry point for every vendor status change — mirrors Catalog's
+ * Single entry point for every vendor status change - mirrors Catalog's
  * TransitionOfferStatusAction so a status is never written outside of an
  * authorized transition.
  */

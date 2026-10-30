@@ -13,7 +13,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Management reports (cahier §6.14). Gated by can:view-reports —
+ * Management reports (cahier §6.14). Gated by can:view-reports -
  * administrateur or comptable. Read-only.
  */
 class ReportController extends Controller

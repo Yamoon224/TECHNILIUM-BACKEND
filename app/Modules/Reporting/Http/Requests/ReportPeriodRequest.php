@@ -26,7 +26,7 @@ class ReportPeriodRequest extends FormRequest
     }
 
     /**
-     * The inclusive reporting window — the last 30 days when unspecified.
+     * The inclusive reporting window - the last 30 days when unspecified.
      *
      * @return array{Carbon, Carbon}
      */

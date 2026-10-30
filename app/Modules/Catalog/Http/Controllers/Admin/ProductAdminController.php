@@ -24,7 +24,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Staff-facing catalog management (cahier §6.1 "PIM"). Gated by
- * can:manage-catalog — gestionnaire_catalogue or administrateur.
+ * can:manage-catalog - gestionnaire_catalogue or administrateur.
  *
  * Handles "simple" products: one variant, one Technilium (1P) offer per
  * product. Multi-vendor / multi-offer products belong to the Vendors module

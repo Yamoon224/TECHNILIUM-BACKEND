@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 /**
  * The order as its customer sees it: the same payload plus the delivery
  * confirmation code. Staff and courier endpoints use OrderResource, which
- * never carries the code — the courier must have to ask the customer for it.
+ * never carries the code - the courier must have to ask the customer for it.
  */
 class CustomerOrderResource extends OrderResource
 {

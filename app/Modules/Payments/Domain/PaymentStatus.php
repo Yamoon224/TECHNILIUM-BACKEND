@@ -6,7 +6,7 @@ namespace App\Modules\Payments\Domain;
 
 /**
  * Payment lifecycle (cahier §5.2 "paiement à la livraison / mobile money").
- * No live provider integration exists yet — a mobile money payment is
+ * No live provider integration exists yet - a mobile money payment is
  * confirmed manually by Comptable once the operator's SMS/USSD
  * confirmation is checked, the common pattern before a webhook
  * integration is trusted or available.
@@ -27,7 +27,7 @@ enum PaymentStatus: string
             self::Pending => [self::Completed, self::Failed],
             // A failed attempt is confirmed directly once the actual
             // transaction reference is found (e.g. a delayed mobile money
-            // confirmation) — there's no separate "retry" step/endpoint.
+            // confirmation) - there's no separate "retry" step/endpoint.
             self::Failed => [self::Completed],
             self::Completed => [self::Refunded],
             self::Refunded => [],

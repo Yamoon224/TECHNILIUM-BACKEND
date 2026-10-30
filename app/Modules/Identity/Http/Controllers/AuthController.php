@@ -164,7 +164,7 @@ class AuthController extends Controller
         $email = $request->string('email')->toString();
         $user = User::query()->where('email', $email)->first();
 
-        // Nothing is sent for an unknown or deactivated account — and nothing in the answer tells which.
+        // Nothing is sent for an unknown or deactivated account - and nothing in the answer tells which.
         if ($user !== null && $user->is_active) {
             Password::broker()->sendResetLink(['email' => $email]);
         }
@@ -189,7 +189,7 @@ class AuthController extends Controller
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password): void {
                 $user->forceFill(['password' => Hash::make($password), 'remember_token' => Str::random(60)])->save();
-                // Whoever knew the old password — or held a stolen session — is signed out everywhere.
+                // Whoever knew the old password - or held a stolen session - is signed out everywhere.
                 $user->tokens()->delete();
             },
         );

@@ -6,7 +6,7 @@ namespace App\Modules\Shared\Events;
 
 /**
  * Published by Invoicing when an invoice or credit note is issued; Accounting
- * turns it into journal entries (cahier §10.2). Amounts are positive — a
+ * turns it into journal entries (cahier §10.2). Amounts are positive - a
  * credit note is flagged, not negated.
  */
 final readonly class InvoiceIssued implements DomainEvent

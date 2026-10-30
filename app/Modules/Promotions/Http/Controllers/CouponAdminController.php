@@ -14,7 +14,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Coupon management (cahier §6.13). Gated by can:manage-promotions —
+ * Coupon management (cahier §6.13). Gated by can:manage-promotions -
  * marketing or administrateur. A coupon is never deleted (its redemptions
  * are history): it is deactivated.
  */

@@ -62,7 +62,7 @@ class AuditLog extends Model
     }
 
     /**
-     * The fields the signature covers — everything except the hashes themselves.
+     * The fields the signature covers - everything except the hashes themselves.
      *
      * @return array<string, mixed>
      */

@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Staff-facing catalog management (cahier §6.1 "PIM"). Gated by
- * can:manage-catalog — gestionnaire_catalogue or administrateur.
+ * can:manage-catalog - gestionnaire_catalogue or administrateur.
  */
 class CategoryAdminController extends Controller
 {

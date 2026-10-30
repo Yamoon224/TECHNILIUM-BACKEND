@@ -40,7 +40,7 @@ it('rejects roles that are backoffice-adjacent but not order management', functi
     $user->assignRole($role->value);
 
     // Vendeur tiers especially: an external party, must never see every
-    // order just by not being a "client" (cahier §4 — their own orders
+    // order just by not being a "client" (cahier §4 - their own orders
     // only, through a future vendor-scoped endpoint, not this one).
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/v1/orders')

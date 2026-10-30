@@ -81,7 +81,7 @@ final class IssueCreditNoteAction
                 }
             } else {
                 $creditNote->lines()->create([
-                    'description' => 'Avoir partiel — '.$reason,
+                    'description' => 'Avoir partiel - '.$reason,
                     'quantity' => 1,
                     'unit_price_amount' => $amount,
                     'line_total_amount' => $amount,

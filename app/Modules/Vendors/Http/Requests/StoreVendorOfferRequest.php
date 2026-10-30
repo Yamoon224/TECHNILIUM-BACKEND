@@ -20,7 +20,7 @@ class StoreVendorOfferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Vendors list against an existing, published product variant —
+            // Vendors list against an existing, published product variant -
             // only staff create new products (cahier §6.1), and a vendor
             // must not be able to attach a listing to a draft/archived one
             // just by guessing its id. Vendors can't touch Catalog's

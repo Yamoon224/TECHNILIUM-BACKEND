@@ -19,7 +19,7 @@ return new class extends Migration
             $table->index(['order_id', 'occurred_at']);
         });
 
-        // Orders that already exist: only what is known — when they were placed,
+        // Orders that already exist: only what is known - when they were placed,
         // and when they reached their current status (delivery date when delivered,
         // else the last update). Earlier intermediate steps cannot be recovered.
         DB::table('orders')->orderBy('id')->each(function ($order) {

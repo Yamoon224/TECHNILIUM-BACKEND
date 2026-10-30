@@ -10,7 +10,7 @@ use App\Modules\Shipping\Domain\ShipmentStatus;
 use App\Modules\Shipping\Infrastructure\Models\Shipment;
 
 /**
- * Single entry point for every shipment status change — mirrors Catalog's
+ * Single entry point for every shipment status change - mirrors Catalog's
  * TransitionOfferStatusAction so a status is never written outside of an
  * authorized transition.
  */
@@ -44,7 +44,7 @@ final class TransitionShipmentStatusAction
 
         $shipment->save();
 
-        // Best-effort sync back to Orders — see OrderLookupGatewayInterface.
+        // Best-effort sync back to Orders - see OrderLookupGatewayInterface.
         if ($target === ShipmentStatus::InTransit) {
             $this->orders->markShipped($shipment->order_number);
         } elseif ($target === ShipmentStatus::Delivered) {

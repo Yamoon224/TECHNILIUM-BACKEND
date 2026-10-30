@@ -111,7 +111,7 @@ it('delivers an in-transit shipment and syncs the order to delivered', function 
 });
 
 it('does not fail when the order cannot be synced to the shipment\'s new status', function () {
-    // Order stuck at Pending (never confirmed) — markShipped() is a no-op,
+    // Order stuck at Pending (never confirmed) - markShipped() is a no-op,
     // but the shipment itself still transitions.
     $order = Order::factory()->create(['status' => OrderStatus::Pending]);
     $shipment = Shipment::factory()->create(['order_number' => $order->order_number]);

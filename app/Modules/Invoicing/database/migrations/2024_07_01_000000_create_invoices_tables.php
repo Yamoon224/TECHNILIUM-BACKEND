@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('number')->unique();
             $table->string('type'); // invoice|credit_note
 
-            // No FK: Orders owns its table — cross-module links stay
+            // No FK: Orders owns its table - cross-module links stay
             // application-level (cahier §9.1).
             $table->string('order_number');
             // Set on a credit note only: the invoice it cancels. Unique, so

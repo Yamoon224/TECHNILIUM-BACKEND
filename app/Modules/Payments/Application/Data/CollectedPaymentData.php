@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Payments\Application\Data;
 
 /**
- * Payments' public, read-only view of a payment that was actually received —
+ * Payments' public, read-only view of a payment that was actually received -
  * what another module (Sales) needs to point at its receipt.
  */
 final readonly class CollectedPaymentData

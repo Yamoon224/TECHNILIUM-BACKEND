@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 /**
  * What a cashier's drawer should hold since their last closing.
  *
- * Sales still uncounted add to it; refunds of cancelled sales not yet counted take away from it —
+ * Sales still uncounted add to it; refunds of cancelled sales not yet counted take away from it -
  * including a sale cancelled today that was counted in an earlier closing, so a closing never
  * rewrites the past. A sale made and cancelled inside the same period nets to zero.
  */

@@ -19,7 +19,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Returns / RMA back-office (cahier §6.11). Gated by can:manage-returns —
+ * Returns / RMA back-office (cahier §6.11). Gated by can:manage-returns -
  * support or administrateur.
  */
 class ReturnController extends Controller

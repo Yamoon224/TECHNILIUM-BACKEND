@@ -7,7 +7,7 @@ return [
     'channels' => array_filter(array_map('trim', explode(',', (string) env('NOTIFICATIONS_CHANNELS', 'sms,email')))),
 
     // How each channel actually delivers. "log" records the message in the
-    // application log and the notifications table without calling anyone —
+    // application log and the notifications table without calling anyone -
     // swap in a provider driver here once one is chosen (see ChannelResolver).
     'drivers' => [
         'sms' => env('NOTIFICATIONS_SMS_DRIVER', 'log'),

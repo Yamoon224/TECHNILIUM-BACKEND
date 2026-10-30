@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
  * each line is checked (accepted vs refused at inspection), the landed costs
  * are allocated, the weighted-average cost of every accepted offer is updated,
  * and PurchaseReceived tells Inventory to stock the goods and Accounting to
- * book their value — all in one transaction.
+ * book their value - all in one transaction.
  */
 final class ReceiveGoodsAction
 {

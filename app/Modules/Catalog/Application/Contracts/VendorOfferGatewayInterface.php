@@ -8,8 +8,8 @@ use App\Modules\Catalog\Application\Data\VendorOfferData;
 
 /**
  * Catalog's public port for vendor self-service listing management. The
- * Vendors module depends on this interface only — never on Catalog's
- * Eloquent models — so the two modules communicate through a contract, not
+ * Vendors module depends on this interface only - never on Catalog's
+ * Eloquent models - so the two modules communicate through a contract, not
  * a SQL join (cahier §9.1).
  */
 interface VendorOfferGatewayInterface
@@ -38,7 +38,7 @@ interface VendorOfferGatewayInterface
     public function archiveOffer(int $offerId, int $vendorId): bool;
 
     /**
-     * Pulls every non-archived offer of a vendor off the storefront —
+     * Pulls every non-archived offer of a vendor off the storefront -
      * called when a vendor is suspended, so a revoked vendor can't keep
      * selling through listings that were already live.
      */

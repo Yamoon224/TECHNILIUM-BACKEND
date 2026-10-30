@@ -125,7 +125,7 @@ it('refuses to reveal an order to a request with the wrong phone (IDOR)', functi
         ['offer_id' => $offer->id, 'quantity' => 1],
     ]))->json();
 
-    // Same status as a non-existent order — must not confirm the order exists.
+    // Same status as a non-existent order - must not confirm the order exists.
     $this->getJson("/api/v1/orders/{$created['order_number']}?phone=0799999999")
         ->assertNotFound();
 });

@@ -16,8 +16,8 @@ use OpenApi\Attributes as OA;
 
 /**
  * A customer's own payment receipts. Ownership is the order's customer;
- * anything else — another customer's order, a guest order, an unknown number
- * or payment, a payment that was never received — answers 404, never 403.
+ * anything else - another customer's order, a guest order, an unknown number
+ * or payment, a payment that was never received - answers 404, never 403.
  */
 class CustomerReceiptController extends Controller
 {

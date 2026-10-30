@@ -50,7 +50,7 @@
 @endif
 
 <table class="rows">
-    <tr><td>{{ $t['method'] }}</td><td class="value">{{ $methodLabel }}@if ($provider) — {{ $provider }}@endif</td></tr>
+    <tr><td>{{ $t['method'] }}</td><td class="value">{{ $methodLabel }}@if ($provider) - {{ $provider }}@endif</td></tr>
     @if ($payment->provider_reference)
         <tr><td>{{ $t['reference'] }}</td><td class="value">{{ $payment->provider_reference }}</td></tr>
     @endif

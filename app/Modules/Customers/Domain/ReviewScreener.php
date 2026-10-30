@@ -8,7 +8,7 @@ namespace App\Modules\Customers\Domain;
  * Automatic half of review moderation (cahier §5.9 "modération automatique et
  * manuelle"): a clean review is published at once, one that looks like
  * advertising or leaks contact details waits for a person. It never rejects
- * on its own — a false positive only costs a delay, not a lost review.
+ * on its own - a false positive only costs a delay, not a lost review.
  */
 final class ReviewScreener
 {

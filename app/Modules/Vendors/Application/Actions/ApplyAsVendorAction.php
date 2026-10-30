@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * A vendor application provisions both a login (via Identity's public
- * contract, never its Eloquent models directly — cahier §9.1) and the
+ * contract, never its Eloquent models directly - cahier §9.1) and the
  * Vendor profile, starting pending until an administrator approves it.
  */
 final class ApplyAsVendorAction

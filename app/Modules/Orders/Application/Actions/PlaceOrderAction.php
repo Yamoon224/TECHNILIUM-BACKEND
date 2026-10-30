@@ -69,7 +69,7 @@ final class PlaceOrderAction
 
             // Redeemed inside this transaction: if anything below fails the
             // coupon use rolls back with the order. The discount is borne by
-            // Technilium — sub-orders (and so vendor payouts) stay at list price.
+            // Technilium - sub-orders (and so vendor payouts) stay at list price.
             $discount = 0;
             $appliedCode = null;
 

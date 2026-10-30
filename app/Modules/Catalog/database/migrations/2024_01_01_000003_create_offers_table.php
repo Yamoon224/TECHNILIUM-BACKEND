@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_variant_id')->constrained('product_variants')->cascadeOnDelete();
 
-            // No FK: the Vendors module owns the vendors table — cross-module
+            // No FK: the Vendors module owns the vendors table - cross-module
             // references stay application-level, never a SQL join (cahier §9.1).
             // null => vente en propre (1P / Technilium).
             $table->unsignedBigInteger('vendor_id')->nullable();

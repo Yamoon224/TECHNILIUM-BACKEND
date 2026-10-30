@@ -31,7 +31,7 @@ final class EloquentVendorOfferGateway implements VendorOfferGatewayInterface
             'warranty_months' => $data['warranty_months'] ?? 0,
             'stock_quantity' => $data['stock_quantity'],
             // Vendor-submitted listings go through moderation before going
-            // live (cahier §6.1 "file de validation") — unlike staff-entered
+            // live (cahier §6.1 "file de validation") - unlike staff-entered
             // catalog data, which publishes immediately.
             'status' => OfferStatus::PendingReview->value,
         ]);
@@ -60,7 +60,7 @@ final class EloquentVendorOfferGateway implements VendorOfferGatewayInterface
         $offer->save();
 
         // A live listing whose price or warranty changes goes back through
-        // moderation rather than updating silently — stock-only edits don't
+        // moderation rather than updating silently - stock-only edits don't
         // (cahier §6.1 "file de validation").
         if ($pricingChanged && $offer->status === OfferStatus::Published) {
             (new TransitionOfferStatusAction)->execute($offer, OfferStatus::PendingReview);

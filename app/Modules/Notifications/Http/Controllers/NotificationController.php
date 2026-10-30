@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Journal of customer messages (cahier §5.11 / §6.12) and manual retry of
- * failed ones. Gated by can:manage-notifications — support or administrateur.
+ * failed ones. Gated by can:manage-notifications - support or administrateur.
  */
 class NotificationController extends Controller
 {

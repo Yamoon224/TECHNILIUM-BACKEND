@@ -8,7 +8,7 @@ use App\Modules\Shared\ValueObjects\Currency;
 use App\Modules\Shared\ValueObjects\Money;
 
 /**
- * Catalog's public, read-only view of an offer for checkout purposes —
+ * Catalog's public, read-only view of an offer for checkout purposes -
  * the only shape other modules (Orders) are allowed to depend on. Never
  * expose Infrastructure\Models\Offer outside this module (cahier §9.1).
  */

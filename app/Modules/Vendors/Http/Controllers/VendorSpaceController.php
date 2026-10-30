@@ -18,7 +18,7 @@ use OpenApi\Attributes as OA;
 /**
  * Read-only vendor space (cahier §6.2): the vendor's own orders, payout
  * statements and a dashboard summary. Every query is scoped to the vendor
- * resolved from the authenticated user — never from the request — and other
+ * resolved from the authenticated user - never from the request - and other
  * modules are reached only through their public contracts.
  */
 class VendorSpaceController extends Controller
@@ -80,7 +80,7 @@ class VendorSpaceController extends Controller
                 'delivery_address' => $order->deliveryAddress,
                 'delivery_city' => $order->deliveryCity,
                 'currency' => $order->currency,
-                // The vendor's share only — not the whole (multi-vendor) order total.
+                // The vendor's share only - not the whole (multi-vendor) order total.
                 'vendor_subtotal_amount' => array_sum(array_map(fn ($l) => $l->lineTotalAmount, $order->lines)),
                 'delivered_at' => $order->deliveredAt,
                 'lines' => array_map(fn ($line) => [

@@ -20,7 +20,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * The support desk (cahier §6.12). Gated by can:manage-support — support or
+ * The support desk (cahier §6.12). Gated by can:manage-support - support or
  * administrateur.
  */
 class StaffTicketController extends Controller

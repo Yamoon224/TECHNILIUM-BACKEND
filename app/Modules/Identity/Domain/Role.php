@@ -6,7 +6,7 @@ namespace App\Modules\Identity\Domain;
 
 /**
  * The profiles enumerated in the cahier des charges §4. Backed by Spatie
- * laravel-permission roles of the same slug — this enum exists so the rest
+ * laravel-permission roles of the same slug - this enum exists so the rest
  * of the codebase references roles by name, never by a magic string.
  */
 enum Role: string

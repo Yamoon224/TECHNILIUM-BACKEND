@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Modules\Procurement\Domain;
 
 /**
- * Spreads a purchase's landed costs (transport, customs, handling — cahier
+ * Spreads a purchase's landed costs (transport, customs, handling - cahier
  * §6.4 "coût de revient réel") over what is actually received, so each
  * receipt carries its fair share and the shares add up to exactly the total
  * once everything is received, with no minor unit lost or invented.
  *
  * The share is what SHOULD have been allocated once this receipt is counted
  * (cumulative received value / goods total x landed total), minus what earlier
- * receipts ACTUALLY carried. Comparing to what was really allocated — not to a
- * recomputation — is what makes a cost added after a first receipt catch up on
+ * receipts ACTUALLY carried. Comparing to what was really allocated - not to a
+ * recomputation - is what makes a cost added after a first receipt catch up on
  * the next one instead of being lost.
  */
 final class LandedCostAllocator

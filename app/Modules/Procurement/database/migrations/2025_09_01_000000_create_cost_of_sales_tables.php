@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // The cost of sales recognised when an order was delivered. It is what
-        // a later customer return may give back — never more.
+        // a later customer return may give back - never more.
         Schema::create('order_costs', function (Blueprint $table) {
             $table->unsignedBigInteger('order_id')->primary(); // no FK: Orders owns its table (cahier §9.1)
             $table->string('order_number')->unique();

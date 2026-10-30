@@ -11,7 +11,7 @@ use App\Modules\Shared\Events\PaymentSettled;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Single entry point for every payment status change — mirrors Catalog's
+ * Single entry point for every payment status change - mirrors Catalog's
  * TransitionOfferStatusAction so a status is never written outside of an
  * authorized transition.
  */

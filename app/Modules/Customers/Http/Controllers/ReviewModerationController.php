@@ -16,7 +16,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Manual moderation of reviews (cahier §5.9). Gated by can:manage-reviews —
+ * Manual moderation of reviews (cahier §5.9). Gated by can:manage-reviews -
  * support, marketing or administrateur.
  */
 class ReviewModerationController extends Controller

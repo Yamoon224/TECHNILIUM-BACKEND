@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('rating'); // 1-5
             $table->string('title')->nullable();
             $table->text('body')->nullable();
-            // Shown publicly, e.g. "Awa D." — a snapshot, never the full name.
+            // Shown publicly, e.g. "Awa D." - a snapshot, never the full name.
             $table->string('author_name');
 
             $table->string('status')->default('pending');

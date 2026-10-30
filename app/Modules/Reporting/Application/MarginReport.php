@@ -17,7 +17,7 @@ use DateTimeInterface;
  * deliberately out: this is Technilium's own merchandise only.
  *
  * Margin is on DELIVERED orders, before returns; returns are reported beside
- * it, not netted — a refund covers a whole order, not just own-stock lines.
+ * it, not netted - a refund covers a whole order, not just own-stock lines.
  */
 final class MarginReport
 {

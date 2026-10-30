@@ -42,7 +42,7 @@
 <div class="rule"></div>
 <table>
     <tr><td class="big">{{ $t['amount'] }}</td><td class="right big">{{ $amount }}</td></tr>
-    <tr><td>{{ $t['method'] }}</td><td class="right">{{ $methodLabel }}@if ($provider) — {{ $provider }}@endif</td></tr>
+    <tr><td>{{ $t['method'] }}</td><td class="right">{{ $methodLabel }}@if ($provider) - {{ $provider }}@endif</td></tr>
     @if ($payment->provider_reference)
         <tr><td>{{ $t['reference'] }}</td><td class="right">{{ $payment->provider_reference }}</td></tr>
     @endif

@@ -47,14 +47,14 @@ it('identifies a product by its SKU, an order, an invoice and a supply', functio
     qrUser(Role::Administrateur);
 
     $this->getJson('/api/v1/admin/qrcodes/payload?kind=product&reference=MON-27-BK')->assertOk()
-        ->assertJsonPath('payload', 'TECHNILIUM:PRODUCT:MON-27-BK')->assertJsonPath('caption', 'Écran 27 pouces — MON-27-BK');
+        ->assertJsonPath('payload', 'TECHNILIUM:PRODUCT:MON-27-BK')->assertJsonPath('caption', 'Écran 27 pouces - MON-27-BK');
     $this->getJson("/api/v1/admin/qrcodes/payload?kind=order&reference={$order->order_number}")->assertOk()
         ->assertJsonPath('payload', "TECHNILIUM:ORDER:{$order->order_number}");
     $this->getJson("/api/v1/admin/qrcodes/payload?kind=invoice&reference={$invoice->number}")->assertOk()
         ->assertJsonPath('payload', "TECHNILIUM:INVOICE:{$invoice->number}");
     $number = sprintf('BC-%06d', $supplyId);
     $this->getJson("/api/v1/admin/qrcodes/payload?kind=supply&reference={$number}")->assertOk()
-        ->assertJsonPath('payload', "TECHNILIUM:SUPPLY:{$number}")->assertJsonPath('caption', "Approvisionnement {$number} — Dakar Import");
+        ->assertJsonPath('payload', "TECHNILIUM:SUPPLY:{$number}")->assertJsonPath('caption', "Approvisionnement {$number} - Dakar Import");
     $this->getJson("/api/v1/admin/qrcodes/payload?kind=supply&reference={$supplyId}")->assertOk();
 });
 

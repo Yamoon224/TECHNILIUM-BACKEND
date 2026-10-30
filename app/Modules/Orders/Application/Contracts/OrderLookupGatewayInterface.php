@@ -21,13 +21,13 @@ interface OrderLookupGatewayInterface
      * Best-effort: moves the order to "shipped" if that transition is
      * currently legal, false otherwise (e.g. already shipped by another
      * path, or still pending). Callers don't need to fail on a false
-     * return — order status and shipment tracking are allowed to drift
+     * return - order status and shipment tracking are allowed to drift
      * slightly, this is just a convenience sync.
      */
     public function markShipped(string $orderNumber): bool;
 
     /**
-     * A vendor's shares that were delivered at or before the cutoff — i.e.
+     * A vendor's shares that were delivered at or before the cutoff - i.e.
      * past the return window. Sub-orders are the unit; an order placed
      * before sub-orders existed is read from its lines once it is delivered.
      *
@@ -37,8 +37,8 @@ interface OrderLookupGatewayInterface
 
     /**
      * The most recent orders containing at least one line sold by the vendor.
-     * Each summary carries ONLY that vendor's lines — never another vendor's
-     * — and the status / delivery date of that vendor's own sub-order, so the
+     * Each summary carries ONLY that vendor's lines - never another vendor's
+     * - and the status / delivery date of that vendor's own sub-order, so the
      * result is safe to show to the vendor (cahier §8 cloisonnement).
      *
      * @return list<OrderSummaryData>

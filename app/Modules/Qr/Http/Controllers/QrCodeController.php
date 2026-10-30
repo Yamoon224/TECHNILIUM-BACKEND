@@ -13,7 +13,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * What a QR code says: `TECHNILIUM:<KIND>:<REFERENCE>`, the same text a barcode scanner or the
- * back-office search can read back. The record must exist (looked up by table name — this module
+ * back-office search can read back. The record must exist (looked up by table name - this module
  * never reaches into another module's models), and the caller needs the ability that already
  * guards that kind of record, on top of the QR feature itself.
  */
@@ -80,7 +80,7 @@ class QrCodeController extends Controller
             ->where('product_variants.sku', $sku)
             ->value('products.name');
 
-        return $name === null ? null : "{$name} — {$sku}";
+        return $name === null ? null : "{$name} - {$sku}";
     }
 
     private function supplyCaption(int $id): ?string
@@ -88,7 +88,7 @@ class QrCodeController extends Controller
         $row = DB::table('purchase_orders')->join('suppliers', 'suppliers.id', '=', 'purchase_orders.supplier_id')
             ->where('purchase_orders.id', $id)->first(['suppliers.name as supplier']);
 
-        return $row === null ? null : sprintf('Approvisionnement BC-%06d — %s', $id, $row->supplier);
+        return $row === null ? null : sprintf('Approvisionnement BC-%06d - %s', $id, $row->supplier);
     }
 
     /** The caption when the record exists; the lookup returns null for none (a customer name is never null). */

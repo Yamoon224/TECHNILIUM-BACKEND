@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 /**
  * VAT rate expressed in basis points (1/100th of a percent) to avoid float
- * drift — e.g. 1800 = 18.00%.
+ * drift - e.g. 1800 = 18.00%.
  */
 final readonly class TauxTVA
 {

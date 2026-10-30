@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Technilium API",
-        "description": "API REST du backend Technilium — marketplace de produits technologiques et backoffice de gestion.\r\n\r\nAuthentification : jeton Bearer (Sanctum). Obtenez un jeton via les routes Auth, puis cliquez sur « Authorize ». Paiement à la livraison ; montants en F CFA.",
+        "description": "API REST du backend Technilium - marketplace de produits technologiques et backoffice de gestion.\r\n\r\nAuthentification : jeton Bearer (Sanctum). Obtenez un jeton via les routes Auth, puis cliquez sur « Authorize ». Paiement à la livraison ; montants en F CFA.",
         "version": "1.0.0"
     },
     "servers": [
@@ -3325,15 +3325,15 @@
     "tags": [
         {
             "name": "Auth",
-            "description": "Comptes, authentification (cahier des charges §5.1, §10.1 — module Identity)"
+            "description": "Comptes, authentification (cahier des charges §5.1, §10.1 - module Identity)"
         },
         {
             "name": "Catalog",
-            "description": "Catégories, produits, offres (cahier des charges §5.2, §5.3, §6.1 — module Catalog)"
+            "description": "Catégories, produits, offres (cahier des charges §5.2, §5.3, §6.1 - module Catalog)"
         },
         {
             "name": "Orders",
-            "description": "Panier et commandes, paiement à la livraison (cahier des charges §5.4, §5.5 — module Orders)"
+            "description": "Panier et commandes, paiement à la livraison (cahier des charges §5.4, §5.5 - module Orders)"
         },
         {
             "name": "Accounting",

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Technilium API</title>
-    <meta name="description" content="API REST du backend Technilium — marketplace de produits technologiques.">
+    <meta name="description" content="API REST du backend Technilium - marketplace de produits technologiques.">
     <link rel="icon" type="image/png" href="{{ asset('brand/logo.png') }}">
     <style>
         :root {
@@ -84,6 +84,6 @@
         </section>
     </main>
 
-    <footer>&copy; {{ date('Y') }} Technilium — Produits vérifiés, garantie sur chaque appareil.</footer>
+    <footer>&copy; {{ date('Y') }} Technilium - Produits vérifiés, garantie sur chaque appareil.</footer>
 </body>
 </html>

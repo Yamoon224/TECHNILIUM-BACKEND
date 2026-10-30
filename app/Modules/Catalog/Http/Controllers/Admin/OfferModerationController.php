@@ -17,7 +17,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Vendor offer moderation ("file de validation", cahier §6.1). Gated by
- * can:manage-catalog — gestionnaire_catalogue or administrateur.
+ * can:manage-catalog - gestionnaire_catalogue or administrateur.
  */
 class OfferModerationController extends Controller
 {

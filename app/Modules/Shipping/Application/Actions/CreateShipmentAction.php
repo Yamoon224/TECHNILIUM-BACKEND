@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Snapshots the order's delivery details onto a new shipment (cahier's
- * established pattern — see Orders' order_items) via Orders' public
+ * established pattern - see Orders' order_items) via Orders' public
  * contract, never its Eloquent models (cahier §9.1).
  */
 final class CreateShipmentAction

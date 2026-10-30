@@ -9,7 +9,7 @@ use App\Modules\Catalog\Domain\Exceptions\InsufficientStockException;
 
 /**
  * Catalog's public port for the checkout flow. Orders depends on this
- * interface only — never on Catalog's Eloquent models — so the two
+ * interface only - never on Catalog's Eloquent models - so the two
  * modules communicate through a contract, not a SQL join (cahier §9.1).
  */
 interface CheckoutGatewayInterface

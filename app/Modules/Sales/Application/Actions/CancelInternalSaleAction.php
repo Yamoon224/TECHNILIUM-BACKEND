@@ -13,7 +13,7 @@ use App\Modules\Sales\Infrastructure\Models\InternalSale;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Cancels a counter sale: the whole sale goes back through the returns circuit in one go — the
+ * Cancels a counter sale: the whole sale goes back through the returns circuit in one go - the
  * articles return to stock and their cost of sales is reversed, the invoice is cancelled by a
  * credit note, the customer is refunded in full and the ledger reversed. Cancelling is a
  * refund, not an erasure: the order, invoice and receipt all stay on record.

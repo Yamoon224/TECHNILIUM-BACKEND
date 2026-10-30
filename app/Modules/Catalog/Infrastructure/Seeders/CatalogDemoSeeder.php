@@ -41,7 +41,7 @@ class CatalogDemoSeeder extends Seeder
                 'category_id' => $category->id,
                 'brand' => $brand,
                 'name' => "{$brand} {$model}",
-                'description' => "{$brand} {$model} — produit de démonstration.",
+                'description' => "{$brand} {$model} - produit de démonstration.",
                 'status' => ProductStatus::Published,
             ],
         );

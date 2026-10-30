@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 /**
  * A large, realistic tech catalogue to browse and load-test the shop: phones, tablets, laptops,
  * screens, TVs, audio and sound systems, cameras, gaming, watches, networking, printers, storage,
- * accessories and security — about 3 000 products with a variant and a published Technilium offer
+ * accessories and security - about 3 000 products with a variant and a published Technilium offer
  * each, French and English names and descriptions, stock, warranties, some reductions.
  *
  *   php artisan db:seed --class="App\Modules\Catalog\Infrastructure\Seeders\TechCatalogSeeder"

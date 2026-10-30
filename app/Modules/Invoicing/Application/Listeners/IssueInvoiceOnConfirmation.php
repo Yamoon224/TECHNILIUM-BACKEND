@@ -14,8 +14,8 @@ use Throwable;
  * Invoices a sale as soon as it is confirmed, so the customer finds the
  * document in their account without waiting for the accountant.
  *
- * Only an order that was never invoiced is touched: once a document exists —
- * even one since cancelled by a credit note — a corrected invoice stays the
+ * Only an order that was never invoiced is touched: once a document exists -
+ * even one since cancelled by a credit note - a corrected invoice stays the
  * accountant's decision. Switchable with INVOICING_AUTO_ISSUE.
  *
  * Side effect: it must never block the order's progress, so failures are

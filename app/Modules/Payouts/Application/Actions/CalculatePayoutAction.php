@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  * Builds a vendor's payout from each of its delivered shares (sub-orders)
  * past the return window that has not been paid yet: gross = the vendor's
  * lines, minus refunds, minus commission (cahier §6.8). Shares already in a
- * payout are skipped, so running it twice never pays twice — and one
+ * payout are skipped, so running it twice never pays twice - and one
  * vendor's delivery never waits for another vendor's.
  */
 final class CalculatePayoutAction

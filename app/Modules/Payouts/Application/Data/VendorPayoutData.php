@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Payouts\Application\Data;
 
 /**
- * Payouts' public, read-only view of a payout for the vendor it belongs to —
+ * Payouts' public, read-only view of a payout for the vendor it belongs to -
  * the only shape other modules (Vendors) may depend on (cahier §9.1).
  */
 final readonly class VendorPayoutData

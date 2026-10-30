@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * One step in an order's life: the (parent) status it reached, and when.
- * Append-only — written by OrderStatusLog, never edited.
+ * Append-only - written by OrderStatusLog, never edited.
  *
  * @property int $id
  * @property int $order_id

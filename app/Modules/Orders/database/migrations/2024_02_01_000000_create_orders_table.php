@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('order_number')->unique();
 
-            // Guest checkout supported (cahier §5.1) — no required FK to users.
+            // Guest checkout supported (cahier §5.1) - no required FK to users.
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->string('customer_name');
             $table->string('customer_phone');

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 /**
  * The vendor space is scoped to the authenticated user's own Active vendor
- * profile — the id never comes from the request, so a vendor cannot address
+ * profile - the id never comes from the request, so a vendor cannot address
  * another vendor's data (cahier §8).
  */
 trait ResolvesActiveVendor

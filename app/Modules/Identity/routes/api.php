@@ -19,7 +19,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-// Access management: features, custom groups, who belongs where — super admin only.
+// Access management: features, custom groups, who belongs where - super admin only.
 Route::prefix('admin/access')->middleware(['auth:sanctum', 'can:manage-access'])->group(function () {
     Route::get('/', [AccessController::class, 'index']);
     Route::get('/users', [AccessController::class, 'users']);

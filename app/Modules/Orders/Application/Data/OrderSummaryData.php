@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Orders\Application\Data;
 
 /**
- * Orders' public, read-only view of an order — the only shape other
+ * Orders' public, read-only view of an order - the only shape other
  * modules (Shipping) are allowed to depend on. Never expose
  * Infrastructure\Models\Order outside this module (cahier §9.1).
  */

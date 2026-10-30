@@ -14,7 +14,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Read-only view of the audit trail (cahier §6.15). Gated by can:view-audit —
+ * Read-only view of the audit trail (cahier §6.15). Gated by can:view-audit -
  * administrateur only. There is deliberately no write or delete endpoint.
  */
 class AuditController extends Controller

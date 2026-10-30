@@ -47,7 +47,7 @@
 <table class="lines">
     <thead>
         <tr>
-            <th>{{ $t['items'] }} — {{ $t['item'] }}</th>
+            <th>{{ $t['items'] }} - {{ $t['item'] }}</th>
             <th class="num">{{ $t['quantity'] }}</th>
         </tr>
     </thead>
@@ -67,7 +67,7 @@
 
 <table class="row sign" style="margin-top: 28px; border-collapse: separate; border-spacing: 8px 0;">
     <tr>
-        <td>{{ $t['receipt'] }} — {{ $t['customer_signature'] }}</td>
+        <td>{{ $t['receipt'] }} - {{ $t['customer_signature'] }}</td>
         <td>{{ $t['courier_signature'] }}</td>
     </tr>
 </table>

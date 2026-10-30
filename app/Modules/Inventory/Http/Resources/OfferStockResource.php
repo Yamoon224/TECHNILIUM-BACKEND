@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Wraps Catalog's public OfferStockData DTO — never its Eloquent Offer
+ * Wraps Catalog's public OfferStockData DTO - never its Eloquent Offer
  * model (cahier §9.1).
  */
 class OfferStockResource extends JsonResource

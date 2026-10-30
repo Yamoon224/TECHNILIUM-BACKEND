@@ -16,7 +16,7 @@
 </head>
 <body>
 @if ($logo !== '') <img src="{{ $logo }}" alt="{{ $company['name'] }}" style="height: 40px;"><br> @endif
-<h1>{{ $company['name'] }} — {{ $t['title'] }}</h1>
+<h1>{{ $company['name'] }} - {{ $t['title'] }}</h1>
 <div class="muted">
     {{ $t['number'] }} {{ $number }} · {{ $t['closed'] }} {{ $closing->closed_at->format('d/m/Y H:i') }}<br>
     {{ $t['cashier'] }} : {{ $cashier }}

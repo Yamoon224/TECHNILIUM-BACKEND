@@ -19,7 +19,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Manual stock adjustments and audit trail (cahier §7 "intégrité des
- * stocks"). Gated by can:manage-stock — gestionnaire_stock or administrateur.
+ * stocks"). Gated by can:manage-stock - gestionnaire_stock or administrateur.
  */
 class StockMovementController extends Controller
 {

@@ -6,7 +6,7 @@ namespace App\Modules\Catalog\Application\Data;
 
 /**
  * Catalog's public, read-only view of an offer for the Vendors module's
- * self-service listing management — the only shape Vendors is allowed to
+ * self-service listing management - the only shape Vendors is allowed to
  * depend on. Never expose Infrastructure\Models\Offer outside this module
  * (cahier §9.1).
  */

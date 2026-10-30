@@ -104,7 +104,7 @@ it('names the invoice a credit note cancels, and its reason', function () {
         'order_number' => $invoice->order_number, 'customer_name' => 'Awa Diallo', 'reason' => 'Produit retourné',
         'total_amount' => 59_000, 'net_amount' => 50_000, 'vat_amount' => 9_000, 'issued_at' => '2026-10-28 09:00:00',
     ]);
-    $credit->lines()->create(['description' => 'Avoir partiel — Produit retourné', 'quantity' => 1, 'unit_price_amount' => 59_000, 'line_total_amount' => 59_000]);
+    $credit->lines()->create(['description' => 'Avoir partiel - Produit retourné', 'quantity' => 1, 'unit_price_amount' => 59_000, 'line_total_amount' => 59_000]);
 
     // Blade escapes the apostrophe as &#039; (valid HTML, shown normally): compare the decoded text.
     $page = html_entity_decode(html($credit), ENT_QUOTES);
@@ -128,7 +128,7 @@ it('escapes untrusted text: a hostile customer name or reason cannot inject mark
 });
 
 it('still produces a PDF for a name with accents, quotes and symbols', function () {
-    $invoice = issuedInvoice(['customer_name' => "Élodie N'Guessan & Fils « SARL » — 100 %"]);
+    $invoice = issuedInvoice(['customer_name' => "Élodie N'Guessan & Fils « SARL » - 100 %"]);
 
     $pdf = app(RenderInvoiceDocument::class)->pdf($invoice);
 
@@ -138,7 +138,7 @@ it('still produces a PDF for a name with accents, quotes and symbols', function 
 it('prints the issuer from configuration, and the legal line only when it is set', function () {
     config(['invoicing.company' => [
         'name' => 'Technilium SARL', 'address' => 'Abidjan, Cocody', 'phone' => '+225 07 00 00 00 00',
-        'email' => 'facturation@technilium.example', 'legal' => 'RCCM CI-ABJ-2026-B-00000 — NCC 0000000A',
+        'email' => 'facturation@technilium.example', 'legal' => 'RCCM CI-ABJ-2026-B-00000 - NCC 0000000A',
     ]]);
 
     $page = html(issuedInvoice());

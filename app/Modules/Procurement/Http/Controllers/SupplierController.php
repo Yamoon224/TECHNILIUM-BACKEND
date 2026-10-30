@@ -14,7 +14,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Supplier records (cahier §6.4). Gated by can:manage-procurement —
+ * Supplier records (cahier §6.4). Gated by can:manage-procurement -
  * responsable achats or administrateur. A supplier is deactivated, never
  * deleted: its orders and invoices are history.
  */

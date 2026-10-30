@@ -9,7 +9,7 @@ use InvalidArgumentException;
 
 /**
  * Immutable monetary amount stored as an integer in the currency's smallest
- * unit (cahier des charges §7 "Intégrité financière" — never floats).
+ * unit (cahier des charges §7 "Intégrité financière" - never floats).
  *
  * Every rounding decision in the codebase must go through this class so a
  * calculation rule exists in exactly one place (§10.2).
@@ -65,7 +65,7 @@ final readonly class Money
     /**
      * Splits the amount into N parts whose sum exactly equals the original
      * amount, distributing the rounding remainder across the first parts
-     * (largest-remainder method) — used to split an order total across
+     * (largest-remainder method) - used to split an order total across
      * sub-orders/vendors without losing or inventing a single minor unit.
      *
      * @return list<self>

@@ -25,7 +25,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Delivery tracking (cahier §8). Gated by can:manage-shipments —
+ * Delivery tracking (cahier §8). Gated by can:manage-shipments -
  * logistique or administrateur.
  */
 class ShipmentController extends Controller

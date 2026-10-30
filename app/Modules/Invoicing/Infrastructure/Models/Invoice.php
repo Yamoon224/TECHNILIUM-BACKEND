@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * Issued fiscal document. Immutable once created (cahier §6.7): updates and
- * deletes throw — a correction is a credit note plus a new invoice.
+ * deletes throw - a correction is a credit note plus a new invoice.
  *
  * @property int $id
  * @property string $number

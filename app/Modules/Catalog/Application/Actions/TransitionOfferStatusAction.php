@@ -10,7 +10,7 @@ use App\Modules\Catalog\Infrastructure\Models\Offer;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Single entry point for every offer status change — mirrors the "machine à
+ * Single entry point for every offer status change - mirrors the "machine à
  * états" requirement (cahier §6.1 file de validation / §10.2) so a status
  * is never written to the database outside of an authorized transition.
  */

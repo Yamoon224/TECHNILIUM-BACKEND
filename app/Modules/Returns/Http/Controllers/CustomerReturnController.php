@@ -17,7 +17,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * A customer's own returns. Ownership is the order's customer; anything else
- * — someone else's order, a guest order, an unknown number — answers 404,
+ * - someone else's order, a guest order, an unknown number - answers 404,
  * never 403, so order numbers cannot be probed. The amount is never taken
  * from the customer: it follows from the articles they name.
  */

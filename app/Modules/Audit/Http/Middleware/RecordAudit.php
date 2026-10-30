@@ -14,8 +14,8 @@ use Throwable;
 
 /**
  * Records every state-changing request made by a back-office account (staff
- * and vendors; not customers or guests) — who, what, when, from where, and
- * whether it succeeded — including refused attempts (403/422), which are the
+ * and vendors; not customers or guests) - who, what, when, from where, and
+ * whether it succeeded - including refused attempts (403/422), which are the
  * interesting ones. Runs in terminate(), after the response is sent: it can
  * neither slow the user down nor fail the request, and the status code is known.
  */

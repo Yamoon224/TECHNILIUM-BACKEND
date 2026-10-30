@@ -15,7 +15,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Read-only ledger views (cahier §6.9). Entries are only ever produced by
- * domain events — there is deliberately no write endpoint yet (manual entries
+ * domain events - there is deliberately no write endpoint yet (manual entries
  * need the double-validation workflow).
  */
 class AccountingController extends Controller

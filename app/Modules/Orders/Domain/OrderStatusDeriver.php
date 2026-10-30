@@ -39,7 +39,7 @@ final class OrderStatusDeriver
     }
 
     /**
-     * True when live sub-orders are at different stages — shown to the
+     * True when live sub-orders are at different stages - shown to the
      * customer as "partiellement expédiée / livrée".
      *
      * @param  list<OrderStatus>  $subOrderStatuses

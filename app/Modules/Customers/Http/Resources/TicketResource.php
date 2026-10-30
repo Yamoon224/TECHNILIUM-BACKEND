@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * A ticket as its customer sees it: no internal notes, no assignee, no SLA —
+ * A ticket as its customer sees it: no internal notes, no assignee, no SLA -
  * staff details live in StaffTicketResource.
  */
 class TicketResource extends JsonResource

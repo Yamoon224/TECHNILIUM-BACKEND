@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
 
-            // No FK: Catalog owns the offers table — cross-module references
+            // No FK: Catalog owns the offers table - cross-module references
             // stay application-level (cahier §9.1). Pricing/name are snapshot
             // below so the order stays accurate even if the catalog changes later.
             $table->unsignedBigInteger('offer_id');

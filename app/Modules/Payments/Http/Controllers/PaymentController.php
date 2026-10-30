@@ -23,7 +23,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Payment records and manual mobile-money reconciliation (cahier §5.2).
- * Gated by can:manage-payments — comptable or administrateur.
+ * Gated by can:manage-payments - comptable or administrateur.
  */
 class PaymentController extends Controller
 {

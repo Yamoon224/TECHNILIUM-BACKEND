@@ -16,7 +16,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Vendor onboarding (cahier §4). Gated by can:manage-vendors — administrateur only.
+ * Vendor onboarding (cahier §4). Gated by can:manage-vendors - administrateur only.
  */
 class VendorAdminController extends Controller
 {

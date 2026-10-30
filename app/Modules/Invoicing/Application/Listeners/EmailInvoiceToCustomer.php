@@ -78,7 +78,7 @@ final class EmailInvoiceToCustomer implements ShouldHandleEventsAfterCommit
 
             Mail::send([], [], function (Message $message) use ($email, $invoice, $label, $body, $pdf, $filename, $english): void {
                 $message->to($email)
-                    ->subject(sprintf($english ? '%s — your %s %s' : '%s — votre %s %s', config('app.name'), $label, $invoice->number))
+                    ->subject(sprintf($english ? '%s - your %s %s' : '%s - votre %s %s', config('app.name'), $label, $invoice->number))
                     ->text($body)
                     ->attachData($pdf, $filename, ['mime' => 'application/pdf']);
             });

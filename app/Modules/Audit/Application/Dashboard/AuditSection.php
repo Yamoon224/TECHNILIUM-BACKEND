@@ -46,7 +46,7 @@ final class AuditSection implements DashboardSection
             ->get()
             ->map(fn (AuditLog $entry) => [
                 $entry->occurred_at->format('d/m/Y H:i'),
-                $entry->user_name ?: '—',
+                $entry->user_name ?: '-',
                 $entry->method.' '.strtok($entry->path, '?'),
                 $entry->status,
             ])

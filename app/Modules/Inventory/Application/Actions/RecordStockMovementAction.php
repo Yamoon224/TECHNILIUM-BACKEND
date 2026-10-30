@@ -9,8 +9,8 @@ use App\Modules\Inventory\Infrastructure\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Single entry point for every manual stock change — applies the delta on
- * Catalog's offer (via its public contract, never its Eloquent models —
+ * Single entry point for every manual stock change - applies the delta on
+ * Catalog's offer (via its public contract, never its Eloquent models -
  * cahier §9.1) and records the audit trail row atomically.
  */
 final class RecordStockMovementAction

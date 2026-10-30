@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Rings up a sale at the counter as one atomic business operation: the order is placed (stock
  * out, coupon redeemed), moved to delivered (invoice, cost of sales), and its payment collected
- * (ledger entry) — so the receipt exists the moment the sale does. Any failure rolls it all back.
+ * (ledger entry) - so the receipt exists the moment the sale does. Any failure rolls it all back.
  */
 final class RecordInternalSaleAction
 {

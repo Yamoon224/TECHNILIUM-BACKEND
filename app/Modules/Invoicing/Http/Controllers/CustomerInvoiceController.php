@@ -16,8 +16,8 @@ use OpenApi\Attributes as OA;
 
 /**
  * A customer's own invoices and credit notes. Ownership is the order's
- * customer; anything else — someone else's order, a guest order, an unknown
- * number — answers 404, never 403, so numbers cannot be probed.
+ * customer; anything else - someone else's order, a guest order, an unknown
+ * number - answers 404, never 403, so numbers cannot be probed.
  */
 class CustomerInvoiceController extends Controller
 {

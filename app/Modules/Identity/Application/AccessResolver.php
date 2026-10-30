@@ -13,7 +13,7 @@ use App\Modules\Identity\Infrastructure\Models\User;
  * Decides what an account may do, in one place, for the gates and for what the interface shows.
  *
  *  1. The super admin may do everything and cannot be switched off.
- *  2. A feature that is switched off for the user — or for one of their groups — is refused, and the
+ *  2. A feature that is switched off for the user - or for one of their groups - is refused, and the
  *     interface does not show it at all. A switch on the user wins over the switches of their groups,
  *     so one person can be given back what their group lost, or lose what it keeps.
  *  3. Otherwise the feature is allowed to the built-in profiles listed in AccessCatalogue and to the

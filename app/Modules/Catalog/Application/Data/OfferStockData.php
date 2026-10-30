@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Catalog\Application\Data;
 
 /**
- * Catalog's public, read-only view of an offer's stock level — the only
+ * Catalog's public, read-only view of an offer's stock level - the only
  * shape the Inventory module is allowed to depend on. Never expose
  * Infrastructure\Models\Offer outside this module (cahier §9.1).
  */

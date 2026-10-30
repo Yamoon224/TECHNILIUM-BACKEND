@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('vendors', function (Blueprint $table) {
             $table->id();
 
-            // No FK: Identity owns the users table — cross-module references
+            // No FK: Identity owns the users table - cross-module references
             // stay application-level, never a SQL join (cahier §9.1).
             $table->unsignedBigInteger('user_id')->unique();
 

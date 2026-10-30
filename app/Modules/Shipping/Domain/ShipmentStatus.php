@@ -6,7 +6,7 @@ namespace App\Modules\Shipping\Domain;
 
 /**
  * Delivery tracking (cahier §8 "logistique"). Independent of Orders'
- * own status — a shipment can be dispatched/retried/returned without
+ * own status - a shipment can be dispatched/retried/returned without
  * forcing Orders to model the same granularity, and nudges Orders'
  * status forward on a best-effort basis (see OrderLookupGatewayInterface).
  */

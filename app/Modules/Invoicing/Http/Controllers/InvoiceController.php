@@ -20,7 +20,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Invoices and credit notes (cahier §6.7). Gated by can:manage-invoices —
+ * Invoices and credit notes (cahier §6.7). Gated by can:manage-invoices -
  * comptable or administrateur. Documents are immutable: there is no update
  * or delete endpoint, only credit notes.
  */

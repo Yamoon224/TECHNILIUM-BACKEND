@@ -73,7 +73,7 @@ class OrderController extends Controller
         try {
             // Optional: a logged-in customer's token attaches the order to
             // their account (so it shows up on /orders/mine) without making
-            // auth required — guest checkout (cahier §5.1) still works.
+            // auth required - guest checkout (cahier §5.1) still works.
             $order = $this->placeOrder->execute(
                 $items,
                 $delivery,
@@ -104,7 +104,7 @@ class OrderController extends Controller
     {
         $order = Order::query()->where('order_number', $orderNumber)->with('items', 'subOrders.items', 'subOrders.statusEvents', 'statusEvents')->first();
 
-        // Same 404 whether the order doesn't exist or the phone doesn't match —
+        // Same 404 whether the order doesn't exist or the phone doesn't match -
         // the order number alone must never confirm an order's existence to a
         // third party (cahier §8 "lutte contre la fraude").
         if (! $order || ! hash_equals($order->customer_phone, $request->string('phone')->toString())) {

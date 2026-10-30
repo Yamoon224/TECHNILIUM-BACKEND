@@ -138,7 +138,7 @@ final class PostingSchemes
 
     /**
      * Returned resellable goods are back in stock: the cost of sales recognised
-     * for them is given back — the exact mirror of costOfGoodsSold().
+     * for them is given back - the exact mirror of costOfGoodsSold().
      *
      * @return list<EntryLine>
      */

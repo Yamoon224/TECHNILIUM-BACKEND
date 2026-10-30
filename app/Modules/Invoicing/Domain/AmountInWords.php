@@ -22,7 +22,7 @@ final class AmountInWords
 
     private const TENS = [2 => 'vingt', 3 => 'trente', 4 => 'quarante', 5 => 'cinquante', 6 => 'soixante'];
 
-    /** "cent dix-huit mille francs CFA" — first letter capitalised by the caller if wanted. */
+    /** "cent dix-huit mille francs CFA" - first letter capitalised by the caller if wanted. */
     public static function francsCfa(int $amount): string
     {
         $words = self::number($amount);

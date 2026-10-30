@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Promotions\Application\Data;
 
 /**
- * Promotions' public answer about a coupon — the only shape other modules
+ * Promotions' public answer about a coupon - the only shape other modules
  * (Orders) may depend on (cahier §9.1). `reason` explains a refusal and is
  * safe to show the customer.
  */

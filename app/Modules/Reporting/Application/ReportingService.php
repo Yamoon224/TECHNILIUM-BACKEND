@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Assembles the management reports (cahier §6.14) from each module's public
- * read-model contract — it never touches another module's tables or models.
+ * read-model contract - it never touches another module's tables or models.
  *
  * All amounts are reported in XOF minor units: multi-currency consolidation
  * is out of scope until exchange rates exist (cahier §6.15).

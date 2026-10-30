@@ -7,7 +7,7 @@ namespace App\Modules\Orders\Domain;
 /**
  * Simplified first pass at the order lifecycle. The cahier des charges
  * (§3.2) describes an 18-state machine with sub-orders per vendor, payment
- * confirmation, delivery attempts, returns and disputes — this is the
+ * confirmation, delivery attempts, returns and disputes - this is the
  * paiement-à-la-livraison-only subset needed for a first working checkout.
  * Extend (don't silently widen) when Payments/Shipping/Returns land.
  */

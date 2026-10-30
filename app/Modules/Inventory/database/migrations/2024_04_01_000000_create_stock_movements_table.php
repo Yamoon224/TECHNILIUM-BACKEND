@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             // No FK: Catalog owns the offers table, Identity owns the users
-            // table — cross-module references stay application-level, never
+            // table - cross-module references stay application-level, never
             // a SQL join (cahier §9.1).
             $table->unsignedBigInteger('offer_id');
             $table->unsignedBigInteger('created_by')->nullable();

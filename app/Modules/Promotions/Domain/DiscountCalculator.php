@@ -7,7 +7,7 @@ namespace App\Modules\Promotions\Domain;
 /**
  * The one place a discount is computed (cahier §10.2: a calculation rule
  * exists in a single spot). Integer arithmetic, rounding half up, and the
- * result never exceeds the amount discounted — an order can reach 0 but
+ * result never exceeds the amount discounted - an order can reach 0 but
  * never go negative.
  */
 final class DiscountCalculator

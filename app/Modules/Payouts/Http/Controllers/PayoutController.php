@@ -18,7 +18,7 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Vendor payouts (cahier §6.8). Gated by can:manage-payouts — comptable or
+ * Vendor payouts (cahier §6.8). Gated by can:manage-payouts - comptable or
  * administrateur.
  */
 class PayoutController extends Controller

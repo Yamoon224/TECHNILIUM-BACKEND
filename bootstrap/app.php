@@ -30,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // This is an API-only backend: there is no "login" web route to
         // redirect unauthenticated requests to. Laravel's default error
         // rendering only returns JSON when the client's Accept header
-        // says so (`expectsJson()`) — any other client hitting a
+        // says so (`expectsJson()`) - any other client hitting a
         // protected /api/* route crashes with a 500 (RouteNotFoundException
         // for "login") instead of a clean 401/404/422. Every /api/*
         // response must be JSON regardless of what the client sent.

@@ -10,7 +10,7 @@ use App\Modules\Orders\Application\Contracts\OrderLookupGatewayInterface;
 
 /**
  * Can this customer review this product? Yes only if a delivered order of
- * theirs contained it and they have not reviewed it yet — the check behind
+ * theirs contained it and they have not reviewed it yet - the check behind
  * "avis réservés aux acheteurs vérifiés" (cahier §5.9). Used both to tell the
  * storefront whether to show the form and to enforce it on submission.
  */

@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * A review as the public sees it: first name and initial only, no account
- * id, no order number — just the "verified purchase" badge.
+ * id, no order number - just the "verified purchase" badge.
  */
 class ReviewResource extends JsonResource
 {

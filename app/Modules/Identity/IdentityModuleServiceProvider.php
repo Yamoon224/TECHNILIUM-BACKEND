@@ -27,7 +27,7 @@ class IdentityModuleServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
-        // Named abilities other modules gate their routes on (`can:manage-orders`) — they depend on
+        // Named abilities other modules gate their routes on (`can:manage-orders`) - they depend on
         // the name only, never on this code. Who holds each one is decided by AccessResolver:
         // the profiles of cahier §4, the custom groups, and the feature switches of the super admin.
         foreach (AccessCatalogue::keys() as $ability) {

@@ -12,13 +12,13 @@ return new class extends Migration
             $table->id();
 
             // No FK: Orders owns the orders table, Identity owns the users
-            // table — cross-module references stay application-level, never
+            // table - cross-module references stay application-level, never
             // a SQL join (cahier §9.1). One shipment per order.
             $table->string('order_number')->unique();
             $table->unsignedBigInteger('assigned_to')->nullable();
 
             // Snapshotted from the order at creation (cahier's established
-            // pattern — see order_items) so this stays accurate even if the
+            // pattern - see order_items) so this stays accurate even if the
             // order's own delivery details are edited later.
             $table->string('customer_name');
             $table->string('customer_phone');

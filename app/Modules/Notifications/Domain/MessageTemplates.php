@@ -45,7 +45,7 @@ final class MessageTemplates
 
             return $deliveryCode === null
                 ? $message
-                : $message." Delivery code: {$deliveryCode} — only give it to the courier when you receive the parcel.";
+                : $message." Delivery code: {$deliveryCode} - only give it to the courier when you receive the parcel.";
         }
 
         $message = sprintf(
@@ -56,7 +56,7 @@ final class MessageTemplates
         );
 
         if ($deliveryCode !== null) {
-            $message .= " Code de livraison : {$deliveryCode} — ne le donnez au livreur qu'à la remise du colis.";
+            $message .= " Code de livraison : {$deliveryCode} - ne le donnez au livreur qu'à la remise du colis.";
         }
 
         return $message;

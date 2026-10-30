@@ -52,8 +52,8 @@ final class InvoiceDocumentLabels
             'total_gross_credit' => "Total de l'avoir TTC",
             'words_invoice' => 'Arrêté la présente facture à la somme de',
             'words_credit' => 'Arrêté le présent avoir à la somme de',
-            'footer_invoice' => 'Document de facturation émis par :issuer — n° :number. Un document émis ne se modifie pas : toute correction passe par un avoir.',
-            'footer_credit' => "Document d'avoir émis par :issuer — n° :number. Un document émis ne se modifie pas : toute correction passe par un avoir.",
+            'footer_invoice' => 'Document de facturation émis par :issuer - n° :number. Un document émis ne se modifie pas : toute correction passe par un avoir.',
+            'footer_credit' => "Document d'avoir émis par :issuer - n° :number. Un document émis ne se modifie pas : toute correction passe par un avoir.",
         ];
     }
 
@@ -84,8 +84,8 @@ final class InvoiceDocumentLabels
             'total_gross_credit' => 'Credit note total incl. VAT',
             'words_invoice' => 'This invoice is closed at the sum of',
             'words_credit' => 'This credit note is closed at the sum of',
-            'footer_invoice' => 'Invoice issued by :issuer — no. :number. An issued document cannot be changed: any correction is made through a credit note.',
-            'footer_credit' => 'Credit note issued by :issuer — no. :number. An issued document cannot be changed: any correction is made through a credit note.',
+            'footer_invoice' => 'Invoice issued by :issuer - no. :number. An issued document cannot be changed: any correction is made through a credit note.',
+            'footer_credit' => 'Credit note issued by :issuer - no. :number. An issued document cannot be changed: any correction is made through a credit note.',
         ];
     }
 }

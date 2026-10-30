@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 
 /**
  * Cart preview for the storefront: what a code would take off. Public but
- * throttled — it must not become a way to enumerate valid codes (refusals
+ * throttled - it must not become a way to enumerate valid codes (refusals
  * for unknown and disabled codes are deliberately identical).
  */
 class CouponQuoteController extends Controller

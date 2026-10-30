@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('return_requests', function (Blueprint $table) {
-            // [{offer_id, quantity}] — optional: a return may be a pure
+            // [{offer_id, quantity}] - optional: a return may be a pure
             // amount (goodwill) without naming articles.
             $table->json('items')->nullable();
             $table->boolean('restocked')->default(false);

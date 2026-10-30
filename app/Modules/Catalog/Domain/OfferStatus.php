@@ -23,7 +23,7 @@ enum OfferStatus: string
         return match ($this) {
             self::Draft => [self::PendingReview, self::Archived],
             // A vendor can withdraw a listing awaiting or denied moderation,
-            // not just a live one — otherwise it'd be stuck forever.
+            // not just a live one - otherwise it'd be stuck forever.
             self::PendingReview => [self::Published, self::Rejected, self::Archived],
             // A price/warranty change on a live listing goes back through
             // moderation rather than updating silently (cahier §6.1).

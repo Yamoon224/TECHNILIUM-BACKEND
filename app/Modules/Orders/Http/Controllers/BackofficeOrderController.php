@@ -16,9 +16,9 @@ use Illuminate\Routing\Controller;
 use OpenApi\Attributes as OA;
 
 /**
- * Staff-facing order management. Gated by auth:sanctum only for now — any
+ * Staff-facing order management. Gated by auth:sanctum only for now - any
  * authenticated backoffice account can see and move every order. Scoping to
- * roles (opérateur commandes, administrateur — cahier §4) is a follow-up
+ * roles (opérateur commandes, administrateur - cahier §4) is a follow-up
  * once Identity grows a real permissions/admin module (§6.15); don't assume
  * this is the final access model.
  */

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
 
-            // No FK: Orders owns the orders table — cross-module references
+            // No FK: Orders owns the orders table - cross-module references
             // stay application-level, never a SQL join (cahier §9.1).
             $table->string('order_number');
 

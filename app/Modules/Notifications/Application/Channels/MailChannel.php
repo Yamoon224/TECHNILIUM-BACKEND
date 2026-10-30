@@ -15,7 +15,7 @@ final class MailChannel implements NotificationChannelInterface
     public function send(string $recipient, string $body, string $locale = 'fr'): void
     {
         try {
-            $subject = config('app.name').($locale === 'en' ? ' — your order' : ' — votre commande');
+            $subject = config('app.name').($locale === 'en' ? ' - your order' : ' - votre commande');
 
             Mail::raw($body, function ($message) use ($recipient, $subject): void {
                 $message->to($recipient)->subject($subject);

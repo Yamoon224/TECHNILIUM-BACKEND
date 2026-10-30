@@ -6,7 +6,7 @@ namespace App\Modules\Returns\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/** A customer asks to send articles back: which ones and why — never an amount (it is computed). */
+/** A customer asks to send articles back: which ones and why - never an amount (it is computed). */
 class CustomerReturnRequest extends FormRequest
 {
     public function authorize(): bool

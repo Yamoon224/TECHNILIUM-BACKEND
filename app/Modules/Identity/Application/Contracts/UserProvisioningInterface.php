@@ -11,7 +11,7 @@ use Illuminate\Database\QueryException;
 /**
  * Identity's public port for creating accounts on behalf of other modules
  * (e.g. Vendors, when a vendor application also provisions a login). Callers
- * depend on this interface only — never on Identity's Eloquent models — so
+ * depend on this interface only - never on Identity's Eloquent models - so
  * the two modules communicate through a contract, not a SQL join (cahier §9.1).
  */
 interface UserProvisioningInterface
